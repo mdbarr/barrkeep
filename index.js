@@ -219,6 +219,10 @@ JSON.read = function(path) {
   });
 };
 
+JSON.write = function(path, object) {
+  return fs.writeFileSync(path, JSON.stringify(object, null, 2));
+};
+
 /**
  * Promise retry mechanisms
  */
@@ -295,30 +299,33 @@ Math.rand = function(min = 0, max = 10) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
-Object.defineProperty(Object.prototype, '_clone', {
-  value: function(deep = false) {
-    if (deep) {
-      return deepClone(this);
-    } else {
-      return JSON.parse(JSON.stringify(this));
+Object.clone = function(object, deep = false) {
+  if (deep) {
+    return deepClone(object);
+  } else {
+    return JSON.parse(JSON.stringify(object));
+  }
+};
+
+Object.deepClone = function(object) {
+  return deepClone(object);
+};
+
+Object.merge = function(objectA, objectB, createNew = false) {
+  return merge(objectA, objectB, createNew);
+};
+
+Object.resolve = function(object, path) {
+  const parts = path.stripWhitespace().split(/\./);
+
+  for (const part of parts) {
+    object = object[part];
+    if (!object) {
+      return undefined;
     }
-  },
-  enumerable: false
-});
-
-Object.defineProperty(Object.prototype, '_deepClone', {
-  value: function() {
-    return deepClone(this);
-  },
-  enumerable: false
-});
-
-Object.defineProperty(Object.prototype, '_merge', {
-  value: function(objectB, createNew = false) {
-    return merge(this, objectB, createNew);
-  },
-  enumerable: false
-});
+  }
+  return object;
+};
 
 //////////////////////////////////////////////////
 // Utilities
