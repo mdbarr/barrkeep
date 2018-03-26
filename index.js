@@ -327,6 +327,28 @@ Object.resolve = function(object, path) {
   return object;
 };
 
+Object.filter = function(object, fields, path) {
+  if (typeof object !== 'object') {
+    return object;
+  }
+
+  const clone = {};
+  for (const prop in object) {
+    const fullpath = (path) ? `${ path }.${ prop }` : prop;
+    let value = object[prop];
+    if (typeof value === 'object') {
+      value = Object.filter(value, fields, fullpath);
+      if (Object.keys(value).length !== 0) {
+        clone[prop] = value;
+      }
+    } else if (fields.includes(fullpath)) {
+      clone[prop] = value;
+    }
+  }
+
+  return clone;
+};
+
 //////////////////////////////////////////////////
 // Utilities
 
