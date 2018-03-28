@@ -73,6 +73,56 @@ console.pretty = console.pp = function(anything, options) {
   return prettyPrint(anything, options);
 };
 
+Object.defineProperty(Array.prototype, 'random', {
+  value: function() {
+    return Math.floor(Math.random() * this.length);
+  },
+  enumerable: false
+});
+
+Object.defineProperty(Array.prototype, 'shuffle', {
+  value: function() {
+    let j;
+    let x;
+    let i;
+
+    for (i = this.length; i; i--) {
+      j = Math.floor(Math.random() * i);
+      x = this[i - 1];
+      this[i - 1] = this[j];
+      this[j] = x;
+    }
+    return this;
+  },
+  enumerable: false
+});
+
+Object.defineProperty(Array.prototype, 'pick', {
+  value: function(count, asArray) {
+    const arr = this.slice();
+    const picks = [];
+
+    if (count === 1 && arr.length === 1) {
+      return arr[0];
+    } else if (count >= arr.length) {
+      return arr;
+    }
+
+    while (picks.length < count) {
+      const i = arr.random();
+      picks.push(arr[i]);
+      arr.splice(i, 1);
+    }
+
+    if (picks.length === 1 && !asArray) {
+      return picks[0];
+    } else {
+      return picks;
+    }
+  },
+  enumerable: false
+});
+
 /**
  * For arrays of objects that have an id field find the object that matches
  * the passed in id.  If the Array has an item that's not an Object, or an item
@@ -336,13 +386,13 @@ Object.filter = function(object, fields, path) {
   for (const prop in object) {
     const fullpath = (path) ? `${ path }.${ prop }` : prop;
     let value = object[prop];
-    if (typeof value === 'object') {
+    if (fields.includes(fullpath)) {
+      clone[prop] = value;
+    } else if (typeof value === 'object') {
       value = Object.filter(value, fields, fullpath);
       if (Object.keys(value).length !== 0) {
         clone[prop] = value;
       }
-    } else if (fields.includes(fullpath)) {
-      clone[prop] = value;
     }
   }
 
@@ -494,7 +544,7 @@ const colors = {
 };
 
 function colorize(name, string) {
-  if (global.flags.noColor) {
+  if (global.flags && global.flags.noColor) {
     return string;
   }
 
