@@ -1126,7 +1126,7 @@ function parseRetryOptions(options) {
     return options;
   }
 
-  options = options.clone();
+  options = Object.clone(options);
 
   if (typeof options === 'number') {
     if (options < 1000) {
