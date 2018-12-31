@@ -77,7 +77,8 @@ Object.defineProperty(Array.prototype, 'random', {
   value: function() {
     return Math.floor(Math.random() * this.length);
   },
-  enumerable: false
+  enumerable: false,
+  configurable: true
 });
 
 Object.defineProperty(Array.prototype, 'shuffle', {
@@ -94,7 +95,8 @@ Object.defineProperty(Array.prototype, 'shuffle', {
     }
     return this;
   },
-  enumerable: false
+  enumerable: false,
+  configurable: true
 });
 
 Object.defineProperty(Array.prototype, 'pick', {
@@ -120,7 +122,8 @@ Object.defineProperty(Array.prototype, 'pick', {
       return picks;
     }
   },
-  enumerable: false
+  enumerable: false,
+  configurable: true
 });
 
 /**
@@ -136,7 +139,8 @@ Object.defineProperty(Array.prototype, 'byId', {
   value: function(needle, caseInsensitive) {
     return this.byKey('id', needle, caseInsensitive);
   },
-  enumerable: false
+  enumerable: false,
+  configurable: true
 });
 
 /**
@@ -152,7 +156,8 @@ Object.defineProperty(Array.prototype, 'byName', {
   value: function(needle, caseInsensitive) {
     return this.byKey('name', needle, caseInsensitive);
   },
-  enumerable: false
+  enumerable: false,
+  configurable: true
 });
 
 /**
@@ -183,7 +188,8 @@ Object.defineProperty(Array.prototype, 'byKey', {
     }
     return undefined;
   },
-  enumerable: false
+  enumerable: false,
+  configurable: true
 });
 
 /**
@@ -194,7 +200,8 @@ Object.defineProperty(String.prototype, 'colorize', {
   value: function(colorName) {
     return colorize(colorName, this);
   },
-  enumerable: false
+  enumerable: false,
+  configurable: true
 });
 
 /**
@@ -205,7 +212,8 @@ Object.defineProperty(String.prototype, 'rgb', {
   value: function(rgbArray) {
     return colorize.rgb(rgbArray, this);
   },
-  enumerable: false
+  enumerable: false,
+  configurable: true
 });
 
 /**
@@ -217,7 +225,8 @@ Object.defineProperty(String.prototype, 'style', {
   value: function(a, b) {
     return style(this, a, b);
   },
-  enumerable: false
+  enumerable: false,
+  configurable: true
 });
 
 /**
@@ -227,7 +236,8 @@ Object.defineProperty(String.prototype, 'stripWhitespace', {
   value: function() {
     return this.replace(/\s/g, '');
   },
-  enumerable: false
+  enumerable: false,
+  configurable: true
 });
 
 /**
@@ -237,7 +247,8 @@ Object.defineProperty(String.prototype, 'emojify', {
   value: function() {
     return emojify(this);
   },
-  enumerable: false
+  enumerable: false,
+  configurable: true
 });
 
 /**
@@ -247,7 +258,8 @@ Object.defineProperty(String.prototype, 'capitalize', {
   value: function() {
     return this.charAt(0).toUpperCase() + this.slice(1).toLowerCase();
   },
-  enumerable: false
+  enumerable: false,
+  configurable: true
 });
 
 /**
@@ -257,7 +269,8 @@ Object.defineProperty(String.prototype, 'camelize', {
   value: function() {
     return camelize(this);
   },
-  enumerable: false
+  enumerable: false,
+  configurable: true
 });
 
 /**
@@ -484,9 +497,9 @@ function hexToRGB(string) {
 
   if (string.length === 3) {
     [ red, green, blue ] = string.match(/(\w)/g).
-          map(function(hex) {
-            return parseInt(hex.repeat(2), 16);
-          });
+      map(function(hex) {
+        return parseInt(hex.repeat(2), 16);
+      });
   } else if (string.length === 6) {
     [ red, green, blue ] = string.match(/(\w\w)/g).
       map(hex => parseInt(hex, 16));
@@ -608,15 +621,15 @@ function gitBranchChanges() {
   return child_process.execSync(gitBranchChangesCommand, {
     cwd: process.cwd()
   }).toString().trim().
-      split('\n').
-      map(function(line) {
-        const [ additions, deletions, file ] = line.split(/\s+/);
-        return {
-          file: file,
-          additions: additions,
-          deletions: deletions
-        };
-      });
+    split('\n').
+    map(function(line) {
+      const [ additions, deletions, file ] = line.split(/\s+/);
+      return {
+        file: file,
+        additions: additions,
+        deletions: deletions
+      };
+    });
 }
 
 function gitBlame(file, lineNumber) {
@@ -1112,7 +1125,8 @@ function addNonEnumerableProperty(body, key, value) {
     Object.defineProperty(body, key, {
       value: value,
       enumerable: false,
-      writable: true
+      writable: true,
+      configurable: true
     });
   }
 }
@@ -1226,30 +1240,30 @@ ProgressBar.prototype.render = function() {
   const rate = self.value / (elapsed / 1000);
 
   let string = self.format.
-      replace(/\$value/g, self.value).
-      replace(/\$total/g, self.total).
-      replace(/\$elapsed/g, isNaN(elapsed) ? '0.0' : (elapsed / 1000).toFixed(1)).
-      replace(/\$eta/g, (isNaN(eta) || !isFinite(eta)) ? '0.0' : (eta / 1000).toFixed(1)).
-      replace(/\$percent/g, percent.toFixed(0) + '%').
-      replace(/\$rate/g, Math.round(rate)).
-      replace(/\$(.+?)\b/g, function(match, token) {
-        if (self.tokens[token]) {
-          return self.tokens[token];
+    replace(/\$value/g, self.value).
+    replace(/\$total/g, self.total).
+    replace(/\$elapsed/g, isNaN(elapsed) ? '0.0' : (elapsed / 1000).toFixed(1)).
+    replace(/\$eta/g, (isNaN(eta) || !isFinite(eta)) ? '0.0' : (eta / 1000).toFixed(1)).
+    replace(/\$percent/g, percent.toFixed(0) + '%').
+    replace(/\$rate/g, Math.round(rate)).
+    replace(/\$(.+?)\b/g, function(match, token) {
+      if (self.tokens[token]) {
+        return self.tokens[token];
+      } else {
+        if (token === 'progress') {
+          return '$progress';
         } else {
-          if (token === 'progress') {
-            return '$progress';
-          } else {
-            return '';
-          }
+          return '';
         }
-      });
+      }
+    });
 
   const columns = Math.max(0, self.stream.columns - string.replace(/\$progress/g, '').length);
   const width = Math.min(self.width, columns);
   const completeLength = Math.round(width * ratio);
 
   const complete = self.characters.complete.repeat(Math.max(0, completeLength)).
-        replace(/.$/, (self.value >= self.total) ? self.characters.complete : self.characters.head);
+    replace(/.$/, (self.value >= self.total) ? self.characters.complete : self.characters.head);
   const incomplete = self.characters.incomplete.repeat(Math.max(0, width - completeLength));
 
   string = string.replace('$progress', complete + incomplete).
