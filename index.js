@@ -456,10 +456,12 @@ function deepClone(object, seen = new WeakMap()) {
   return result;
 }
 
-function merge(objectA, objectB, createNew = false, seen = new WeakSet()) {
+function merge(objectA, objectB, createNew = false, seen) {
   if (createNew) {
     objectA = deepClone(objectA);
   }
+
+  seen = new Set(seen);
 
   const keys = Object.getOwnPropertyNames(objectB);
   for (const key of keys) {
@@ -473,6 +475,7 @@ function merge(objectA, objectB, createNew = false, seen = new WeakSet()) {
           objectA[key] = objectB[key];
         }
       }
+
       seen.add(objectB[key]);
     } else {
       objectA[key] = objectB[key];
@@ -882,8 +885,10 @@ function prettyPrint(object, {
     }).join('\n');
   }
 
-  function prettyPrinter(value, depth, seen = new WeakSet(), overrideColor) {
+  function prettyPrinter(value, depth, seen, overrideColor) {
     let line = indent(depth);
+
+    seen = new Set(seen);
 
     if (typeof value === 'object' && seen.has(value)) {
       line += colorize('bright red', '[Circular Reference]');
