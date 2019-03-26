@@ -1,5 +1,7 @@
 'use strict';
 
+const crypto = require('crypto');
+
 function deepClone(object, seen = new WeakMap()) {
   // Primitives (treat Functions as primitives)
   if (Object(object) !== object || object instanceof Function) {
@@ -66,3 +68,50 @@ function merge(objectA, objectB, createNew = false, seen) {
   }
   return objectA;
 }
+
+function formatBytes(bytes, decimals) {
+  if (bytes === 0) {
+    return '0 Bytes';
+  }
+  const kilobyte = 1024;
+  const places = decimals + 1 || 3;
+  const sizes = [ 'Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB' ];
+  const index = Math.floor(Math.log(bytes) / Math.log(kilobyte));
+  return `${ parseFloat((bytes / Math.pow(kilobyte, index)).toFixed(places)) } ${ sizes[index] }`;
+}
+
+function camelize(string) {
+  return string.replace(/^.*?:+/, '').
+    replace(/[-:]/g, ' ').
+    replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, (match, index) => {
+      if (Number(match) === 0) {
+        return '';
+      }
+      return index === 0 ? match.toLowerCase() : match.toUpperCase();
+    });
+}
+
+function sha1(input) {
+  if (typeof input !== 'string') {
+    input = JSON.stringify(input);
+  }
+  return crypto.createHash('sha1').update(input).
+    digest('hex');
+}
+
+function sha256(input) {
+  if (typeof input !== 'string') {
+    input = JSON.stringify(input);
+  }
+  return crypto.createHash('sha256').update(input).
+    digest('hex');
+}
+
+module.exports = {
+  camelize,
+  deepClone,
+  formatBytes,
+  merge,
+  sha1,
+  sha256
+};

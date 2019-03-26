@@ -1,5 +1,7 @@
 'use strict';
 
+const childProcess = require('child_process');
+
 const gitAuthorEmailCommand = 'git log --format="%ae" -n 1';
 const gitBlameCommand = 'git blame --porcelain';
 const gitBlameEmailClean = /[<>]/g;
@@ -17,24 +19,24 @@ const emailRegExp = /(@.*)$/;
 function gitBranch() {
   let branch = process.env.GIT_BRANCH || process.env.BRANCH_NAME;
   if (!branch) {
-    branch = child_process.execSync(gitBranchCommand, { cwd: process.cwd() }).toString();
+    branch = childProcess.execSync(gitBranchCommand, { cwd: process.cwd() }).toString();
   }
   branch = branch || 'detached HEAD';
   return branch.trim().replace(gitOrigin, '');
 }
 
 function gitHash() {
-  return child_process.execSync(gitHashCommand, { cwd: process.cwd() }).toString().
+  return childProcess.execSync(gitHashCommand, { cwd: process.cwd() }).toString().
     trim();
 }
 
 function gitAuthorEmail() {
-  return child_process.execSync(gitAuthorEmailCommand, { cwd: process.cwd() }).toString().
+  return childProcess.execSync(gitAuthorEmailCommand, { cwd: process.cwd() }).toString().
     trim();
 }
 
 function gitBranchChanges() {
-  return child_process.execSync(gitBranchChangesCommand, { cwd: process.cwd() }).toString().
+  return childProcess.execSync(gitBranchChangesCommand, { cwd: process.cwd() }).toString().
     trim().
     split('\n').
     map((line) => {
@@ -48,7 +50,9 @@ function gitBranchChanges() {
 }
 
 function gitBlame(file, lineNumber) {
-  const summary = child_process.execSync(`${ gitBlameCommand } -L${ lineNumber },${ lineNumber } ${ file }`, { cwd: process.cwd() }).toString().
+  const summary = childProcess.execSync(
+    `${ gitBlameCommand } -L${ lineNumber },${ lineNumber } ${ file }`,
+    { cwd: process.cwd() }).toString().
     trim().
     split(/\n/);
 
@@ -63,6 +67,7 @@ function gitBlame(file, lineNumber) {
 
   for (let i = 1; i < summary.length - 1; i++) {
     const [ , type, value ] = summary[i].match(/^(.*?)\s(.*)$/);
+    let previousInformation;
 
     switch (type) {
       case 'author':
@@ -85,8 +90,9 @@ function gitBlame(file, lineNumber) {
         break;
       case 'summary':
         blame.summary = value;
+        break;
       case 'previous':
-        const previousInformation = value.split(/\s+/);
+        previousInformation = value.split(/\s+/);
         blame.previous = {
           hash: previousInformation[0],
           file: previousInformation[1]
@@ -94,6 +100,8 @@ function gitBlame(file, lineNumber) {
         break;
       case 'filename':
         blame.file = value;
+        break;
+      default:
         break;
     }
   }
@@ -116,7 +124,7 @@ function gitAddNotes(message, prefix, force) {
       gitNotesCommand += ' -f';
     }
 
-    child_process.execSync(gitNotesCommand, {
+    childProcess.execSync(gitNotesCommand, {
       cwd: process.cwd(),
       stdio: 'ignore'
     });
@@ -135,7 +143,7 @@ function gitRemoveNotes(prefix) {
     }
     gitNotesCommand += ' remove';
 
-    child_process.execSync(gitNotesCommand, {
+    childProcess.execSync(gitNotesCommand, {
       cwd: process.cwd(),
       stdio: 'ignore'
     });
@@ -154,7 +162,7 @@ function gitShowNotes(prefix) {
     }
     gitNotesCommand += ' show';
 
-    const notes = child_process.execSync(gitNotesCommand, {
+    const notes = childProcess.execSync(gitNotesCommand, {
       cwd: process.cwd(),
       stdio: [ 'pipe', 'pipe', 'ignore' ]
     }).toString().
@@ -170,7 +178,7 @@ function gitShowNotes(prefix) {
 }
 
 function gitStatus() {
-  const status = child_process.execSync(gitStatusCommand, { cwd: process.cwd() }).toString().
+  const status = childProcess.execSync(gitStatusCommand, { cwd: process.cwd() }).toString().
     trim().
     split('\n');
 
@@ -207,7 +215,7 @@ function gitStatus() {
 
 function gitMergeBase() {
   try {
-    return child_process.execSync(gitMergeBaseCommand, {
+    return childProcess.execSync(gitMergeBaseCommand, {
       cwd: process.cwd(),
       stdio: [ 'pipe', 'pipe', 'ignore' ]
     }).toString().
@@ -227,7 +235,7 @@ function gitChangeSet(initialCommit) {
     return null;
   }
 
-  const changes = child_process.execSync(command, { cwd: process.cwd() }).toString().
+  const changes = childProcess.execSync(command, { cwd: process.cwd() }).toString().
     trim().
     split('\n');
 
@@ -258,3 +266,17 @@ function gitChangeSet(initialCommit) {
 
   return changeSet;
 }
+
+module.exports = {
+  gitAddNotes,
+  gitAuthorEmail,
+  gitBlame,
+  gitBranch,
+  gitBranchChanges,
+  gitChangeSet,
+  gitHash,
+  gitMergeBase,
+  gitRemoveNotes,
+  gitShowNotes,
+  gitStatus
+};

@@ -1,5 +1,6 @@
 'use strict';
 
+const colorize = require('./colorize');
 const colorCodes = require('./colors.json');
 
 const styles = {
@@ -9,6 +10,47 @@ const styles = {
   blink: 5,
   reverse: 7
 };
+
+function hexToRGB(string) {
+  let red = 255;
+  let green = 255;
+  let blue = 255;
+
+  string = string.replace(/^#/, '');
+
+  if (string.length === 3) {
+    [ red, green, blue ] = string.match(/(\w)/g).
+      map((hex) => {
+        return parseInt(hex.repeat(2), 16);
+      });
+  } else if (string.length === 6) {
+    [ red, green, blue ] = string.match(/(\w\w)/g).
+      map(hex => { return parseInt(hex, 16); });
+  }
+
+  return [ red, green, blue ];
+}
+
+function rgbToAnsi256(red, green, blue) {
+  if (red === green && green === blue) {
+    if (red < 8) {
+      return 16;
+    }
+
+    if (red > 248) {
+      return 231;
+    }
+
+    return Math.round((red - 8) / 247 * 24) + 232;
+  }
+
+  const ansi = 16
+      + 36 * Math.round(red / 255 * 5)
+      + 6 * Math.round(green / 255 * 5)
+      + Math.round(blue / 255 * 5);
+
+  return ansi;
+}
 
 function parseFormatString(string) {
   const format = {};
@@ -70,5 +112,32 @@ function style(string, a, b) {
   string = string.replace(/(\u001b\[0m)+$/, '\u001b[0m');
   return string;
 }
+
+colorize.rgb = function(color, string) {
+  let red;
+  let green;
+  let blue;
+
+  if (Array.isArray(color)) {
+    [ red, green, blue ] = color;
+  } else {
+    [ red, green, blue ] = hexToRGB(color);
+  }
+
+  const ansi = rgbToAnsi256(red, green, blue);
+
+  return `\u001b[38;5;${ ansi }m${ string }\u001b[0m`;
+};
+
+colorize.frequency = 0.1;
+colorize.seed = Math.rand(0, 256);
+colorize.spread = 8.0;
+colorize.cycle = function(frequency, i) {
+  const red = Math.round(Math.sin(frequency * i + 0) * 127 + 128);
+  const green = Math.round(Math.sin(frequency * i + 2 * Math.PI / 3) * 127 + 128);
+  const blue = Math.round(Math.sin(frequency * i + 4 * Math.PI / 3) * 127 + 128);
+
+  return [ red, green, blue ];
+};
 
 module.exports = style;

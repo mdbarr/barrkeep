@@ -1,5 +1,7 @@
 'use strict';
 
+const colorize = require('./colorize');
+
 /**
  * Pretty print a JSON object to the console, if printNonEnumerables
  * is set then loops through all properties on an object and print them.

@@ -1,6 +1,17 @@
 'use strict';
 
-Object.defineProperty(Array.prototype, 'random', {
+const fs = require('fs');
+const vm = require('vm');
+
+const style = require('./style');
+const emojify = require('./emojify');
+const colorize = require('./colorize');
+
+const {
+  camelize, deepClone, merge
+} = require('./utils');
+
+Object.defineProperty(Array.prototype, '$random', {
   value() {
     return Math.floor(Math.random() * this.length);
   },
@@ -8,7 +19,7 @@ Object.defineProperty(Array.prototype, 'random', {
   configurable: true
 });
 
-Object.defineProperty(Array.prototype, 'shuffle', {
+Object.defineProperty(Array.prototype, '$shuffle', {
   value() {
     let j;
     let x;
@@ -26,7 +37,7 @@ Object.defineProperty(Array.prototype, 'shuffle', {
   configurable: true
 });
 
-Object.defineProperty(Array.prototype, 'pick', {
+Object.defineProperty(Array.prototype, '$pick', {
   value(count, asArray) {
     const arr = this.slice();
     const picks = [];
@@ -61,7 +72,7 @@ Object.defineProperty(Array.prototype, 'pick', {
  * @param caseInsensitive
  * @returns {*}
  */
-Object.defineProperty(Array.prototype, 'byId', {
+Object.defineProperty(Array.prototype, '$byId', {
   value(needle, caseInsensitive) {
     return this.byKey('id', needle, caseInsensitive);
   },
@@ -78,7 +89,7 @@ Object.defineProperty(Array.prototype, 'byId', {
  * @param caseInsensitive
  * @returns {*}
  */
-Object.defineProperty(Array.prototype, 'byName', {
+Object.defineProperty(Array.prototype, '$byName', {
   value(needle, caseInsensitive) {
     return this.byKey('name', needle, caseInsensitive);
   },
@@ -96,7 +107,7 @@ Object.defineProperty(Array.prototype, 'byName', {
  * @param caseInsensitive
  * @returns {*}
  */
-Object.defineProperty(Array.prototype, 'byKey', {
+Object.defineProperty(Array.prototype, '$byKey', {
   value(key, needle, caseInsensitive) {
     for (let i = 0; this.length; i++) {
       if (typeof this[i] !== 'object') {
@@ -122,7 +133,7 @@ Object.defineProperty(Array.prototype, 'byKey', {
  * Colorize a string with a common color name.
  * @param colorName
  */
-Object.defineProperty(String.prototype, 'colorize', {
+Object.defineProperty(String.prototype, '$colorize', {
   value(colorName) {
     return colorize(colorName, this);
   },
@@ -134,7 +145,7 @@ Object.defineProperty(String.prototype, 'colorize', {
  * Colorize a string with RGB values
  * @param {Array} rgbArray
  */
-Object.defineProperty(String.prototype, 'rgb', {
+Object.defineProperty(String.prototype, '$rgb', {
   value(rgbArray) {
     return colorize.rgb(rgbArray, this);
   },
@@ -147,7 +158,7 @@ Object.defineProperty(String.prototype, 'rgb', {
  * @param {Object|string} a
  * @param {Array|string} b
  */
-Object.defineProperty(String.prototype, 'style', {
+Object.defineProperty(String.prototype, '$style', {
   value(a, b) {
     return style(this, a, b);
   },
@@ -158,7 +169,7 @@ Object.defineProperty(String.prototype, 'style', {
 /**
  * Remove whitespace from a string
  */
-Object.defineProperty(String.prototype, 'stripWhitespace', {
+Object.defineProperty(String.prototype, '$stripWhitespace', {
   value() {
     return this.replace(/\s/g, '');
   },
@@ -169,7 +180,7 @@ Object.defineProperty(String.prototype, 'stripWhitespace', {
 /**
  * Emojify a string (parse out and substitute all :emoji:)
  */
-Object.defineProperty(String.prototype, 'emojify', {
+Object.defineProperty(String.prototype, '$emojify', {
   value() {
     return emojify(this);
   },
@@ -180,7 +191,7 @@ Object.defineProperty(String.prototype, 'emojify', {
 /**
  * Capitalize the first letter of a string
  */
-Object.defineProperty(String.prototype, 'capitalize', {
+Object.defineProperty(String.prototype, '$capitalize', {
   value() {
     return this.charAt(0).toUpperCase() + this.slice(1).toLowerCase();
   },
@@ -191,7 +202,7 @@ Object.defineProperty(String.prototype, 'capitalize', {
 /**
  * Camelcase a string
  */
-Object.defineProperty(String.prototype, 'camelize', {
+Object.defineProperty(String.prototype, '$camelize', {
   value() {
     return camelize(this);
   },
@@ -202,31 +213,35 @@ Object.defineProperty(String.prototype, 'camelize', {
 /**
  * Read a JSON file through a sandbox to ensure it is a clean object
  */
-JSON.read = function(path) {
+JSON.$read = function(path) {
   return vm.runInNewContext(`JSON.parse(fs.readFileSync('${ path }'));`, { fs });
 };
 
-JSON.write = function(path, object) {
+JSON.$write = function(path, object) {
   return fs.writeFileSync(path, JSON.stringify(object, null, 2));
 };
 
-Object.clone = function(object, deep = false) {
+Object.$clone = function(object, deep = false) {
   if (deep) {
     return deepClone(object);
   }
   return JSON.parse(JSON.stringify(object));
 };
 
-Object.deepClone = function(object) {
+Object.$deepClone = function(object) {
   return deepClone(object);
 };
 
-Object.merge = function(objectA, objectB, createNew = false) {
+Object.$merge = function(objectA, objectB, createNew = false) {
   return merge(objectA, objectB, createNew);
 };
 
-Object.resolve = function(object, path) {
-  const parts = path.stripWhitespace().split(/\./);
+Object.$resolve = function(object, path) {
+  if (!object || !path) {
+    return undefined;
+  }
+
+  const parts = path.$stripWhitespace().split(/\./);
 
   for (const part of parts) {
     object = object[part];
@@ -237,7 +252,7 @@ Object.resolve = function(object, path) {
   return object;
 };
 
-Object.filter = function(object, fields, path) {
+Object.$filter = function(object, fields, path) {
   if (typeof object !== 'object') {
     return object;
   }
@@ -249,7 +264,7 @@ Object.filter = function(object, fields, path) {
     if (fields.includes(fullpath)) {
       clone[prop] = value;
     } else if (typeof value === 'object') {
-      value = Object.filter(value, fields, fullpath);
+      value = Object.$filter(value, fields, fullpath);
       if (Object.keys(value).length !== 0) {
         clone[prop] = value;
       }

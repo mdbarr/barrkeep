@@ -49,7 +49,7 @@ Promise.delay = Promise.prototype.delay = function(timeout) {
 Promise.sleep = Promise.prototype.sleep = Promise.prototype.delay;
 
 // Validator promises
-global.validation = {
+const validation = {
   ok(value) {
     return Promise.resolve(value ? value : true);
   },
@@ -84,7 +84,7 @@ function timeoutPromise(promise, options, value, context) {
 /**
  * Retry a promise
  */
-global.retry = function(promise, options, value, context) {
+const retry = function(promise, options, value, context) {
   options = parseRetryOptions(options);
   options.start = options.start || Date.now();
   if (typeof options.counter !== 'number') {
@@ -126,6 +126,11 @@ global.retry = function(promise, options, value, context) {
 // Promise extension for retry as a then-able
 Promise.prototype.thenRetry = function(promise, options) {
   return this.then((value) => {
-    return global.retry(promise, options, value);
+    return retry(promise, options, value);
   });
+};
+
+module.exports = {
+  retry,
+  validation
 };
