@@ -38,17 +38,17 @@ function prettyPrint(object, {
   all = false, print = true, json = false, lineNumbers = false
 } = {}) {
   function indent(depth) {
-    return ('  ').repeat(depth);
+    return '  '.repeat(depth);
   }
 
   function addLineNumbers(output) {
     const lines = output.split(/\n/);
     const padding = lines.length.toString().length + 1;
     let number = 0;
-    return lines.map(function(line) {
+    return lines.map((line) => {
       number++;
-      const lineNumber = ' '.repeat(padding - number.toString().length) +
-            colorize('grey', number) + ' \u2502 ';
+      const lineNumber = `${ ' '.repeat(padding - number.toString().length) +
+            colorize('grey', number) } \u2502 `;
       return lineNumber + line;
     }).join('\n');
   }
@@ -69,7 +69,7 @@ function prettyPrint(object, {
         if (overrideColor && !json) {
           line += colorize(overrideColor, value);
         } else {
-          line += colorize(overrideColor || 'green', '"' + value + '"');
+          line += colorize(overrideColor || 'green', `"${ value }"`);
         }
       } else if (typeof value === 'number') {
         line += colorize(overrideColor || 'yellow', value);
@@ -88,11 +88,11 @@ function prettyPrint(object, {
 
         depth++;
         for (let i = 0; i < value.length; i++) {
-          const comma = (i < value.length - 1) ? ',' : '';
-          line += prettyPrinter(value[i], depth, seen) + comma + '\n';
+          const comma = i < value.length - 1 ? ',' : '';
+          line += `${ prettyPrinter(value[i], depth, seen) + comma }\n`;
         }
         depth--;
-        line += indent(depth) + ']';
+        line += `${ indent(depth) }]`;
       } else if (value instanceof Map && !json) {
         line += 'Map {';
         if (value.size) {
@@ -101,15 +101,15 @@ function prettyPrint(object, {
 
         depth++;
         let j = 0;
-        value.forEach(function(itemValue, key) {
-          const comma = (j < value.size - 1) ? ',' : '';
-          line += prettyPrinter(key, depth, seen) + ': ';
-          line += prettyPrinter(itemValue, depth, seen) + comma + '\n';
+        value.forEach((itemValue, key) => {
+          const comma = j < value.size - 1 ? ',' : '';
+          line += `${ prettyPrinter(key, depth, seen) }: `;
+          line += `${ prettyPrinter(itemValue, depth, seen) + comma }\n`;
           j++;
         });
 
         depth--;
-        line += indent(depth) + '}';
+        line += `${ indent(depth) }}`;
       } else if (value instanceof Set && !json) {
         line += 'Set [';
         if (value.size) {
@@ -118,14 +118,14 @@ function prettyPrint(object, {
 
         depth++;
         let j = 0;
-        value.forEach(function(itemValue) {
-          const comma = (j < value.size - 1) ? ',' : '';
-          line += prettyPrinter(itemValue, depth, seen) + comma + '\n';
+        value.forEach((itemValue) => {
+          const comma = j < value.size - 1 ? ',' : '';
+          line += `${ prettyPrinter(itemValue, depth, seen) + comma }\n`;
           j++;
         });
 
         depth--;
-        line += indent(depth) + ']';
+        line += `${ indent(depth) }]`;
       } else if (typeof value === 'object') {
         line += '{';
         let keys = Object.getOwnPropertyNames(value);
@@ -134,22 +134,22 @@ function prettyPrint(object, {
         }
 
         const enumerables = {};
-        keys = keys.filter(function(key) {
+        keys = keys.filter((key) => {
           const descriptor = Object.getOwnPropertyDescriptor(value, key);
           enumerables[key] = descriptor.enumerable;
-          return (descriptor.enumerable === true || all === true);
+          return descriptor.enumerable === true || all === true;
         });
 
         depth++;
         for (let j = 0; j < keys.length; j++) {
           const key = keys[j];
-          const comma = (j < keys.length - 1) ? ',' : '';
+          const comma = j < keys.length - 1 ? ',' : '';
           const keyColor = enumerables[key] ? 'gray' : 'red';
-          line += prettyPrinter(key, depth, seen, keyColor) + ': ';
-          line += prettyPrinter(value[key], depth, seen) + comma + '\n';
+          line += `${ prettyPrinter(key, depth, seen, keyColor) }: `;
+          line += `${ prettyPrinter(value[key], depth, seen) + comma }\n`;
         }
         depth--;
-        line += indent(depth) + '}';
+        line += `${ indent(depth) }}`;
       } else {
         line += colorize('bright red', value.toString());
       }

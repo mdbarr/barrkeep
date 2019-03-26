@@ -43,10 +43,9 @@ function style(string, a, b) {
     if (b === undefined) {
       if (a.includes(':')) {
         return style(string, parseFormatString(a));
-      } else {
-        b = a;
-        a = 'fg';
       }
+      b = a;
+      a = 'fg';
     }
 
     const type = a.toLowerCase();
@@ -70,6 +69,6 @@ function style(string, a, b) {
 
   string = string.replace(/(\u001b\[0m)+$/, '\u001b[0m');
   return string;
-};
+}
 
 module.exports = style;

@@ -1,7 +1,7 @@
 'use strict';
 
 Object.defineProperty(Array.prototype, 'random', {
-  value: function() {
+  value() {
     return Math.floor(Math.random() * this.length);
   },
   enumerable: false,
@@ -9,7 +9,7 @@ Object.defineProperty(Array.prototype, 'random', {
 });
 
 Object.defineProperty(Array.prototype, 'shuffle', {
-  value: function() {
+  value() {
     let j;
     let x;
     let i;
@@ -27,7 +27,7 @@ Object.defineProperty(Array.prototype, 'shuffle', {
 });
 
 Object.defineProperty(Array.prototype, 'pick', {
-  value: function(count, asArray) {
+  value(count, asArray) {
     const arr = this.slice();
     const picks = [];
 
@@ -45,9 +45,8 @@ Object.defineProperty(Array.prototype, 'pick', {
 
     if (picks.length === 1 && !asArray) {
       return picks[0];
-    } else {
-      return picks;
     }
+    return picks;
   },
   enumerable: false,
   configurable: true
@@ -63,7 +62,7 @@ Object.defineProperty(Array.prototype, 'pick', {
  * @returns {*}
  */
 Object.defineProperty(Array.prototype, 'byId', {
-  value: function(needle, caseInsensitive) {
+  value(needle, caseInsensitive) {
     return this.byKey('id', needle, caseInsensitive);
   },
   enumerable: false,
@@ -80,7 +79,7 @@ Object.defineProperty(Array.prototype, 'byId', {
  * @returns {*}
  */
 Object.defineProperty(Array.prototype, 'byName', {
-  value: function(needle, caseInsensitive) {
+  value(needle, caseInsensitive) {
     return this.byKey('name', needle, caseInsensitive);
   },
   enumerable: false,
@@ -98,7 +97,7 @@ Object.defineProperty(Array.prototype, 'byName', {
  * @returns {*}
  */
 Object.defineProperty(Array.prototype, 'byKey', {
-  value: function(key, needle, caseInsensitive) {
+  value(key, needle, caseInsensitive) {
     for (let i = 0; this.length; i++) {
       if (typeof this[i] !== 'object') {
         return undefined;
@@ -124,7 +123,7 @@ Object.defineProperty(Array.prototype, 'byKey', {
  * @param colorName
  */
 Object.defineProperty(String.prototype, 'colorize', {
-  value: function(colorName) {
+  value(colorName) {
     return colorize(colorName, this);
   },
   enumerable: false,
@@ -136,7 +135,7 @@ Object.defineProperty(String.prototype, 'colorize', {
  * @param {Array} rgbArray
  */
 Object.defineProperty(String.prototype, 'rgb', {
-  value: function(rgbArray) {
+  value(rgbArray) {
     return colorize.rgb(rgbArray, this);
   },
   enumerable: false,
@@ -149,7 +148,7 @@ Object.defineProperty(String.prototype, 'rgb', {
  * @param {Array|string} b
  */
 Object.defineProperty(String.prototype, 'style', {
-  value: function(a, b) {
+  value(a, b) {
     return style(this, a, b);
   },
   enumerable: false,
@@ -160,7 +159,7 @@ Object.defineProperty(String.prototype, 'style', {
  * Remove whitespace from a string
  */
 Object.defineProperty(String.prototype, 'stripWhitespace', {
-  value: function() {
+  value() {
     return this.replace(/\s/g, '');
   },
   enumerable: false,
@@ -171,7 +170,7 @@ Object.defineProperty(String.prototype, 'stripWhitespace', {
  * Emojify a string (parse out and substitute all :emoji:)
  */
 Object.defineProperty(String.prototype, 'emojify', {
-  value: function() {
+  value() {
     return emojify(this);
   },
   enumerable: false,
@@ -182,7 +181,7 @@ Object.defineProperty(String.prototype, 'emojify', {
  * Capitalize the first letter of a string
  */
 Object.defineProperty(String.prototype, 'capitalize', {
-  value: function() {
+  value() {
     return this.charAt(0).toUpperCase() + this.slice(1).toLowerCase();
   },
   enumerable: false,
@@ -193,7 +192,7 @@ Object.defineProperty(String.prototype, 'capitalize', {
  * Camelcase a string
  */
 Object.defineProperty(String.prototype, 'camelize', {
-  value: function() {
+  value() {
     return camelize(this);
   },
   enumerable: false,
@@ -204,22 +203,18 @@ Object.defineProperty(String.prototype, 'camelize', {
  * Read a JSON file through a sandbox to ensure it is a clean object
  */
 JSON.read = function(path) {
-  return vm.runInNewContext(`JSON.parse(fs.readFileSync('${ path }'));`, {
-    fs: fs
-  });
+  return vm.runInNewContext(`JSON.parse(fs.readFileSync('${ path }'));`, { fs });
 };
 
 JSON.write = function(path, object) {
   return fs.writeFileSync(path, JSON.stringify(object, null, 2));
 };
 
-
 Object.clone = function(object, deep = false) {
   if (deep) {
     return deepClone(object);
-  } else {
-    return JSON.parse(JSON.stringify(object));
   }
+  return JSON.parse(JSON.stringify(object));
 };
 
 Object.deepClone = function(object) {
@@ -249,7 +244,7 @@ Object.filter = function(object, fields, path) {
 
   const clone = {};
   for (const prop in object) {
-    const fullpath = (path) ? `${ path }.${ prop }` : prop;
+    const fullpath = path ? `${ path }.${ prop }` : prop;
     let value = object[prop];
     if (fields.includes(fullpath)) {
       clone[prop] = value;
@@ -275,10 +270,10 @@ Object.$private = function(body, key, value) {
     body[key] = value;
   } else {
     Object.defineProperty(body, key, {
-      value: value,
+      value,
       enumerable: false,
       writable: true,
       configurable: true
     });
   }
-}
+};

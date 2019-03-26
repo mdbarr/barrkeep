@@ -29,9 +29,9 @@ function deepClone(object, seen = new WeakMap()) {
   if (object instanceof Buffer) {
     return result;
   } else if (object instanceof Map) {
-    object.forEach((value, key) => result.set(key, deepClone(value, seen)));
+    object.forEach((value, key) => { return result.set(key, deepClone(value, seen)); });
   } else if (object instanceof Set) {
-    object.forEach(value => result.add(deepClone(value, seen)));
+    object.forEach(value => { return result.add(deepClone(value, seen)); });
   } else {
     for (const key in object) {
       result[key] = deepClone(object[key], seen);
@@ -53,12 +53,10 @@ function merge(objectA, objectB, createNew = false, seen) {
     if (typeof objectB[key] === 'object' && !seen.has(objectB[key])) {
       if (typeof objectA[key] === 'object') {
         objectA[key] = merge(objectA[key], objectB[key], createNew, seen);
+      } else if (createNew) {
+        objectA[key] = deepClone(objectB[key]);
       } else {
-        if (createNew) {
-          objectA[key] = deepClone(objectB[key]);
-        } else {
-          objectA[key] = objectB[key];
-        }
+        objectA[key] = objectB[key];
       }
 
       seen.add(objectB[key]);

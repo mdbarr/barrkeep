@@ -13,7 +13,8 @@ function getSHA1Hex(input) {
   if (typeof input !== 'string') {
     input = JSON.stringify(input);
   }
-  return crypto.createHash('sha1').update(input).digest('hex');
+  return crypto.createHash('sha1').update(input).
+    digest('hex');
 }
 
 function hexToRGB(string) {
@@ -25,12 +26,12 @@ function hexToRGB(string) {
 
   if (string.length === 3) {
     [ red, green, blue ] = string.match(/(\w)/g).
-      map(function(hex) {
+      map((hex) => {
         return parseInt(hex.repeat(2), 16);
       });
   } else if (string.length === 6) {
     [ red, green, blue ] = string.match(/(\w\w)/g).
-      map(hex => parseInt(hex, 16));
+      map(hex => { return parseInt(hex, 16); });
   }
 
   return [ red, green, blue ];
@@ -46,12 +47,12 @@ function rgbToAnsi256(red, green, blue) {
       return 231;
     }
 
-    return Math.round(((red - 8) / 247) * 24) + 232;
+    return Math.round((red - 8) / 247 * 24) + 232;
   }
 
   const ansi = 16
-      + (36 * Math.round(red / 255 * 5))
-      + (6 * Math.round(green / 255 * 5))
+      + 36 * Math.round(red / 255 * 5)
+      + 6 * Math.round(green / 255 * 5)
       + Math.round(blue / 255 * 5);
 
   return ansi;
@@ -86,7 +87,6 @@ colorize.cycle = function(frequency, i) {
 
 //////////////////////////////////////////////////
 
-
 function formatBytes(bytes, decimals) {
   if (bytes === 0) {
     return '0 Bytes';
@@ -95,15 +95,14 @@ function formatBytes(bytes, decimals) {
   const places = decimals + 1 || 3;
   const sizes = [ 'Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB' ];
   const index = Math.floor(Math.log(bytes) / Math.log(kilobyte));
-  return parseFloat((bytes / Math.pow(kilobyte, index)).toFixed(places)) + ' ' + sizes[index];
+  return `${ parseFloat((bytes / Math.pow(kilobyte, index)).toFixed(places)) } ${ sizes[index] }`;
 }
-
 
 function camelize(string) {
   return string.replace(/^.*?:+/, '').
     replace(/[-:]/g, ' ').
-    replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, function(match, index) {
-      if (+match === 0) {
+    replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, (match, index) => {
+      if (Number(match) === 0) {
         return '';
       }
       return index === 0 ? match.toLowerCase() : match.toUpperCase();

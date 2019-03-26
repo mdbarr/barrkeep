@@ -16,7 +16,7 @@ function ProgressBar({
     incomplete: incomplete || ' ',
     head: head || '>'
   };
-  this.clear = (clear === undefined) ? false : clear;
+  this.clear = clear === undefined ? false : clear;
   this.tokens = tokens || { };
 
   this.complete = false;
@@ -30,9 +30,7 @@ ProgressBar.prototype.progress = function(options) {
 
   options = options || {};
   if (typeof options === 'number') {
-    options = {
-      increment: options
-    };
+    options = { increment: options };
   }
 
   options.increment = Number(options.increment) || 1;
@@ -63,26 +61,24 @@ ProgressBar.prototype.render = function() {
   ratio = Math.min(Math.max(ratio, 0), 1);
   const percent = Math.floor(ratio * 100);
   const elapsed = new Date() - self.start;
-  const eta = (percent === 100) ? 0 : elapsed * (self.total / self.value - 1);
+  const eta = percent === 100 ? 0 : elapsed * (self.total / self.value - 1);
   const rate = self.value / (elapsed / 1000);
 
   let string = self.format.
     replace(/\$value/g, self.value).
     replace(/\$total/g, self.total).
     replace(/\$elapsed/g, isNaN(elapsed) ? '0.0' : (elapsed / 1000).toFixed(1)).
-    replace(/\$eta/g, (isNaN(eta) || !isFinite(eta)) ? '0.0' : (eta / 1000).toFixed(1)).
-    replace(/\$percent/g, percent.toFixed(0) + '%').
+    replace(/\$eta/g, isNaN(eta) || !isFinite(eta) ? '0.0' : (eta / 1000).toFixed(1)).
+    replace(/\$percent/g, `${ percent.toFixed(0) }%`).
     replace(/\$rate/g, Math.round(rate)).
-    replace(/\$(.+?)\b/g, function(match, token) {
+    replace(/\$(.+?)\b/g, (match, token) => {
       if (self.tokens[token]) {
         return self.tokens[token];
-      } else {
-        if (token === 'progress') {
-          return '$progress';
-        } else {
-          return '';
-        }
       }
+      if (token === 'progress') {
+        return '$progress';
+      }
+      return '';
     });
 
   const columns = Math.max(0, self.stream.columns - string.replace(/\$progress/g, '').length);
@@ -90,7 +86,7 @@ ProgressBar.prototype.render = function() {
   const completeLength = Math.round(width * ratio);
 
   const complete = self.characters.complete.repeat(Math.max(0, completeLength)).
-    replace(/.$/, (self.value >= self.total) ? self.characters.complete : self.characters.head);
+    replace(/.$/, self.value >= self.total ? self.characters.complete : self.characters.head);
   const incomplete = self.characters.incomplete.repeat(Math.max(0, width - completeLength));
 
   string = string.replace('$progress', complete + incomplete).

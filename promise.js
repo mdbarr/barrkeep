@@ -11,13 +11,9 @@ function parseRetryOptions(options) {
 
   if (typeof options === 'number') {
     if (options < 1000) {
-      options = {
-        count: options
-      };
+      options = { count: options };
     } else {
-      options = {
-        timeout: options
-      };
+      options = { timeout: options };
     }
   }
   // don't use count by default
@@ -43,8 +39,8 @@ function parseRetryOptions(options) {
 
 // Promise extension for a delay
 Promise.delay = Promise.prototype.delay = function(timeout) {
-  return new Promise(function(resolve) {
-    setTimeout(function() {
+  return new Promise((resolve) => {
+    setTimeout(() => {
       resolve(timeout);
     }, timeout);
   });
@@ -54,11 +50,11 @@ Promise.sleep = Promise.prototype.sleep = Promise.prototype.delay;
 
 // Validator promises
 global.validation = {
-  ok: function(value) {
-    return Promise.resolve((value) ? value : true);
+  ok(value) {
+    return Promise.resolve(value ? value : true);
   },
-  fail: function(reason) {
-    return Promise.reject((reason) ? reason : 'validation failed');
+  fail(reason) {
+    return Promise.reject(reason ? reason : 'validation failed');
   }
 };
 
@@ -66,19 +62,19 @@ global.validation = {
  * Promise retry mechanisms
  */
 function timeoutPromise(promise, options, value, context) {
-  return new Promise(function(resolve, reject) {
+  return new Promise((resolve, reject) => {
     try {
-      promise.bind(context)(value).then(function (result) {
+      promise.bind(context)(value).then((result) => {
         resolve(result);
-      }, function(error) {
+      }, (error) => {
         options.lastError = error;
-        setTimeout(function() {
+        setTimeout(() => {
           reject(error);
         }, options.delay);
       });
     } catch (error) {
       options.lastError = error;
-      setTimeout(function() {
+      setTimeout(() => {
         reject(error);
       }, options.delay);
     }
@@ -96,10 +92,10 @@ global.retry = function(promise, options, value, context) {
   }
   let errorMessage;
   if (options.timeout > 0 && Date.now() > options.start + options.timeout) {
-    errorMessage = 'timeout of ' + options.timeout + ' ms exceeded (' + options.counter + ' attempts).';
+    errorMessage = `timeout of ${ options.timeout } ms exceeded (${ options.counter } attempts).`;
   }
-  if (options.count > 0 && options.counter >= (options.count - 1)) {
-    errorMessage = 'retry count of ' + options.count + ' exceeded.';
+  if (options.count > 0 && options.counter >= options.count - 1) {
+    errorMessage = `retry count of ${ options.count } exceeded.`;
   }
   if (errorMessage) {
     const error = new Error(errorMessage);
@@ -112,14 +108,14 @@ global.retry = function(promise, options, value, context) {
   options.counter++;
 
   return timeoutPromise(promise, options, value, context).
-    then(function(result) {
+    then((result) => {
       return result;
-    }, function(error) {
+    }, (error) => {
       if (error && (error.name === 'ReferenceError' || error.name === 'SyntaxError' ||
                     error.name === 'TypeError' || error.name === 'RangeError' ||
                     error.name === 'EvalError' || error.name === 'InternalError' ||
                     error.name === 'URIError' || error.name === 'UnhandledUrlParameterError' ||
-                    error.name === 'RetryError' || (error.group && error.group === 'RetryError'))) {
+                    error.name === 'RetryError' || error.group && error.group === 'RetryError')) {
         throw error;
       } else {
         return retry(promise, options, value, context);
@@ -129,7 +125,7 @@ global.retry = function(promise, options, value, context) {
 
 // Promise extension for retry as a then-able
 Promise.prototype.thenRetry = function(promise, options) {
-  return this.then(function(value) {
+  return this.then((value) => {
     return global.retry(promise, options, value);
   });
 };
