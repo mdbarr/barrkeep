@@ -130,7 +130,7 @@ colorize.rgb = function(color, string) {
 };
 
 colorize.frequency = 0.1;
-colorize.seed = Math.rand(0, 256);
+colorize.seed = Math.floor(Math.random() * 256);
 colorize.spread = 8.0;
 colorize.cycle = function(frequency, i) {
   const red = Math.round(Math.sin(frequency * i + 0) * 127 + 128);
