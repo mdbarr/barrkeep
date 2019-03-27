@@ -8,8 +8,10 @@ const emojify = require('./emojify');
 const colorize = require('./colorize');
 
 const {
-  camelize, deepClone, merge
+  camelize, deepClone, merge, precisionRound
 } = require('./utils');
+
+Math.$round = precisionRound;
 
 Object.defineProperty(Array.prototype, '$random', {
   value() {

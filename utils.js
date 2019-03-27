@@ -107,11 +107,44 @@ function sha256(input) {
     digest('hex');
 }
 
+const noop = () => { return undefined; };
+
+function callback(next, synchronousContext) {
+  if (typeof next === 'function') {
+    if (synchronousContext) {
+      return function(...args) {
+        setImmediate(() => {
+          next(...args);
+        });
+      };
+    }
+    return next;
+  }
+  return noop;
+}
+
+function timestamp(date) {
+  if (date) {
+    return new Date(date).getTime();
+  }
+  return Date.now();
+}
+
+function precisionRound(number, precision = 2) {
+  const factor = Math.pow(10, precision);
+  return Math.round(number * factor) / factor;
+}
+
 module.exports = {
+  callback,
   camelize,
   deepClone,
   formatBytes,
   merge,
+  noop,
+  nop: noop,
+  precisionRound,
   sha1,
-  sha256
+  sha256,
+  timestamp
 };
