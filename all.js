@@ -10,7 +10,8 @@ const modules = [
   'random',
   'shim',
   'style',
-  'utils'
+  'utils',
+  'validate'
 ];
 
 const all = {};
