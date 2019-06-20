@@ -1,6 +1,6 @@
 'use strict';
 
-const colorize = require('./colorize');
+const style = require('./style');
 
 /**
  * Pretty print a JSON object to the console, if printNonEnumerables
@@ -23,8 +23,31 @@ console.json = function(json, printNonEnumerables) {
  * @param {Object=} options : print options
  */
 
-console.pretty = console.pp = function(anything, options) {
-  return prettyPrint(anything, options);
+console.pretty = console.pp = function(...anything) {
+  let output = '';
+  for (const item of anything) {
+    output += prettyPrint(item);
+  }
+  return output;
+};
+
+const darkTheme = {
+  Boolean: '#00875f',
+  Date: '#d7d75f',
+  Function: '#5fd7ff',
+  Map: '#5fd787',
+  Null: '#5f00af',
+  Number: '#875fd7',
+  RegExp: '#ff8787',
+  Set: '#afd7d7',
+  String: '#005fd7',
+  Symbol: '#afaf5f',
+  Undefined: '#af0087',
+  Unknown: '#d78700',
+  circular: 'fg: #af0000; style: bold;',
+  decoration: '#1c1c1c',
+  nonEnumerable: '#ff0087',
+  property: '#8a8a8a'
 };
 
 /**
@@ -34,10 +57,18 @@ console.pretty = console.pp = function(anything, options) {
  *           all : boolean|undefined,
  *           print : boolean|undefined,
  *           json : boolean|undefined,
- *           lineNumbers : boolean|undefined }} options
+ *           lineNumbers : boolean|undefined,
+ *           showDepth : boolean|undefined,
+ *           theme : Object|undefined }} options
  */
+
 function prettyPrint(object, {
-  all = false, print = true, json = false, lineNumbers = false
+  all = false,
+  print = true,
+  json = false,
+  lineNumbers = false,
+  showDepth = true,
+  theme = darkTheme
 } = {}) {
   function indent(depth) {
     return '  '.repeat(depth);
@@ -50,7 +81,7 @@ function prettyPrint(object, {
     return lines.map((line) => {
       number++;
       const lineNumber = `${ ' '.repeat(padding - number.toString().length) +
-            colorize('grey', number) } \u2502 `;
+            style(number, theme.property) } \u2502 `;
       return lineNumber + line;
     }).join('\n');
   }
@@ -61,7 +92,7 @@ function prettyPrint(object, {
     seen = new Set(seen);
 
     if (typeof value === 'object' && seen.has(value)) {
-      line += colorize('bright red', '[Circular Reference]');
+      line += style('[Circular Reference]', theme.circular);
     } else {
       if (typeof value === 'object' && value !== null) {
         seen.add(value);
@@ -69,19 +100,28 @@ function prettyPrint(object, {
 
       if (typeof value === 'string') {
         if (overrideColor && !json) {
-          line += colorize(overrideColor, value);
+          line += style(value, overrideColor);
+        } else if (json) {
+          line += style(`"${ value }"`, overrideColor || theme.String);
         } else {
-          line += colorize(overrideColor || 'green', `"${ value }"`);
+          line += style(`'${ value }'`, overrideColor || theme.String);
         }
       } else if (typeof value === 'number') {
-        line += colorize(overrideColor || 'yellow', value);
+        line += style(value, overrideColor || theme.Number);
       } else if (typeof value === 'boolean') {
-        line += colorize(overrideColor || 'cyan', value);
-      } else if (value === undefined || value === null) {
-        line += colorize(overrideColor || 'magenta', value);
-      } else if (value instanceof Date || value instanceof RegExp ||
-               typeof value === 'function') {
-        line += colorize('blue', value.toString());
+        line += style(value, overrideColor || theme.Boolean);
+      } else if (value === undefined) {
+        line += style(value, theme.Undefined);
+      } else if (value === null) {
+        line += style(value, theme.Null);
+      } else if (value instanceof Date) {
+        line += style(value.toString(), theme.Date);
+      } else if (value instanceof RegExp) {
+        line += style(value.toString(), theme.RegExp);
+      } else if (typeof value === 'function') {
+        line += style(value.toString(), theme.Function);
+      } else if (typeof value === 'symbol') {
+        line += style(value.toString(), theme.Symbol);
       } else if (Array.isArray(value)) {
         line += '[';
         if (value.length) {
@@ -95,8 +135,10 @@ function prettyPrint(object, {
         }
         depth--;
         line += `${ indent(depth) }]`;
+      } else if (value instanceof WeakMap) {
+        line += `${ style('WeakMap', theme.Map) } {}`;
       } else if (value instanceof Map && !json) {
-        line += 'Map {';
+        line += `${ style('Map', theme.Map) } {`;
         if (value.size) {
           line += '\n';
         }
@@ -112,8 +154,10 @@ function prettyPrint(object, {
 
         depth--;
         line += `${ indent(depth) }}`;
+      } else if (value instanceof WeakSet) {
+        line += `${ style('WeakSet', theme.Set) } []`;
       } else if (value instanceof Set && !json) {
-        line += 'Set [';
+        line += `${ style('Set', theme.Set) } [`;
         if (value.size) {
           line += '\n';
         }
@@ -146,22 +190,30 @@ function prettyPrint(object, {
         for (let j = 0; j < keys.length; j++) {
           const key = keys[j];
           const comma = j < keys.length - 1 ? ',' : '';
-          const keyColor = enumerables[key] ? 'gray' : 'red';
+          const keyColor = enumerables[key] ? theme.property : theme.nonEnumerable;
           line += `${ prettyPrinter(key, depth, seen, keyColor) }: `;
           line += `${ prettyPrinter(value[key], depth, seen) + comma }\n`;
         }
         depth--;
         line += `${ indent(depth) }}`;
       } else {
-        line += colorize('bright red', value.toString());
+        line += style(value.toString(), theme.Unknown);
       }
     }
 
     return line.replace(/:\s+/g, ': ').
       replace(/([{[])\s+([}\]])/g, '$1$2');
   }
-
   let output = prettyPrinter(object, 0);
+
+  if (showDepth) {
+    output = output.replace(/\n {2}(\s+)/g, (match, spaces) => {
+      return `\n  ${ spaces.substring(2).split(/ {2}/).
+        map(() => { return style('\u2502 ', theme.decoration); }).
+        join('') }`;
+    });
+  }
+
   if (lineNumbers) {
     output = addLineNumbers(output);
   }
