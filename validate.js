@@ -10,9 +10,10 @@ function indent(depth = 0, width = 2) {
 
 function generateValidator(object, {
   flattenTypes = false,
-  loopVariables = [ '', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p' ],
+  functionName = 'validate',
+  loopVariables = [ 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'x', 'y', 'z' ],
   returnPromise = false,
-  variable = 'json',
+  variable = 'object',
   width = 2
 } = {}) {
   function validatorIterator(chunk, name, depth = 1) {
@@ -45,7 +46,7 @@ function generateValidator(object, {
     return validator;
   }
 
-  const validator = `const validate = function(${ variable }) {
+  const validator = `const ${ functionName } = function(${ variable }) {
 ${ validatorIterator(object, variable) }
   return ${ returnPromise ? 'Promise.resolve(true)' : 'true' };
 };
