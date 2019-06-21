@@ -12,7 +12,7 @@ function resolve(object, path = '') {
   for (const part of parts) {
     object = object[part];
     if (!object) {
-      return undefined;
+      return object;
     }
   }
   return object;
@@ -21,6 +21,16 @@ function resolve(object, path = '') {
 function equals(a, b) {
   if (typeof a === 'string' && b instanceof RegExp) {
     return b.test(a);
+  } else if (Array.isArray(a) && Array.isArray(b)) {
+    if (a.length !== b.length) {
+      return false;
+    }
+    for (let i = 0; i < a.length; i++) {
+      if (!equals(a[i], b[i])) {
+        return false;
+      }
+    }
+    return true;
   }
 
   return a === b;
@@ -36,7 +46,7 @@ function query(value, filter = {}) {
       } else if (key === '$ne') {
         result &= value !== filter[key];
       } else if (key === '$like') {
-        result = result & equals(value, filter[key]);
+        result &= equals(value, filter[key]);
       } else if (key === '$gt') {
         result &= value > filter[key];
       } else if (key === '$gte') {
@@ -49,7 +59,45 @@ function query(value, filter = {}) {
         result &= filter[key].includes(value);
       } else if (key === '$nin') {
         result &= ! filter[key].includes(value);
+      } else if (key === '$and') {
+        for (const and of filter[key]) {
+          result &= query(value, and);
+          if (result === 0) {
+            break;
+          }
+        }
+      } else if (key === '$or') {
+        let intermediate = 0;
+        for (const or of filter[key]) {
+          intermediate |= query(value, or);
+          if (intermediate) {
+            break;
+          }
+        }
+        result &= intermediate;
+      } else if (key === '$nor') {
+        let intermediate = 0;
+        for (const nor of filter[key]) {
+          intermediate |= query(value, nor);
+        }
+        result &= ! intermediate;
+      } else if (key === '$not') {
+        result &= !query(value, filter[key]);
+      } else if (key === '$type') {
+        result &= typeof value === filter[key];
+      } else if (key === '$exists') {
+        result &= value !== undefined;
+      } else if (key === '$size') {
+        if (Array.isArray(value) && value.length === filter[key]) {
+          return true;
+        } else if (typeof value === 'object' &&
+                   Object.keys(value).length === filter[key]) {
+          return true;
+        }
+        return false;
       }
+    } else if (Array.isArray(filter[key])) {
+      result &= equals(resolve(value, key), filter[key]);
     } else if (typeof filter[key] === 'object') {
       result &= query(resolve(value, key), filter[key]);
     } else {
