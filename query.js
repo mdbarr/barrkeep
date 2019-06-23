@@ -1,22 +1,8 @@
 'use strict';
 
-const isOperator = (x) => { return x.startsWith('$'); };
+const { resolve } = require('./utils');
 
-function resolve(object, path = '') {
-  if (!object || !path) {
-    return undefined;
-  }
-
-  const parts = path.trim().split(/\./);
-
-  for (const part of parts) {
-    object = object[part];
-    if (!object) {
-      return object;
-    }
-  }
-  return object;
-}
+const isOperator = (str) => { return str.startsWith('$'); };
 
 function equals(a, b) {
   if (typeof a === 'string' && b instanceof RegExp) {

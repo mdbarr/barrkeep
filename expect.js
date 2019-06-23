@@ -1,6 +1,9 @@
 'use strict';
 
 const assert = require('assert').strict;
+const {
+  resolve, resolves
+} = require('./utils');
 
 ///////////
 
@@ -23,7 +26,7 @@ function Expectation(value) {
   this.with = this;
 
   Object.defineProperty(this, 'which', { get() {
-    this.value = this.which;
+    this.value = this.next !== undefined ? this.next : this.value;
     this.negated = false;
     return this;
   } });
@@ -35,6 +38,7 @@ Expectation.prototype.equal = function(input) {
   assert.deepStrictEqual(this.value, input);
   return this;
 };
+Expectation.prototype.equals = Expectation.prototype.equal;
 
 Expectation.prototype.true = function() {
   assert.strictEqual(this.value, true);
@@ -71,18 +75,38 @@ Expectation.prototype.undefined = function() {
   return this;
 };
 
-Expectation.prototype.instanceof = function(type) {
-  assert.strictEqual(this.value instanceof type, true);
+Expectation.prototype.instanceof = function(constructor) {
+  assert.strictEqual(this.value instanceof constructor, true);
   return this;
 };
-
 Expectation.prototype.instanceOf = Expectation.prototype.instanceof;
+
+Expectation.prototype.typeof = function(type) {
+  assert.strictEqual(typeof this.value === type, true);
+  return this;
+};
+Expectation.prototype.typeOf = Expectation.prototype.typeof;
+Expectation.prototype.type = Expectation.prototype.typeof;
+
+Expectation.prototype.includes = function(value) {
+  assert.strictEqual(typeof this.value === 'string' || Array.isArray(this.value), true);
+  assert.strictEqual(this.value.includes(value), true);
+  return this;
+};
+Expectation.prototype.include = Expectation.prototype.includes;
 
 //////////
 
-Expectation.prototype.property = function(property) {
-  assert.strictEqual(Object.resolves(this.value, property), true);
-  this.which = Object.resolve(this.value, property);
+Expectation.prototype.property = function(...args) {
+  const property = args[0];
+
+  assert.strictEqual(resolves(this.value, property), true);
+  if (args.length === 2) {
+    const value = args[1];
+    assert.strictEqual(resolve(this.value, property), value);
+  }
+
+  this.next = resolve(this.value, property);
   return this;
 };
 

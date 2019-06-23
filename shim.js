@@ -3,12 +3,13 @@
 const fs = require('fs');
 const vm = require('vm');
 
+const query = require('./query');
 const style = require('./style');
 const emojify = require('./emojify');
 const colorize = require('./colorize');
 
 const {
-  camelize, deepClone, merge, precisionRound
+  camelize, deepClone, merge, precisionRound, resolve, resolves
 } = require('./utils');
 
 Math.$round = precisionRound;
@@ -238,22 +239,6 @@ Object.$merge = function(objectA, objectB, createNew = false) {
   return merge(objectA, objectB, createNew);
 };
 
-Object.$resolve = function(object, path) {
-  if (!object || !path) {
-    return undefined;
-  }
-
-  const parts = path.$stripWhitespace().split(/\./);
-
-  for (const part of parts) {
-    object = object[part];
-    if (!object) {
-      return undefined;
-    }
-  }
-  return object;
-};
-
 Object.$filter = function(object, fields, path) {
   if (typeof object !== 'object') {
     return object;
@@ -294,3 +279,8 @@ Object.$private = function(body, key, value) {
     });
   }
 };
+
+Object.$resolve = resolve;
+Object.$resolves = resolves;
+
+Object.$query = query;

@@ -3,11 +3,13 @@
 const modules = [
   'colorize',
   'emojify',
+  'expect',
   'git',
   'pp',
   'progress',
   'promise',
   'random',
+  'query',
   'shim',
   'style',
   'utils',

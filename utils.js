@@ -69,6 +69,38 @@ function merge(objectA, objectB, createNew = false, seen) {
   return objectA;
 }
 
+function resolve(object, path = '', delimiter = '.') {
+  if (!object || !path) {
+    return undefined;
+  }
+
+  const parts = path.trim().split(delimiter);
+
+  for (const part of parts) {
+    object = object[part];
+    if (!object) {
+      return object;
+    }
+  }
+  return object;
+}
+
+function resolves(object, path = '', delimiter = '.') {
+  if (!object || !path) {
+    return false;
+  }
+
+  const parts = path.trim().split(delimiter);
+
+  for (const part of parts) {
+    object = object[part];
+    if (!object) {
+      return false;
+    }
+  }
+  return true;
+}
+
 function formatBytes(bytes, decimals) {
   if (bytes === 0) {
     return '0 Bytes';
@@ -144,6 +176,8 @@ module.exports = {
   noop,
   nop: noop,
   precisionRound,
+  resolve,
+  resolves,
   sha1,
   sha256,
   timestamp

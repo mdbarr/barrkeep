@@ -223,3 +223,5 @@ function prettyPrint(object, {
   }
   return output;
 }
+
+module.exports = prettyPrint;
