@@ -22,7 +22,7 @@ function generateValidator(object, {
     if (typeof chunk === 'undefined' || chunk === null) {
       return validator;
     } else if (Array.isArray(chunk)) {
-      validator += `${ indent(depth, width) }should(${ name }).be.instanceOf(Array);\n`;
+      validator += `${ indent(depth, width) }expect(${ name }).be.instanceOf(Array);\n`;
       if (chunk.length) {
         // Assume the first element is normative
         const loop = loopVariables[depth];
@@ -31,9 +31,9 @@ function generateValidator(object, {
         validator += `${ indent(depth, width) }}\n`;
       }
     } else if (typeof chunk === 'object') {
-      validator += `${ indent(depth, width) }should(${ name }).be.instanceOf(Object);\n`;
+      validator += `${ indent(depth, width) }expect(${ name }).to.be.an.instanceOf(Object);\n`;
       for (const element in chunk) {
-        validator += `${ indent(depth, width) + name }.should.have.property('${ element }');\n`;
+        validator += `${ indent(depth, width) }expect(${ Number(name) }).to.have.property('${ element }');\n`;
         validator += validatorIterator(chunk[element], `${ name }.${ element }`, depth);
       }
     } else {
@@ -41,7 +41,7 @@ function generateValidator(object, {
       if (flattenTypes && (type !== 'Boolean' && type !== 'Number')) {
         type = 'String';
       }
-      validator += `${ indent(depth, width) }should(${ name }).be.instanceOf(${ type });\n`;
+      validator += `${ indent(depth, width) }expect(${ name }).to.be.an.instanceOf(${ type });\n`;
     }
     return validator;
   }
