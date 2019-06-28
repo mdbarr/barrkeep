@@ -81,6 +81,26 @@ function query(value, filter = {}) {
           return true;
         }
         return false;
+      } else if (key === '$elemMatch') {
+        if (Array.isArray(value)) {
+          for (const item of value) {
+            if (query(item, filter[key])) {
+              return true;
+            }
+          }
+        }
+        return false;
+      } else if (key === '$all') {
+        if (Array.isArray(value)) {
+          for (const item of value) {
+            result &= query(item, filter[key]);
+            if (result === 0) {
+              return false;
+            }
+          }
+        } else {
+          return false;
+        }
       }
     } else if (Array.isArray(filter[key])) {
       result &= equals(resolve(value, key), filter[key]);
