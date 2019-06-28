@@ -167,11 +167,34 @@ function precisionRound(number, precision = 2) {
   return Math.round(number * factor) / factor;
 }
 
+function functionType(func) {
+  const flags = {
+    function: func instanceof Function,
+    name: undefined,
+    native: false,
+    bound: false,
+    plain: false,
+    arrow: false
+  };
+
+  if (flags.function) {
+    flags.name = func.name || '(anonymous)';
+    flags.native = func.toString().trim().
+      endsWith('() { [native code] }');
+    flags.bound = flags.native && flags.name.startsWith('bound ');
+    flags.plain = !flags.native && func.hasOwnProperty('prototype');
+    flags.arrow = !(flags.native || flags.plain);
+  }
+
+  return flags;
+}
+
 module.exports = {
   callback,
   camelize,
   deepClone,
   formatBytes,
+  functionType,
   merge,
   noop,
   nop: noop,
