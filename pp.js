@@ -1,7 +1,5 @@
 'use strict';
 
-const style = require('./style');
-
 /**
  * Pretty print a JSON object to the console, if printNonEnumerables
  * is set then loops through all properties on an object and print them.
@@ -70,6 +68,13 @@ function prettyPrint(object, {
   showDepth = true,
   theme = darkTheme
 } = {}) {
+  let style;
+  if (process.stdout && process.stdout.isTTY) {
+    style = require('./style');
+  } else {
+    style = (string) => { return string; };
+  }
+
   function indent(depth) {
     return '  '.repeat(depth);
   }
