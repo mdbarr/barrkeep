@@ -5,6 +5,8 @@ const {
   resolve, resolves
 } = require('./utils');
 
+const AsyncFunction = Object.getPrototypeOf(async () => {}).constructor;
+
 ///////////
 
 function Expectation(value) {
@@ -34,8 +36,8 @@ function Expectation(value) {
 
 //////////
 
-Expectation.prototype.equal = function(input) {
-  assert.deepStrictEqual(this.value, input);
+Expectation.prototype.equal = function(value) {
+  assert.deepStrictEqual(this.value, value);
   return this;
 };
 Expectation.prototype.equals = Expectation.prototype.equal;
@@ -106,6 +108,11 @@ Expectation.prototype.typeof = function(type) {
 Expectation.prototype.typeOf = Expectation.prototype.typeof;
 Expectation.prototype.type = Expectation.prototype.typeof;
 
+Expectation.prototype.class = function() {
+  assert.strictEqual(this.value.toString().startsWith('class '), true);
+  return this;
+};
+
 Expectation.prototype.Array = function() {
   assert.strictEqual(Array.isArray(this.value), true);
   return this;
@@ -113,6 +120,11 @@ Expectation.prototype.Array = function() {
 
 Expectation.prototype.Boolean = function() {
   assert.strictEqual(this.value instanceof Boolean || typeof this.value === 'boolean', true);
+  return this;
+};
+
+Expectation.prototype.Buffer = function() {
+  assert.strictEqual(Buffer.isBuffer(this.value), true);
   return this;
 };
 
@@ -128,6 +140,11 @@ Expectation.prototype.Error = function() {
 
 Expectation.prototype.Function = function() {
   assert.strictEqual(this.value instanceof Function || typeof this.value === 'function', true);
+  return this;
+};
+
+Expectation.prototype.AsyncFunction = function() {
+  assert.strictEqual(this.value instanceof AsyncFunction, true);
   return this;
 };
 
