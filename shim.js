@@ -9,10 +9,27 @@ const emojify = require('./emojify');
 const colorize = require('./colorize');
 
 const {
-  camelize, deepClone, merge, precisionRound, resolve, resolves
+  camelize,
+  deepClone,
+  expand,
+  flatten,
+  merge,
+  precisionRound,
+  resolve,
+  resolves,
+  set,
+  setTypes
 } = require('./utils');
 
 Math.$round = precisionRound;
+
+Object.$expand = expand;
+Object.$flatten = flatten;
+Object.$query = query;
+Object.$resolve = resolve;
+Object.$resolves = resolves;
+Object.$set = set;
+Object.$setTypes = setTypes;
 
 Object.defineProperty(Array.prototype, '$random', {
   value() {
@@ -279,8 +296,3 @@ Object.$private = function(body, key, value) {
     });
   }
 };
-
-Object.$resolve = resolve;
-Object.$resolves = resolves;
-
-Object.$query = query;

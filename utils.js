@@ -189,10 +189,105 @@ function functionType(func) {
   return flags;
 }
 
+function set(object, propertyPath, value) {
+  const parts = propertyPath.stripWhitespace().split(/\./);
+  const key = parts.pop();
+
+  for (const part of parts) {
+    object = object[part];
+
+    if (!object) {
+      return false;
+    }
+  }
+
+  object[key] = value;
+
+  return true;
+}
+
+function flatten(object, prefix = '', container = {}) {
+  if (typeof object !== 'object') {
+    container[prefix] = object;
+    return container;
+  }
+
+  if (prefix.length) {
+    prefix += '.';
+  }
+
+  for (const key in object) {
+    const pathKey = prefix + key;
+
+    if (Array.isArray(object[key])) {
+      container[`${ pathKey }$type`] = 'Array';
+      const array = object[key];
+      for (let i = 0; i < array.length; i++) {
+        flatten(array[i], `${ pathKey }.${ i }`, container);
+      }
+    } else if (typeof object[key] === 'object' && object[key] !== null) {
+      container[`${ pathKey }$type`] = 'Object';
+      flatten(object[key], pathKey, container);
+    } else {
+      container[ pathKey ] = object[key];
+    }
+  }
+  return container;
+}
+
+function expand(container, object = {}) {
+  for (const key in container) {
+    const parts = key.split(/\./);
+    const property = parts.pop();
+
+    let chunk = object;
+    for (const part of parts) {
+      if (!chunk[part]) {
+        chunk[part] = {};
+      }
+
+      chunk = chunk[part];
+    }
+
+    if (property.endsWith('$type')) {
+      const name = property.replace(/\$type$/, '');
+      if (container[key] === 'Object') {
+        chunk[name] = {};
+      } else if (container[key] === 'Array') {
+        chunk[name] = [];
+      } else {
+        // Unknown type
+      }
+    } else {
+      chunk[property] = container[key];
+    }
+  }
+  return object;
+}
+
+function setTypes(object) {
+  for (const key in object) {
+    const value = object[key];
+
+    if (parseInt(value, 10).toString() === value) {
+      object[key] = parseInt(value, 10);
+    } else if (parseFloat(value, 10).toString() === value) {
+      object[key] = parseFloat(value, 10);
+    } else if (value === 'true') {
+      object[key] = true;
+    } else if (value === 'false') {
+      object[key] = false;
+    }
+  }
+  return object;
+}
+
 module.exports = {
   callback,
   camelize,
   deepClone,
+  expand,
+  flatten,
   formatBytes,
   functionType,
   merge,
@@ -201,6 +296,8 @@ module.exports = {
   precisionRound,
   resolve,
   resolves,
+  set,
+  setTypes,
   sha1,
   sha256,
   timestamp
