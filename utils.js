@@ -190,7 +190,7 @@ function functionType(func) {
 }
 
 function set(object, propertyPath, value) {
-  const parts = propertyPath.stripWhitespace().split(/\./);
+  const parts = propertyPath.trim().split(/\./);
   const key = parts.pop();
 
   for (const part of parts) {
@@ -202,6 +202,33 @@ function set(object, propertyPath, value) {
   }
 
   object[key] = value;
+
+  return true;
+}
+
+function remove(object, propertyPath, removeEmptyContainer = false) {
+  const parts = propertyPath.trim().split(/\./);
+  const key = parts.pop();
+
+  let parent;
+  let parentKey;
+
+  for (const part of parts) {
+    parent = object;
+    parentKey = part;
+
+    object = object[part];
+
+    if (!object) {
+      return false;
+    }
+  }
+
+  delete object[key];
+
+  if (removeEmptyContainer && size(object) === 0) {
+    delete parent[parentKey];
+  }
 
   return true;
 }
@@ -282,11 +309,97 @@ function setTypes(object) {
   return object;
 }
 
+function size(object) {
+  if (typeof object === 'object') {
+    return Object.getOwnPropertyNames(object).length;
+  }
+  return 0;
+}
+
+function project(object, projection) {
+  let sum = 0;
+  for (const key in projection) {
+    sum += projection[key] ? 1 : 0;
+  }
+
+  if (sum === 0) { // selective removal
+    const result = deepClone(object);
+    for (const key in projection) {
+      remove(result, key, true);
+    }
+    return result;
+  }
+  // selective inclusion
+  const result = {};
+
+  for (const key in projection) {
+    if (projection[key]) {
+      set(result, key, resolve(object, key));
+    }
+  }
+  return result;
+}
+
+function filter(object, check, include = true, path) {
+  if (typeof object !== 'object') {
+    return object;
+  }
+
+  function test(fullpath) {
+    if (Array.isArray(check)) {
+      if (check.includes(fullpath)) {
+        return include;
+      }
+      return !include;
+    } else if (check instanceof Map || check instanceof Set ||
+               check instanceof WeakMap || check instanceof WeakSet) {
+      if (check.has(fullpath)) {
+        return include;
+      }
+      return !include;
+    } else if (typeof check === 'function') {
+      if (check(fullpath)) {
+        return include;
+      } return !include;
+    } else if (check instanceof RegExp) {
+      if (check.test(fullpath)) {
+        return include;
+      }
+      return !include;
+    } else if (typeof check === 'object') {
+      if (resolve(check, fullpath)) {
+        return include;
+      }
+      return !include;
+    }
+    return !include;
+  }
+
+  include = Boolean(include);
+
+  const clone = {};
+  for (const prop in object) {
+    const fullpath = path ? `${ path }.${ prop }` : prop;
+    let value = object[prop];
+    if (test(fullpath)) {
+      clone[prop] = value;
+    } else if (typeof value === 'object') {
+      value = filter(value, check, include, fullpath);
+      if (Object.keys(value).length !== 0) {
+        clone[prop] = value;
+      }
+    }
+  }
+
+  return clone;
+}
+
 module.exports = {
   callback,
   camelize,
   deepClone,
   expand,
+  filter,
   flatten,
   formatBytes,
   functionType,
@@ -294,11 +407,14 @@ module.exports = {
   noop,
   nop: noop,
   precisionRound,
+  project,
+  remove,
   resolve,
   resolves,
   set,
   setTypes,
   sha1,
   sha256,
+  size,
   timestamp
 };

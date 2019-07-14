@@ -12,24 +12,32 @@ const {
   camelize,
   deepClone,
   expand,
+  filter,
   flatten,
   merge,
   precisionRound,
+  project,
+  remove,
   resolve,
   resolves,
   set,
-  setTypes
+  setTypes,
+  size
 } = require('./utils');
 
 Math.$round = precisionRound;
 
 Object.$expand = expand;
+Object.$filter = filter;
 Object.$flatten = flatten;
+Object.$project = project;
 Object.$query = query;
+Object.$remove = remove;
 Object.$resolve = resolve;
 Object.$resolves = resolves;
 Object.$set = set;
 Object.$setTypes = setTypes;
+Object.$size = size;
 
 Object.defineProperty(Array.prototype, '$random', {
   value() {
@@ -254,28 +262,6 @@ Object.$deepClone = function(object) {
 
 Object.$merge = function(objectA, objectB, createNew = false) {
   return merge(objectA, objectB, createNew);
-};
-
-Object.$filter = function(object, fields, path) {
-  if (typeof object !== 'object') {
-    return object;
-  }
-
-  const clone = {};
-  for (const prop in object) {
-    const fullpath = path ? `${ path }.${ prop }` : prop;
-    let value = object[prop];
-    if (fields.includes(fullpath)) {
-      clone[prop] = value;
-    } else if (typeof value === 'object') {
-      value = Object.$filter(value, fields, fullpath);
-      if (Object.keys(value).length !== 0) {
-        clone[prop] = value;
-      }
-    }
-  }
-
-  return clone;
 };
 
 /**
