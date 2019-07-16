@@ -23,6 +23,10 @@ function equals(a, b) {
 }
 
 function query(value, filter = {}) {
+  if (typeof filter === 'function') {
+    return Boolean(filter, value);
+  }
+
   let result = 1;
 
   for (const key in filter) {
