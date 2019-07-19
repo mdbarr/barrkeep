@@ -394,10 +394,86 @@ function filter(object, check, include = true, path) {
   return clone;
 }
 
+function deepEqual(actual, expected) {
+  if (actual === null || actual === undefined ||
+      expected === null || expected === undefined) {
+    return actual === expected;
+  }
+
+  if (actual.constructor !== expected.constructor) {
+    return false;
+  }
+
+  if (actual instanceof Function) {
+    return actual === expected;
+  }
+
+  if (actual instanceof RegExp) {
+    return actual === expected;
+  }
+
+  if (actual instanceof Set) {
+    if (actual.size !== expected.size) {
+      return false;
+    }
+
+    for (const entry of actual) {
+      if (!expected.has(entry)) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  if (actual instanceof Map) {
+    if (actual.size !== expected.size) {
+      return false;
+    }
+
+    for (const [ key, value ] of actual) {
+      if (!expected.has(key) &&
+          deepEqual(value, expected.get(key))) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  if (actual === expected || actual.valueOf() === expected.valueOf()) {
+    return true;
+  }
+
+  if (Array.isArray(actual) && actual.length !== expected.length) {
+    return false;
+  }
+
+  if (actual instanceof Date) {
+    return false;
+  }
+
+  if (!(actual instanceof Object)) {
+    return false;
+  }
+
+  if (!(expected instanceof Object)) {
+    return false;
+  }
+
+  const properties = Object.keys(actual);
+  return Object.keys(expected).every((i) => {
+    return properties.indexOf(i) !== -1;
+  }) && properties.every((i) => {
+    return deepEqual(actual[i], expected[i]);
+  });
+}
+
 module.exports = {
   callback,
   camelize,
   deepClone,
+  deepEqual,
   expand,
   filter,
   flatten,
