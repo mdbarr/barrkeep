@@ -101,12 +101,12 @@ function resolves(object, path = '', delimiter = '.') {
   return true;
 }
 
-function formatBytes(bytes, decimals) {
+function formatBytes(bytes, decimals = 2) {
   if (bytes === 0) {
     return '0 Bytes';
   }
   const kilobyte = 1024;
-  const places = decimals + 1 || 3;
+  const places = decimals + 1;
   const sizes = [ 'Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB' ];
   const index = Math.floor(Math.log(bytes) / Math.log(kilobyte));
   return `${ parseFloat((bytes / Math.pow(kilobyte, index)).toFixed(places)) } ${ sizes[index] }`;

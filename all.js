@@ -12,6 +12,7 @@ const modules = [
   'query',
   'shim',
   'style',
+  'transforms',
   'utils',
   'validate'
 ];
