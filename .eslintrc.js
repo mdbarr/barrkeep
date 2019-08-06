@@ -3,13 +3,12 @@
 module.exports = {
   'parser': 'espree',
   'parserOptions': {
-    'ecmaVersion': 8,
+    'ecmaVersion': 9,
     'sourceType': 'script'
   },
   'env': {
-    'mocha': true,
-    'node': true,
-    'es6': true
+    'es6': true,
+    'node': true
   },
   'globals': {
   },
