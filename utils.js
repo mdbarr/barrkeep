@@ -377,15 +377,20 @@ function filter(object, check, include = true, path) {
 
   include = Boolean(include);
 
-  const clone = {};
+  const clone = Array.isArray(object) ? [ ] : { };
   for (const prop in object) {
     const fullpath = path ? `${ path }.${ prop }` : prop;
+
     let value = object[prop];
+
     if (test(fullpath)) {
       clone[prop] = value;
-    } else if (typeof value === 'object') {
+    }
+
+    if (typeof value === 'object') {
       value = filter(value, check, include, fullpath);
-      if (Object.keys(value).length !== 0) {
+      if (Array.isArray(value) && value.length !== 0 ||
+          Object.keys(value).length !== 0) {
         clone[prop] = value;
       }
     }
