@@ -175,11 +175,11 @@ function sha256(input) {
 
 const noop = () => { return undefined; };
 
-function callback(next, synchronousContext = false) {
+function callback(next, nextTick = false) {
   if (typeof next === 'function') {
-    if (synchronousContext) {
+    if (nextTick) {
       return function(...args) {
-        setImmediate(() => {
+        process.nextTick(() => {
           next(...args);
         });
       };
