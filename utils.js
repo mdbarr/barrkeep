@@ -141,7 +141,7 @@ function sha256(input) {
 
 const noop = () => { return undefined; };
 
-function callback(next, synchronousContext) {
+function callback(next, synchronousContext = false) {
   if (typeof next === 'function') {
     if (synchronousContext) {
       return function(...args) {
@@ -153,6 +153,22 @@ function callback(next, synchronousContext) {
     return next;
   }
   return noop;
+}
+
+function once(func) {
+  if (typeof func !== 'function') {
+    return noop;
+  }
+
+  let invoked = false;
+
+  return (...args) => {
+    if (!invoked) {
+      invoked = true;
+      return func(...args);
+    }
+    return false;
+  };
 }
 
 function timestamp(date) {
@@ -487,6 +503,7 @@ module.exports = {
   merge,
   noop,
   nop: noop,
+  once,
   precisionRound,
   project,
   remove,
