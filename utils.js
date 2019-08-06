@@ -69,6 +69,8 @@ function merge(objectA, objectB, createNew = false, seen) {
   return objectA;
 }
 
+const arrayPartRegExp = /([^]+)\[(\d+)\]$/;
+
 function resolve(object, path = '', delimiter = '.') {
   if (!object || !path) {
     return undefined;
@@ -77,9 +79,25 @@ function resolve(object, path = '', delimiter = '.') {
   const parts = path.trim().split(delimiter);
 
   for (const part of parts) {
-    object = object[part];
-    if (!object) {
-      return object;
+    if (arrayPartRegExp.test(part)) {
+      const match = part.match(arrayPartRegExp);
+      const subpart = match[1];
+      const index = Number(match[2]);
+
+      object = object[subpart];
+      if (!object) {
+        return object;
+      }
+
+      object = object[index];
+      if (!object) {
+        return object;
+      }
+    } else {
+      object = object[part];
+      if (!object) {
+        return object;
+      }
     }
   }
   return object;
@@ -93,9 +111,25 @@ function resolves(object, path = '', delimiter = '.') {
   const parts = path.trim().split(delimiter);
 
   for (const part of parts) {
-    object = object[part];
-    if (!object) {
-      return false;
+    if (arrayPartRegExp.test(part)) {
+      const match = part.match(arrayPartRegExp);
+      const subpart = match[1];
+      const index = Number(match[2]);
+
+      object = object[subpart];
+      if (!object) {
+        return false;
+      }
+
+      object = object[index];
+      if (!object) {
+        return false;
+      }
+    } else {
+      object = object[part];
+      if (!object) {
+        return false;
+      }
     }
   }
   return true;
