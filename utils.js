@@ -456,13 +456,13 @@ function filter(object, check, include = true, path) {
     let value = object[prop];
 
     if (test(fullpath)) {
-      clone[prop] = value;
-    }
-
-    if (typeof value === 'object') {
-      value = filter(value, check, include, fullpath);
-      if (Array.isArray(value) && value.length !== 0 ||
-          Object.keys(value).length !== 0) {
+      if (typeof value === 'object') {
+        value = filter(value, check, include, fullpath);
+        if (Array.isArray(value) && value.length !== 0 ||
+            Object.keys(value).length !== 0) {
+          clone[prop] = value;
+        }
+      } else {
         clone[prop] = value;
       }
     }
