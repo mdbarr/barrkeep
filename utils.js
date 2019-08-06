@@ -173,6 +173,28 @@ function sha256(input) {
     digest('hex');
 }
 
+function encrypt(text, secret, algorithm = 'aes-256-cbc') {
+  const cipher = crypto.createCipher(algorithm, secret);
+  let encrypted = cipher.update(text, 'utf8', 'hex');
+  encrypted += cipher.final('hex');
+
+  return encrypted;
+}
+
+function decrypt(text, secret, algorithm = 'aes-256-cbc') {
+  const decipher = crypto.createDecipher(algorithm, secret);
+
+  let deciphered;
+  try {
+    deciphered = decipher.update(text, 'hex', 'utf8');
+    deciphered += decipher.final('utf8');
+  } catch (error) {
+    deciphered = false;
+  }
+
+  return deciphered;
+}
+
 const noop = () => { return undefined; };
 
 function callback(next, nextTick = false) {
@@ -527,8 +549,10 @@ function deepEqual(actual, expected) {
 module.exports = {
   callback,
   camelize,
+  decrypt,
   deepClone,
   deepEqual,
+  encrypt,
   expand,
   filter,
   flatten,
