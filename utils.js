@@ -546,9 +546,24 @@ function deepEqual(actual, expected) {
   });
 }
 
+function debounce(func, wait) {
+  let timeout;
+
+  return (...args) => {
+    if (timeout) {
+      clearTimeout(timeout);
+    }
+
+    timeout = setTimeout(() => {
+      func(...args);
+    }, wait || 500);
+  };
+}
+
 module.exports = {
   callback,
   camelize,
+  debounce,
   decrypt,
   deepClone,
   deepEqual,
