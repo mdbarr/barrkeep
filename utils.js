@@ -560,6 +560,33 @@ function debounce(func, wait) {
   };
 }
 
+function milliseconds(duration) {
+  if (typeof duration === 'number') {
+    return duration;
+  } else if (typeof duration === 'string') {
+    let millis = 0;
+    duration.replace(/(\d+\.?\d*)\s*([mshd]+)/g, (match, time, unit) => {
+      time = Number(time) || 0;
+      if (unit === 'ms') {
+        time *= 1;
+      } else if (unit === 's') {
+        time *= 1000;
+      } else if (unit === 'm') {
+        time *= 1000 * 60;
+      } else if (unit === 'h') {
+        time *= 1000 * 60 * 60;
+      } else if (unit === 'd') {
+        time *= 1000 * 60 * 60 * 24;
+      }
+
+      millis += time;
+    });
+
+    return Math.ceil(millis);
+  }
+  return 0;
+}
+
 module.exports = {
   callback,
   camelize,
@@ -574,6 +601,7 @@ module.exports = {
   formatBytes,
   functionType,
   merge,
+  milliseconds,
   noop,
   nop: noop,
   once,
