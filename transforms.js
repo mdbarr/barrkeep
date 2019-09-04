@@ -1,7 +1,7 @@
 'use strict';
 
 const {
-  camelize, formatBytes, sha1, sha256
+  camelize, formatBytes, milliseconds, sha1, sha256
 } = require('./utils');
 
 module.exports = {
@@ -31,6 +31,12 @@ module.exports = {
       return '';
     }
     return value.toString().toLowerCase();
+  },
+  milliseconds (value) {
+    if (!value) {
+      return 0;
+    }
+    return milliseconds(value);
   },
   reverse (value) {
     if (!value) {
