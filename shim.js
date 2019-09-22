@@ -77,7 +77,7 @@ Object.defineProperty(Array.prototype, '$pick', {
     }
 
     while (picks.length < count) {
-      const i = arr.random();
+      const i = arr.$random();
       picks.push(arr[i]);
       arr.splice(i, 1);
     }
