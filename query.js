@@ -24,7 +24,7 @@ function equals(a, b) {
 
 function query(value, filter = {}) {
   if (typeof filter === 'function') {
-    return Boolean(filter, value);
+    return Boolean(filter(value));
   }
 
   let result = 1;
@@ -37,6 +37,12 @@ function query(value, filter = {}) {
         result &= value !== filter[key];
       } else if (key === '$like') {
         result &= equals(value, filter[key]);
+      } else if (key === '$regex') {
+        if (filter[key] instanceof RegExp) {
+          result &= filter[key].test(value);
+        } else {
+          result &= false;
+        }
       } else if (key === '$gt') {
         result &= value > filter[key];
       } else if (key === '$gte') {
