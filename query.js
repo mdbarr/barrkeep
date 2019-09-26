@@ -37,7 +37,7 @@ function query(value, filter = {}) {
         result &= value !== filter[key];
       } else if (key === '$like') {
         result &= equals(value, filter[key]);
-      } else if (key === '$regex') {
+      } else if (key === '$regexp' || key === '$regex') {
         if (filter[key] instanceof RegExp) {
           result &= filter[key].test(value);
         } else {
