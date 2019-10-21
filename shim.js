@@ -29,8 +29,8 @@ const {
 
 Math.$round = precisionRound;
 
-Number.$format = formatNumber;
 Number.$asBytes = formatBytes;
+Number.$format = formatNumber;
 
 Object.$expand = expand;
 Object.$filter = filter;
