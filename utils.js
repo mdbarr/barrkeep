@@ -157,6 +157,28 @@ function camelize(string) {
     });
 }
 
+function formatNumber(value) {
+  value = Number(value);
+  if (Number.isNaN(value) || Number === Infinity) {
+    return value.toString();
+  }
+
+  const words = [ 'zero', 'one', 'two', 'three', 'four',
+    'five', 'six', 'seven', 'eight', 'nine', 'ten' ];
+
+  if (Number.isInteger(value)) {
+    if (words[value]) {
+      return words[value];
+    }
+  } else {
+    value = precisionRound(value);
+  }
+
+  return value.toString().
+    split(/(?=(?:\d{3})+(?:\.|$))/g).
+    join( ',' );
+}
+
 function sha1(input) {
   if (typeof input !== 'string') {
     input = JSON.stringify(input);
@@ -599,6 +621,7 @@ module.exports = {
   filter,
   flatten,
   formatBytes,
+  formatNumber,
   functionType,
   merge,
   milliseconds,
