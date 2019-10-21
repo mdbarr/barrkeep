@@ -14,6 +14,8 @@ const {
   expand,
   filter,
   flatten,
+  formatBytes,
+  formatNumber,
   merge,
   precisionRound,
   project,
@@ -26,6 +28,9 @@ const {
 } = require('./utils');
 
 Math.$round = precisionRound;
+
+Number.$format = formatNumber;
+Number.$asBytes = formatBytes;
 
 Object.$expand = expand;
 Object.$filter = filter;
