@@ -1,10 +1,18 @@
 'use strict';
 
+const { pp } = require('./pp');
 const {
-  camelize, formatBytes, formatNumber, milliseconds, sha1, sha256
+  camelize, duration, formatBytes, formatNumber, milliseconds, ordinal,
+  precisionRound, sha1, sha256
 } = require('./utils');
 
 module.exports = {
+  binary (value) {
+    if (!value) {
+      return '';
+    }
+    return Number(value).toString(2);
+  },
   bytes (value) {
     if (!value) {
       return '';
@@ -26,6 +34,30 @@ module.exports = {
     value = value.toString();
     return value.charAt(0).toUpperCase() + value.slice(1);
   },
+  currency (value, symbol = '$') {
+    if (!value) {
+      return '';
+    }
+    return `${ symbol }${ precisionRound(value) }`;
+  },
+  duration (value) {
+    if (!value) {
+      return '';
+    }
+    return duration(value);
+  },
+  hexadecimal (value) {
+    if (!value) {
+      return '';
+    }
+    return Number(value).toString(16);
+  },
+  json (value, indent = 2) {
+    if (value) {
+      return '';
+    }
+    return JSON.stringify(value, null, indent);
+  },
   lowercase (value) {
     if (!value) {
       return '';
@@ -40,6 +72,37 @@ module.exports = {
   },
   number (value) {
     return formatNumber(value);
+  },
+  octal (value) {
+    if (!value) {
+      return '';
+    }
+    return Number(value).toString(8);
+  },
+  ordinal (value) {
+    if (!value) {
+      return '';
+    }
+    return ordinal(value);
+  },
+  pluralize (word, count, form = '$1s') {
+    if (count === 1) {
+      return word;
+    }
+    return form.replace('$1', word);
+  },
+  pp (value) {
+    if (!value) {
+      return '';
+    }
+    return pp(value, {
+      all: false,
+      color: false,
+      json: false,
+      lineNumbers: false,
+      print: false,
+      showDepth: true
+    });
   },
   reverse (value) {
     if (!value) {
