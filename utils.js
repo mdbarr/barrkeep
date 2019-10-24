@@ -288,6 +288,10 @@ function set(object, propertyPath, value) {
   const key = parts.pop();
 
   for (const part of parts) {
+    if (object[part] === undefined) {
+      object[part] = {};
+    }
+
     object = object[part];
 
     if (!object) {
