@@ -646,6 +646,22 @@ function duration(diff) {
   return parts.join(', ');
 }
 
+function ordinal (value) {
+  value = Number(value);
+
+  const tens = value % 10;
+  const hundreds = value % 100;
+
+  if (tens === 1 && hundreds !== 11) {
+    return `${ value }st`;
+  } else if (tens === 2 && hundreds !== 12) {
+    return `${ value }nd`;
+  } else if (tens === 3 && hundreds !== 13) {
+    return `${ value }rd`;
+  }
+  return `${ value }th`;
+}
+
 module.exports = {
   callback,
   camelize,
@@ -666,6 +682,7 @@ module.exports = {
   noop,
   nop: noop,
   once,
+  ordinal,
   precisionRound,
   project,
   remove,
