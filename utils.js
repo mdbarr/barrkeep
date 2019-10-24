@@ -586,12 +586,12 @@ function debounce(func, wait) {
   };
 }
 
-function milliseconds(duration) {
-  if (typeof duration === 'number') {
-    return duration;
-  } else if (typeof duration === 'string') {
+function milliseconds(value) {
+  if (typeof value === 'number') {
+    return value;
+  } else if (typeof value === 'string') {
     let millis = 0;
-    duration.replace(/(\d+\.?\d*)\s*([mshd]+)/g, (match, time, unit) => {
+    value.replace(/(\d+\.?\d*)\s*([mshd]+)/g, (match, time, unit) => {
       time = Number(time) || 0;
       if (unit === 'ms') {
         time *= 1;
@@ -613,6 +613,39 @@ function milliseconds(duration) {
   return 0;
 }
 
+function duration(diff) {
+  const days = Math.floor(diff / 86400000);
+  diff = diff % 86400000;
+  const hours = Math.floor(diff / 3600000);
+  diff = diff % 3600000;
+  const minutes = Math.floor(diff / 60000);
+
+  const parts = [];
+  if (days > 0) {
+    if (days === 1) {
+      parts.push(`${ days } day`);
+    } else {
+      parts.push(`${ days } day`);
+    }
+  }
+  if (hours > 0) {
+    if (hours === 1) {
+      parts.push(`${ hours } hour`);
+    } else {
+      parts.push(`${ hours } hours`);
+    }
+  }
+  if (minutes > 0) {
+    if (minutes === 1) {
+      parts.push(`${ minutes } minute`);
+    } else {
+      parts.push(`${ minutes } minutes`);
+    }
+  }
+
+  return parts.join(', ');
+}
+
 module.exports = {
   callback,
   camelize,
@@ -620,6 +653,7 @@ module.exports = {
   decrypt,
   deepClone,
   deepEqual,
+  duration,
   encrypt,
   expand,
   filter,
