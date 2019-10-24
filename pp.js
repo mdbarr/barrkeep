@@ -62,14 +62,15 @@ const darkTheme = {
 
 function prettyPrint(object, {
   all = false,
-  print = true,
+  color = true,
   json = false,
   lineNumbers = false,
+  print = true,
   showDepth = true,
   theme = darkTheme
 } = {}) {
   let style;
-  if (process.stdout && process.stdout.isTTY) {
+  if (color && process.stdout && process.stdout.isTTY) {
     style = require('./style');
   } else {
     style = (string) => { return string; };
