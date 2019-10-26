@@ -91,6 +91,16 @@ function query(value, filter = {}) {
           return true;
         }
         return false;
+      } else if (key === '$mod') {
+        const divisor = filter[key][0] || filter[key];
+        const remainder = filter[key][1] || 0;
+        result &= value % divisor === remainder;
+      } else if (key === '$where') {
+        if (typeof filter[key] === 'function') {
+          result &= Boolean(filter[key](value));
+        } else {
+          result &= false;
+        }
       } else if (key === '$elemMatch') {
         if (Array.isArray(value)) {
           for (const item of value) {
