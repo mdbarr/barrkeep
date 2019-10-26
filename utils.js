@@ -432,7 +432,13 @@ function project(object, projection) {
 
   for (const key in projection) {
     if (projection[key]) {
-      set(result, key, resolve(object, key));
+      if (typeof projection[key] === 'string') { // key change
+        set(result, projection[key], resolve(object, key));
+      } else if (typeof projection[key] === 'function') { // value transform
+        set(result, key, projection[key](resolve(object, key)));
+      } else {
+        set(result, key, resolve(object, key)); // simple projection
+      }
     }
   }
   return result;
