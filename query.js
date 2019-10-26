@@ -85,12 +85,13 @@ function query(value, filter = {}) {
         result &= value !== undefined;
       } else if (key === '$size') {
         if (Array.isArray(value) && value.length === filter[key]) {
-          return true;
+          result &= true;
         } else if (typeof value === 'object' &&
                    Object.keys(value).length === filter[key]) {
-          return true;
+          result &= true;
+        } else {
+          result &= false;
         }
-        return false;
       } else if (key === '$mod') {
         const divisor = filter[key][0] || filter[key];
         const remainder = filter[key][1] || 0;
@@ -103,13 +104,17 @@ function query(value, filter = {}) {
         }
       } else if (key === '$elemMatch') {
         if (Array.isArray(value)) {
+          let found = false;
           for (const item of value) {
             if (query(item, filter[key])) {
-              return true;
+              found = true;
+              break;
             }
           }
+          result &= found;
+        } else {
+          result &= false;
         }
-        return false;
       } else if (key === '$all') {
         if (Array.isArray(value)) {
           for (const item of value) {
@@ -119,7 +124,7 @@ function query(value, filter = {}) {
             }
           }
         } else {
-          return false;
+          result &= false;
         }
       }
     } else if (Array.isArray(filter[key])) {
