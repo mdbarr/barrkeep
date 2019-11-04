@@ -7,7 +7,10 @@ function CappedSet(capacity = 100) {
   let start = 0;
   let size = 0;
 
-  this.size = () => { return size; };
+  Object.defineProperty(this, 'size', {
+    get() { return set.size; },
+    set() {}
+  });
 
   this.add = (id) => {
     if (start > 0) {
@@ -28,9 +31,28 @@ function CappedSet(capacity = 100) {
     }
   };
 
+  this.clear = () => {
+    size = 0;
+    start = 0;
+    seen.splice(0, seen.length).concat(new Array(capacity));
+    return set.clear();
+  };
+
+  this.delete = (id) => {
+    return set.delete(id);
+  };
+
+  this.entries = set.entries;
+
+  this.forEach = set.forEach;
+
   this.has = (id) => {
     return set.has(id);
   };
+
+  this.values = set.values;
+
+  this[Symbol.iterator] = set[Symbol.iterator];
 }
 
 module.exports = CappedSet;
