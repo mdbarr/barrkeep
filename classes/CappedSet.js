@@ -29,6 +29,8 @@ function CappedSet(capacity = 100) {
     if (size < capacity) {
       size++;
     }
+
+    return this;
   };
 
   this.clear = () => {
@@ -46,9 +48,7 @@ function CappedSet(capacity = 100) {
 
   this.forEach = set.forEach;
 
-  this.has = (id) => {
-    return set.has(id);
-  };
+  this.has = set.has;
 
   this.values = set.values;
 
