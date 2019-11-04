@@ -1,6 +1,7 @@
 'use strict';
 
 const modules = [
+  'classes',
   'colorize',
   'emojify',
   'expect',
