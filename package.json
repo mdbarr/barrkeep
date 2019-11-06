@@ -4,13 +4,15 @@
   "description": "A collection of the utilities, modules and shims for node.js services development.",
   "main": "index.js",
   "repository": "https://github.com/mdbarr/barrkeep.git",
-  "author": "Mark Barr <mbarr@onshape.com>",
+  "author": "Mark Barr <mbarr@hyperingenuity.com>",
   "license": "MIT",
   "private": false,
   "devDependencies": {
-    "eslint": "^6.6.0"
+    "eslint": "^6.6.0",
+    "jest": "^24.9.0"
   },
   "scripts": {
-    "lint": "eslint *.js **/*.js"
+    "lint": "eslint *.js **/*.js",
+    "test": "jest"
   }
 }
