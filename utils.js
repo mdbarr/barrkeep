@@ -195,26 +195,30 @@ function sha256(input) {
     digest('hex');
 }
 
-function encrypt(text, secret, algorithm = 'aes-256-cbc') {
-  const cipher = crypto.createCipher(algorithm, secret);
-  let encrypted = cipher.update(text, 'utf8', 'hex');
-  encrypted += cipher.final('hex');
+function encrypt(text, secret, algorithm = 'aes-256-cbc', ivLength = 16) {
+  let encrypted = null;
+  secret = secret.replace(/-/g, '').substring(0, 32);
+  const iv = crypto.randomBytes(ivLength);
+  const cipher = crypto.createCipheriv(algorithm, secret, iv);
+  encrypted = cipher.update(text);
+  encrypted = Buffer.concat([ encrypted, cipher.final() ]);
+  encrypted = `${ iv.toString('hex') }:${ encrypted.toString('hex') }`;
 
   return encrypted;
 }
 
 function decrypt(text, secret, algorithm = 'aes-256-cbc') {
-  const decipher = crypto.createDecipher(algorithm, secret);
+  let decrypted = null;
+  secret = secret.replace(/-/g, '').substring(0, 32);
+  const textParts = text.split(':');
+  const iv = Buffer.from(textParts.shift(), 'hex');
+  const encryptedText = Buffer.from(textParts.join(':'), 'hex');
+  const decipher = crypto.createDecipheriv(algorithm, secret, iv);
+  decrypted = decipher.update(encryptedText);
 
-  let deciphered;
-  try {
-    deciphered = decipher.update(text, 'hex', 'utf8');
-    deciphered += decipher.final('utf8');
-  } catch (error) {
-    deciphered = false;
-  }
+  decrypted = Buffer.concat([ decrypted, decipher.final() ]).toString();
 
-  return deciphered;
+  return decrypted;
 }
 
 const noop = () => { return undefined; };

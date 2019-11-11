@@ -1,6 +1,7 @@
 'use strict';
 
 require('../pp');
+const crypto = require('crypto');
 const utils = require('../utils');
 
 const a = {
@@ -44,6 +45,12 @@ describe('Utilities Test', () => {
   it('should test sha256 hashing', () => {
     expect(utils.sha256('foo')).
       toBe('2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae');
+  });
+
+  it('should test encrypt and decrypt', () => {
+    const key = crypto.randomBytes(16).toString('hex');
+    const encrypted = utils.encrypt('super-secret', key);
+    expect(utils.decrypt(encrypted, key)).toBe('super-secret');
   });
 
   it('should test inclusive $project', () => {
