@@ -53,6 +53,21 @@ describe('Utilities Test', () => {
     expect(utils.decrypt(encrypted, key)).toBe('super-secret');
   });
 
+  it('should test once function wrapper', () => {
+    let value = 0;
+    const func = utils.once(() => { value++; });
+
+    func();
+    func();
+    func();
+
+    expect(value).toBe(1);
+  });
+
+  it('should test precision rounding', () => {
+
+  });
+
   it('should test inclusive $project', () => {
     expect(utils.project(a, {
       a: 1,
