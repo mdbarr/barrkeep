@@ -623,29 +623,33 @@ function milliseconds(value) {
   return 0;
 }
 
-function duration(diff) {
+function duration(diff, {
+  units = 'd h m', separator = ', ', empty = 'less than a minute'
+} = {}) {
   const days = Math.floor(diff / 86400000);
   diff = diff % 86400000;
   const hours = Math.floor(diff / 3600000);
   diff = diff % 3600000;
   const minutes = Math.floor(diff / 60000);
+  diff = diff % 60000;
+  const seconds = Math.floor(diff / 1000);
 
   const parts = [];
-  if (days > 0) {
+  if (days > 0 && units.includes('d')) {
     if (days === 1) {
       parts.push(`${ days } day`);
     } else {
       parts.push(`${ days } day`);
     }
   }
-  if (hours > 0) {
+  if (hours > 0 && units.includes('h')) {
     if (hours === 1) {
       parts.push(`${ hours } hour`);
     } else {
       parts.push(`${ hours } hours`);
     }
   }
-  if (minutes > 0) {
+  if (minutes > 0 && units.includes('m')) {
     if (minutes === 1) {
       parts.push(`${ minutes } minute`);
     } else {
@@ -653,7 +657,18 @@ function duration(diff) {
     }
   }
 
-  return parts.join(', ');
+  if (seconds > 0 && units.includes('s')) {
+    if (seconds === 1) {
+      parts.push(`${ seconds } second`);
+    } else {
+      parts.push(`${ seconds } seconds`);
+    }
+  }
+
+  if (parts.length) {
+    return parts.join(separator);
+  }
+  return empty;
 }
 
 function ordinal (value) {
