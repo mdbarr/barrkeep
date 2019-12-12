@@ -1,6 +1,6 @@
 {
   "name": "barrkeep",
-  "version": "2.4.0",
+  "version": "2.4.1",
   "description": "A collection of the utilities, modules and shims for node.js services development.",
   "main": "index.js",
   "repository": "https://github.com/mdbarr/barrkeep.git",
