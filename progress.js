@@ -1,34 +1,19 @@
 'use strict';
 
-const SHOW_CURSOR = '\x1b[?25h';
-const HIDE_CURSOR = '\x1b[?25l';
-
 const {
   duration, formatNumber, timestamp
 } = require('./utils');
 
-const spinners = {
-  arrows: '←↖↑↗→↘↓↙',
-  blocks: '▖▘▝▗',
-  braille: '⠟⠯⠷⠾⠽⠻',
-  'braille-large': '⡿⣟⣯⣷⣾⣽⣻⢿',
-  circle: '◐◓◑◒',
-  vertical: '▁▃▄▅▆▇█▇▆▅▄▃',
-  horizontal: '▉▊▋▌▍▎▏▎▍▌▋▊▉',
-  pie: '◴◷◶◵',
-  pipes: '┤┘┴└├┌┬┐',
-  spin: '|/-\\',
-  triangles: '◢◣◤◥'
-};
+const spinners = require('./spinners.json');
 
 class ProgressBar {
   constructor({
     total = 10, format = '[$progress]', stream = process.stderr, width,
     complete = '=', incomplete = ' ', head = '>', clear,
-    interval = 250, environment = {}, spinner = 'spin'
+    interval, environment = {}, spinner = 'dots'
   } = {}) {
     this.total = total;
-    this.width = width || this.total;
+    this.width = width || Math.max(this.total, 60);
 
     this.stream = stream;
     this.format = format;
@@ -37,13 +22,15 @@ class ProgressBar {
       incomplete,
       head
     };
-    this.spinner = spinners[spinner] || spinners.braille;
+
+    spinner = spinners[spinner] ? spinner : 'dots';
+
+    this.spinner = spinners[spinner].frames;
+    this.interval = interval || spinners[spinner].interval;
 
     this.clear = clear === undefined ? false : clear;
     this.environment = environment;
     this.initialEnvironment = Object.assign({}, environment);
-
-    this.interval = interval;
 
     this.value = 0;
 
@@ -134,7 +121,7 @@ class ProgressBar {
 
     if (this.lastUpdate !== string) {
       this.stream.cursorTo(0);
-      this.stream.write(`${ HIDE_CURSOR }${ string }`);
+      this.stream.write(`\x1b[?25l${ string }`);
       this.stream.clearLine(1);
       this.lastUpdate = string;
     }
@@ -143,7 +130,7 @@ class ProgressBar {
   done () {
     clearInterval(this.tick);
 
-    this.stream.write(SHOW_CURSOR);
+    this.stream.write('\x1b[?25h');
 
     if (this.clear) {
       if (this.stream.clearLine) {
