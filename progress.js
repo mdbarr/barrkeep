@@ -9,7 +9,7 @@ const spinners = require('./spinners.json');
 class ProgressBar {
   constructor({
     total = 10, format = '[$progress]', stream = process.stderr, width,
-    complete = '=', incomplete = ' ', head = '>', clear,
+    complete = '=', incomplete = ' ', head = '>', clear, y,
     interval, environment = {}, spinner = 'dots'
   } = {}) {
     this.total = total;
@@ -23,12 +23,14 @@ class ProgressBar {
       head
     };
 
+    this.clear = clear === undefined ? false : clear;
+    this.y = y || undefined;
+
     spinner = spinners[spinner] ? spinner : 'dots';
 
     this.spinner = spinners[spinner].frames;
     this.interval = interval || spinners[spinner].interval;
 
-    this.clear = clear === undefined ? false : clear;
     this.environment = environment;
     this.initialEnvironment = Object.assign({}, environment);
 
@@ -120,17 +122,24 @@ class ProgressBar {
 
     const columns = Math.max(0, this.stream.columns - string.replace(/\$progress/g, '').length);
     const width = Math.min(this.width, columns);
-    const completeLength = Math.round(width * ratio);
 
-    const complete = this.characters.complete.repeat(Math.max(0, completeLength)).
-      replace(/.$/, this.value >= this.total ? this.characters.complete : this.characters.head);
-    const incomplete = this.characters.incomplete.repeat(Math.max(0, width - completeLength));
+    let completeLength = Math.max(0, Math.round(width * ratio));
+    let headLength = 0;
+    if (completeLength < this.total && completeLength > 0) {
+      completeLength--;
+      headLength = 1;
+    }
+    const incompleteLength = Math.max(0, width - (completeLength + headLength));
 
-    string = string.replace('$progress', complete + incomplete).
+    const head = this.characters.head.repeat(headLength);
+    const complete = this.characters.complete.repeat(completeLength);
+    const incomplete = this.characters.incomplete.repeat(incompleteLength);
+
+    string = string.replace('$progress', complete + head + incomplete).
       replace(/\$progress/g, '');
 
     if (this.lastUpdate !== string) {
-      this.stream.cursorTo(0);
+      this.stream.cursorTo(0, this.y);
       this.stream.write(`\x1b[?25l${ string }`);
       this.stream.clearLine(1);
       this.lastUpdate = string;
@@ -145,7 +154,7 @@ class ProgressBar {
     if (this.clear) {
       if (this.stream.clearLine) {
         this.stream.clearLine();
-        this.stream.cursorTo(0);
+        this.stream.cursorTo(0, this.y);
       }
     } else {
       this.stream.write('\n');
