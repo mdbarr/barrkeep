@@ -169,4 +169,67 @@ class ProgressBar {
   }
 }
 
-module.exports = ProgressBar;
+class Spinner {
+  constructor ({
+    spinner = 'dots', stream = process.stderr, x, y, interval, clear
+  } = {}) {
+    spinner = spinners[spinner] ? spinner : 'dots';
+
+    this.spinner = spinners[spinner];
+    this.interval = interval || this.spinner.interval;
+    this.frames = this.spinner.frames;
+
+    this.stream = stream;
+    this.x = x;
+    this.y = y;
+
+    this.clear = clear === undefined;
+
+    this.frame = 0;
+  }
+
+  start () {
+    if (this.update) {
+      clearInterval(this.update);
+    }
+
+    this.stream.write(' ');
+
+    this.update = setInterval(() => {
+      const character = this.frames[this.frame];
+
+      this.position();
+
+      this.stream.write(`\x1b[?25l${ character }`);
+
+      this.frame++;
+      if (this.frame >= this.frames.length) {
+        this.frame = 0;
+      }
+    }, this.interval);
+  }
+
+  position () {
+    if (this.x !== undefined && this.y !== undefined) {
+      this.stream.cursorTo(this.x, this.y);
+    } else {
+      this.stream.moveCursor(-1);
+    }
+  }
+
+  stop() {
+    clearInterval(this.update);
+
+    if (this.clear) {
+      this.position();
+      this.stream.write(' ');
+    }
+
+    this.stream.write('\x1b[?25h');
+  }
+}
+
+module.exports = {
+  ProgressBar,
+  Spinner
+};
