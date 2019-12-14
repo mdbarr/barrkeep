@@ -42,15 +42,21 @@ class ProgressBar {
     this.tick = this.start;
     this.eta = 0;
 
-    this.render();
-    this.tick = setInterval(() => {
-      this.ticks++;
-      if (this.ticks >= this.spinner.length) {
-        this.ticks = 0;
-      }
-
+    if (this.total === 0) {
+      this.complete = true;
+    } else {
       this.render();
-    }, this.interval);
+      this.ticker = setInterval(() => {
+        if (!this.complete) {
+          this.ticks++;
+          if (this.ticks >= this.spinner.length) {
+            this.ticks = 0;
+          }
+
+          this.render();
+        }
+      }, this.interval);
+    }
   }
 
   progress (increment = 1) {
@@ -58,7 +64,11 @@ class ProgressBar {
       return;
     }
 
-    this.value += increment;
+    if (increment > 0) {
+      this.value += increment;
+    } else if (increment < 0) {
+      this.total += increment;
+    }
 
     this.tick = timestamp();
     const elapsed = this.tick - this.start;
@@ -128,7 +138,7 @@ class ProgressBar {
   }
 
   done () {
-    clearInterval(this.tick);
+    clearInterval(this.ticker);
 
     this.stream.write('\x1b[?25h');
 
