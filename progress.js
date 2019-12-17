@@ -171,7 +171,8 @@ class ProgressBar {
 
 class Spinner {
   constructor ({
-    spinner = 'dots', stream = process.stderr, x, y, interval, clear
+    spinner = 'dots', stream = process.stderr, x, y, interval, clear,
+    prepend = '', append = ''
   } = {}) {
     spinner = spinners[spinner] ? spinner : 'dots';
 
@@ -183,6 +184,9 @@ class Spinner {
     this.x = x;
     this.y = y;
 
+    this.prepend = prepend;
+    this.append = append;
+
     this.clear = clear === undefined;
 
     this.frame = 0;
@@ -193,14 +197,22 @@ class Spinner {
       clearInterval(this.update);
     }
 
-    this.stream.write(' ');
+    this.stream.write('\x1b[?25l');
+
+    if (this.x !== undefined) {
+      this.stream.cursorTo(this.x, this.y);
+    }
+
+    this.stream.write(`${ this.prepend } ${ this.append }`);
+
+    this.stream.moveCursor(this.append.length * -1);
 
     this.update = setInterval(() => {
       const character = this.frames[this.frame];
 
       this.position();
 
-      this.stream.write(`\x1b[?25l${ character }`);
+      this.stream.write(`${ character }`);
 
       this.frame++;
       if (this.frame >= this.frames.length) {
@@ -210,8 +222,8 @@ class Spinner {
   }
 
   position () {
-    if (this.x !== undefined && this.y !== undefined) {
-      this.stream.cursorTo(this.x, this.y);
+    if (this.x !== undefined) {
+      this.stream.cursorTo(this.x + this.prepend.length, this.y);
     } else {
       this.stream.moveCursor(-1);
     }
@@ -226,6 +238,7 @@ class Spinner {
     }
 
     this.stream.write('\x1b[?25h');
+    this.stream.moveCursor(this.append.length);
   }
 }
 
