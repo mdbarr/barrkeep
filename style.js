@@ -11,7 +11,7 @@ const styles = {
   reverse: 7
 };
 
-function hexToRGB(string) {
+function hexToRGB (string) {
   let red = 255;
   let green = 255;
   let blue = 255;
@@ -31,7 +31,7 @@ function hexToRGB(string) {
   return [ red, green, blue ];
 }
 
-function rgbToAnsi256(red, green, blue) {
+function rgbToAnsi256 (red, green, blue) {
   if (red === green && green === blue) {
     if (red < 8) {
       return 16;
@@ -52,7 +52,7 @@ function rgbToAnsi256(red, green, blue) {
   return ansi;
 }
 
-function parseFormatString(string) {
+function parseFormatString (string) {
   const format = {};
   const items = string.replace(/\s/g, '').split(';');
   for (const item of items) {
@@ -62,7 +62,7 @@ function parseFormatString(string) {
   return format;
 }
 
-function parseColorToCode(color) {
+function parseColorToCode (color) {
   if (Array.isArray(color)) {
     const [ red, green, blue ] = color;
     return rgbToAnsi256(red, green, blue);
@@ -80,7 +80,7 @@ function parseColorToCode(color) {
   return 0;
 }
 
-function style(string, a, b) {
+function style (string, a, b) {
   if (typeof a === 'string') {
     if (b === undefined) {
       if (a.includes(':')) {
@@ -113,7 +113,7 @@ function style(string, a, b) {
   return string;
 }
 
-colorize.rgb = function(color, string) {
+colorize.rgb = function (color, string) {
   let red;
   let green;
   let blue;
@@ -132,7 +132,7 @@ colorize.rgb = function(color, string) {
 colorize.frequency = 0.1;
 colorize.seed = Math.floor(Math.random() * 256);
 colorize.spread = 8.0;
-colorize.cycle = function(frequency, i) {
+colorize.cycle = function (frequency, i) {
   const red = Math.round(Math.sin(frequency * i + 0) * 127 + 128);
   const green = Math.round(Math.sin(frequency * i + 2 * Math.PI / 3) * 127 + 128);
   const blue = Math.round(Math.sin(frequency * i + 4 * Math.PI / 3) * 127 + 128);

@@ -1,6 +1,6 @@
 'use strict';
 
-function parseRetryOptions(options) {
+function parseRetryOptions (options) {
   options = options || { };
 
   if (options.parsed) {
@@ -38,7 +38,7 @@ function parseRetryOptions(options) {
 }
 
 // Promise extension for a delay
-Promise.delay = Promise.prototype.delay = function(timeout) {
+Promise.delay = Promise.prototype.delay = function (timeout) {
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve(timeout);
@@ -50,10 +50,10 @@ Promise.sleep = Promise.prototype.sleep = Promise.prototype.delay;
 
 // Validator promises
 const validation = {
-  ok(value) {
+  ok (value) {
     return Promise.resolve(value ? value : true);
   },
-  fail(reason) {
+  fail (reason) {
     return Promise.reject(reason ? reason : 'validation failed');
   }
 };
@@ -61,7 +61,7 @@ const validation = {
 /**
  * Promise retry mechanisms
  */
-function timeoutPromise(promise, options, value, context) {
+function timeoutPromise (promise, options, value, context) {
   return new Promise((resolve, reject) => {
     try {
       promise.bind(context)(value).then((result) => {
@@ -84,7 +84,7 @@ function timeoutPromise(promise, options, value, context) {
 /**
  * Retry a promise
  */
-const retry = function(promise, options, value, context) {
+const retry = function (promise, options, value, context) {
   options = parseRetryOptions(options);
   options.start = options.start || Date.now();
   if (typeof options.counter !== 'number') {
@@ -124,7 +124,7 @@ const retry = function(promise, options, value, context) {
 };
 
 // Promise extension for retry as a then-able
-Promise.prototype.thenRetry = function(promise, options) {
+Promise.prototype.thenRetry = function (promise, options) {
   return this.then((value) => {
     return retry(promise, options, value);
   });

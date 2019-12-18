@@ -1,6 +1,6 @@
 'use strict';
 
-function CappedSet(capacity = 100) {
+function CappedSet (capacity = 100) {
   const seen = new Array(capacity);
   const set = new Set();
 
@@ -8,8 +8,8 @@ function CappedSet(capacity = 100) {
   let size = 0;
 
   Object.defineProperty(this, 'size', {
-    get() { return set.size; },
-    set() {}
+    get () { return set.size; },
+    set () {}
   });
 
   this.add = (id) => {

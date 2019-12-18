@@ -1,6 +1,6 @@
 'use strict';
 
-function CappedMap(capacity = 100) {
+function CappedMap (capacity = 100) {
   const seen = new Array(capacity);
   const map = new Map();
 
@@ -8,8 +8,8 @@ function CappedMap(capacity = 100) {
   let size = 0;
 
   Object.defineProperty(this, 'size', {
-    get() { return map.size; },
-    set() {}
+    get () { return map.size; },
+    set () {}
   });
 
   this.clear = () => {

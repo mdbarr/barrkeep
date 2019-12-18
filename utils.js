@@ -2,7 +2,7 @@
 
 const crypto = require('crypto');
 
-function deepClone(object, seen = new WeakMap()) {
+function deepClone (object, seen = new WeakMap()) {
   // Primitives (treat Functions as primitives)
   if (Object(object) !== object || object instanceof Function) {
     return object;
@@ -43,7 +43,7 @@ function deepClone(object, seen = new WeakMap()) {
   return result;
 }
 
-function merge(objectA, objectB, createNew = false, seen) {
+function merge (objectA, objectB, createNew = false, seen) {
   if (createNew) {
     objectA = deepClone(objectA);
   }
@@ -71,7 +71,7 @@ function merge(objectA, objectB, createNew = false, seen) {
 
 const arrayPartRegExp = /([^]+)\[(\d+)\]$/;
 
-function resolve(object, path = '', delimiter = '.') {
+function resolve (object, path = '', delimiter = '.') {
   if (!object || !path) {
     return undefined;
   }
@@ -103,7 +103,7 @@ function resolve(object, path = '', delimiter = '.') {
   return object;
 }
 
-function resolves(object, path = '', delimiter = '.') {
+function resolves (object, path = '', delimiter = '.') {
   if (!object || !path) {
     return false;
   }
@@ -135,7 +135,7 @@ function resolves(object, path = '', delimiter = '.') {
   return true;
 }
 
-function formatBytes(bytes, decimals = 2) {
+function formatBytes (bytes, decimals = 2) {
   if (bytes === 0) {
     return '0 Bytes';
   }
@@ -146,7 +146,7 @@ function formatBytes(bytes, decimals = 2) {
   return `${ parseFloat((bytes / Math.pow(kilobyte, index)).toFixed(places)) } ${ sizes[index] }`;
 }
 
-function camelize(string) {
+function camelize (string) {
   return string.replace(/^.*?:+/, '').
     replace(/[-:]/g, ' ').
     replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, (match, index) => {
@@ -157,7 +157,7 @@ function camelize(string) {
     });
 }
 
-function formatNumber(value) {
+function formatNumber (value) {
   value = Number(value);
   if (Number.isNaN(value) || Number === Infinity) {
     return value.toString();
@@ -179,7 +179,7 @@ function formatNumber(value) {
     join( ',' );
 }
 
-function sha1(input) {
+function sha1 (input) {
   if (typeof input !== 'string') {
     input = JSON.stringify(input);
   }
@@ -187,7 +187,7 @@ function sha1(input) {
     digest('hex');
 }
 
-function sha256(input) {
+function sha256 (input) {
   if (typeof input !== 'string') {
     input = JSON.stringify(input);
   }
@@ -195,7 +195,7 @@ function sha256(input) {
     digest('hex');
 }
 
-function encrypt(text, secret, algorithm = 'aes-256-cbc', ivLength = 16) {
+function encrypt (text, secret, algorithm = 'aes-256-cbc', ivLength = 16) {
   let encrypted = null;
   secret = secret.replace(/-/g, '').substring(0, 32);
   const iv = crypto.randomBytes(ivLength);
@@ -207,7 +207,7 @@ function encrypt(text, secret, algorithm = 'aes-256-cbc', ivLength = 16) {
   return encrypted;
 }
 
-function decrypt(text, secret, algorithm = 'aes-256-cbc') {
+function decrypt (text, secret, algorithm = 'aes-256-cbc') {
   let decrypted = null;
   secret = secret.replace(/-/g, '').substring(0, 32);
   const textParts = text.split(':');
@@ -223,10 +223,10 @@ function decrypt(text, secret, algorithm = 'aes-256-cbc') {
 
 const noop = () => { return undefined; };
 
-function callback(next, nextTick = false) {
+function callback (next, nextTick = false) {
   if (typeof next === 'function') {
     if (nextTick) {
-      return function(...args) {
+      return function (...args) {
         process.nextTick(() => {
           next(...args);
         });
@@ -237,7 +237,7 @@ function callback(next, nextTick = false) {
   return noop;
 }
 
-function once(func) {
+function once (func) {
   if (typeof func !== 'function') {
     return noop;
   }
@@ -253,19 +253,19 @@ function once(func) {
   };
 }
 
-function timestamp(date) {
+function timestamp (date) {
   if (date) {
     return new Date(date).getTime();
   }
   return Date.now();
 }
 
-function precisionRound(number, precision = 2) {
+function precisionRound (number, precision = 2) {
   const factor = Math.pow(10, precision);
   return Math.round(number * factor) / factor;
 }
 
-function functionType(func) {
+function functionType (func) {
   const flags = {
     function: func instanceof Function,
     name: undefined,
@@ -287,7 +287,7 @@ function functionType(func) {
   return flags;
 }
 
-function set(object, propertyPath, value) {
+function set (object, propertyPath, value) {
   const parts = propertyPath.trim().split(/\./);
   const key = parts.pop();
 
@@ -308,7 +308,7 @@ function set(object, propertyPath, value) {
   return true;
 }
 
-function remove(object, propertyPath, removeEmptyContainer = false) {
+function remove (object, propertyPath, removeEmptyContainer = false) {
   const parts = propertyPath.trim().split(/\./);
   const key = parts.pop();
 
@@ -335,7 +335,7 @@ function remove(object, propertyPath, removeEmptyContainer = false) {
   return true;
 }
 
-function flatten(object, prefix = '', container = {}) {
+function flatten (object, prefix = '', container = {}) {
   if (typeof object !== 'object') {
     container[prefix] = object;
     return container;
@@ -364,7 +364,7 @@ function flatten(object, prefix = '', container = {}) {
   return container;
 }
 
-function expand(container, object = {}) {
+function expand (container, object = {}) {
   for (const key in container) {
     const parts = key.split(/\./);
     const property = parts.pop();
@@ -394,7 +394,7 @@ function expand(container, object = {}) {
   return object;
 }
 
-function setTypes(object) {
+function setTypes (object) {
   for (const key in object) {
     const value = object[key];
 
@@ -411,14 +411,14 @@ function setTypes(object) {
   return object;
 }
 
-function size(object) {
+function size (object) {
   if (typeof object === 'object') {
     return Object.getOwnPropertyNames(object).length;
   }
   return 0;
 }
 
-function project(object, projection) {
+function project (object, projection) {
   let sum = 0;
   for (const key in projection) {
     sum += projection[key] ? 1 : 0;
@@ -448,12 +448,12 @@ function project(object, projection) {
   return result;
 }
 
-function filter(object, check, include = true, path) {
+function filter (object, check, include = true, path) {
   if (typeof object !== 'object') {
     return object;
   }
 
-  function test(fullpath) {
+  function test (fullpath) {
     if (Array.isArray(check)) {
       if (check.includes(fullpath)) {
         return include;
@@ -507,7 +507,7 @@ function filter(object, check, include = true, path) {
   return clone;
 }
 
-function deepEqual(actual, expected) {
+function deepEqual (actual, expected) {
   if (actual === null || actual === undefined ||
       expected === null || expected === undefined) {
     return actual === expected;
@@ -582,7 +582,7 @@ function deepEqual(actual, expected) {
   });
 }
 
-function debounce(func, wait) {
+function debounce (func, wait) {
   let timeout;
 
   return (...args) => {
@@ -596,7 +596,7 @@ function debounce(func, wait) {
   };
 }
 
-function milliseconds(value) {
+function milliseconds (value) {
   if (typeof value === 'number') {
     return value;
   } else if (typeof value === 'string') {
@@ -623,7 +623,7 @@ function milliseconds(value) {
   return 0;
 }
 
-function duration(diff, {
+function duration (diff, {
   units = 'd h m', separator = ', ', empty = 'less than a minute'
 } = {}) {
   const days = Math.floor(diff / 86400000);

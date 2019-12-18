@@ -16,7 +16,7 @@ const gitStatusCommand = 'git status --branch --porcelain --untracked-files=all'
 
 const emailRegExp = /(@.*)$/;
 
-function gitBranch() {
+function gitBranch () {
   let branch = process.env.GIT_BRANCH || process.env.BRANCH_NAME;
   if (!branch) {
     branch = childProcess.execSync(gitBranchCommand, { cwd: process.cwd() }).toString();
@@ -25,17 +25,17 @@ function gitBranch() {
   return branch.trim().replace(gitOrigin, '');
 }
 
-function gitHash() {
+function gitHash () {
   return childProcess.execSync(gitHashCommand, { cwd: process.cwd() }).toString().
     trim();
 }
 
-function gitAuthorEmail() {
+function gitAuthorEmail () {
   return childProcess.execSync(gitAuthorEmailCommand, { cwd: process.cwd() }).toString().
     trim();
 }
 
-function gitBranchChanges() {
+function gitBranchChanges () {
   return childProcess.execSync(gitBranchChangesCommand, { cwd: process.cwd() }).toString().
     trim().
     split('\n').
@@ -49,7 +49,7 @@ function gitBranchChanges() {
     });
 }
 
-function gitBlame(file, lineNumber) {
+function gitBlame (file, lineNumber) {
   const summary = childProcess.execSync(
     `${ gitBlameCommand } -L${ lineNumber },${ lineNumber } ${ file }`,
     { cwd: process.cwd() }).toString().
@@ -111,7 +111,7 @@ function gitBlame(file, lineNumber) {
   return blame;
 }
 
-function gitAddNotes(message, prefix, force) {
+function gitAddNotes (message, prefix, force) {
   try {
     let gitNotesCommand = 'git notes';
     if (prefix) {
@@ -135,7 +135,7 @@ function gitAddNotes(message, prefix, force) {
   }
 }
 
-function gitRemoveNotes(prefix) {
+function gitRemoveNotes (prefix) {
   try {
     let gitNotesCommand = 'git notes';
     if (prefix) {
@@ -154,7 +154,7 @@ function gitRemoveNotes(prefix) {
   }
 }
 
-function gitShowNotes(prefix) {
+function gitShowNotes (prefix) {
   try {
     let gitNotesCommand = 'git notes';
     if (prefix) {
@@ -177,7 +177,7 @@ function gitShowNotes(prefix) {
   }
 }
 
-function gitStatus() {
+function gitStatus () {
   const status = childProcess.execSync(gitStatusCommand, { cwd: process.cwd() }).toString().
     trim().
     split('\n');
@@ -213,7 +213,7 @@ function gitStatus() {
   };
 }
 
-function gitMergeBase() {
+function gitMergeBase () {
   try {
     return childProcess.execSync(gitMergeBaseCommand, {
       cwd: process.cwd(),
@@ -225,7 +225,7 @@ function gitMergeBase() {
   }
 }
 
-function gitChangeSet(initialCommit) {
+function gitChangeSet (initialCommit) {
   let command = gitChangeSetCommand;
   if (initialCommit) {
     command += ` "${ initialCommit }..HEAD"`;

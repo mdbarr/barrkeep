@@ -27,7 +27,7 @@ const colors = {
   'bright white': 97
 };
 
-function colorize(name, string) {
+function colorize (name, string) {
   if (global.flags && global.flags.noColor) {
     return string;
   }

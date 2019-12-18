@@ -1,12 +1,12 @@
 'use strict';
 
-function Dictionary(initial) {
+function Dictionary (initial) {
   const keys = new Map();
   const values = new Map();
 
   Object.defineProperty(this, 'size', {
-    get() { return keys.size; },
-    set() {}
+    get () { return keys.size; },
+    set () {}
   });
 
   this.clear = () => {

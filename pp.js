@@ -7,7 +7,7 @@
  * @param {boolean} printNonEnumerables : print non enumerable properties
  */
 
-console.json = function(json, printNonEnumerables) {
+console.json = function (json, printNonEnumerables) {
   return prettyPrint(json, {
     all: printNonEnumerables,
     json: true,
@@ -21,7 +21,7 @@ console.json = function(json, printNonEnumerables) {
  * @param {Object=} options : print options
  */
 
-console.pretty = console.pp = function(...anything) {
+console.pretty = console.pp = function (...anything) {
   let output = '';
   for (const item of anything) {
     output += prettyPrint(item);
@@ -60,7 +60,7 @@ const darkTheme = {
  *           theme : Object|undefined }} options
  */
 
-function prettyPrint(object, {
+function prettyPrint (object, {
   all = false,
   color = true,
   json = false,
@@ -76,11 +76,11 @@ function prettyPrint(object, {
     style = (string) => { return string; };
   }
 
-  function indent(depth) {
+  function indent (depth) {
     return '  '.repeat(depth);
   }
 
-  function addLineNumbers(output) {
+  function addLineNumbers (output) {
     const lines = output.split(/\n/);
     const padding = lines.length.toString().length + 1;
     let number = 0;
@@ -92,7 +92,7 @@ function prettyPrint(object, {
     }).join('\n');
   }
 
-  function prettyPrinter(value, depth, seen, overrideColor) {
+  function prettyPrinter (value, depth, seen, overrideColor) {
     let line = indent(depth);
 
     seen = new Set(seen);

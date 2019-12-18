@@ -1,13 +1,13 @@
 'use strict';
 
-Math.$random = function(min = 0, max = 10) {
+Math.$random = function (min = 0, max = 10) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
 //////////
 // Mersenne Twister - pseudo random number generator
 
-function MersenneTwister(seed) {
+function MersenneTwister (seed) {
   seed = seed || Date.now();
   this.N = 624;
   this.M = 397;
@@ -28,7 +28,7 @@ function MersenneTwister(seed) {
   }
 }
 
-MersenneTwister.prototype.random = function(min, max) {
+MersenneTwister.prototype.random = function (min, max) {
   if (min !== undefined && max !== undefined) {
     return Math.floor(this.random() * (max - min + 1)) + min;
   } else if (min !== undefined) {
@@ -72,11 +72,11 @@ MersenneTwister.prototype.random = function(min, max) {
 //////////
 // Perlin Noise
 
-function interpolate(x0, x1, alpha) {
+function interpolate (x0, x1, alpha) {
   return x0 * (1 - alpha) + alpha * x1;
 }
 
-function generateWhiteNoise(width, height, prng) {
+function generateWhiteNoise (width, height, prng) {
   const noise = new Array(width * height);
   for (let i = 0; i < noise.length; ++i) {
     if (prng) {
@@ -88,7 +88,7 @@ function generateWhiteNoise(width, height, prng) {
   return noise;
 }
 
-function generatePerlinNoise(width, height, options) {
+function generatePerlinNoise (width, height, options) {
   options = options || {};
 
   let prng = null;
@@ -104,7 +104,7 @@ function generatePerlinNoise(width, height, options) {
 
   let amplitude = options.amplitude || 0.1;
 
-  function generateSmoothNoise(octave) {
+  function generateSmoothNoise (octave) {
     const noise = new Array(width * height);
     const samplePeriod = Math.pow(2, octave);
     const sampleFrequency = 1 / samplePeriod;

@@ -4,7 +4,7 @@ const emojis = require('./emojis.json');
 
 const emojiAliases = {};
 
-function lookupEmoji(name) {
+function lookupEmoji (name) {
   let lookup = name.toLowerCase().replace(/\s/g, '_');
   lookup = emojiAliases[lookup] || lookup;
 
@@ -20,7 +20,7 @@ function lookupEmoji(name) {
   return name;
 }
 
-function emojify(string) {
+function emojify (string) {
   if (/[:\s]/.test(string)) {
     return string.replace(/:(.*?):/g, (match, name) => {
       return lookupEmoji(name);
@@ -29,6 +29,6 @@ function emojify(string) {
   return lookupEmoji(string);
 }
 
-emojify.alias = function(to, from) {
+emojify.alias = function (to, from) {
   emojiAliases[to] = from;
 };

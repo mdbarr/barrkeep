@@ -1,14 +1,14 @@
 'use strict';
 
-function capitalize(string = '') {
+function capitalize (string = '') {
   return string[0].toUpperCase() + string.slice(1);
 }
 
-function indent(depth = 0, width = 2) {
+function indent (depth = 0, width = 2) {
   return ' '.repeat(depth * width);
 }
 
-function generateValidator(object, {
+function generateValidator (object, {
   flattenTypes = false,
   functionName = 'validate',
   loopVariables = [ 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'x', 'y', 'z' ],
@@ -16,7 +16,7 @@ function generateValidator(object, {
   variable = 'object',
   width = 2
 } = {}) {
-  function validatorIterator(chunk, name, depth = 1) {
+  function validatorIterator (chunk, name, depth = 1) {
     let validator = '';
 
     if (typeof chunk === 'undefined' || chunk === null) {

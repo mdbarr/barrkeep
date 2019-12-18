@@ -138,6 +138,7 @@ module.exports = {
     'require-yield': 'error',
     'semi': 'error',
     'space-before-blocks': 'error',
+    'space-before-function-paren': [ 'error', 'always' ],
     'space-infix-ops': 'error',
     'strict': 'error',
     'template-curly-spacing': [ 'error', 'always' ],

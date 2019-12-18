@@ -45,7 +45,7 @@ Object.$setTypes = setTypes;
 Object.$size = size;
 
 Object.defineProperty(Array.prototype, '$random', {
-  value() {
+  value () {
     return Math.floor(Math.random() * this.length);
   },
   enumerable: false,
@@ -53,7 +53,7 @@ Object.defineProperty(Array.prototype, '$random', {
 });
 
 Object.defineProperty(Array.prototype, '$shuffle', {
-  value() {
+  value () {
     let j;
     let x;
     let i;
@@ -71,7 +71,7 @@ Object.defineProperty(Array.prototype, '$shuffle', {
 });
 
 Object.defineProperty(Array.prototype, '$pick', {
-  value(count, asArray) {
+  value (count, asArray) {
     const arr = this.slice();
     const picks = [];
 
@@ -106,7 +106,7 @@ Object.defineProperty(Array.prototype, '$pick', {
  * @returns {*}
  */
 Object.defineProperty(Array.prototype, '$byId', {
-  value(needle, caseInsensitive) {
+  value (needle, caseInsensitive) {
     return this.byKey('id', needle, caseInsensitive);
   },
   enumerable: false,
@@ -123,7 +123,7 @@ Object.defineProperty(Array.prototype, '$byId', {
  * @returns {*}
  */
 Object.defineProperty(Array.prototype, '$byName', {
-  value(needle, caseInsensitive) {
+  value (needle, caseInsensitive) {
     return this.byKey('name', needle, caseInsensitive);
   },
   enumerable: false,
@@ -141,7 +141,7 @@ Object.defineProperty(Array.prototype, '$byName', {
  * @returns {*}
  */
 Object.defineProperty(Array.prototype, '$byKey', {
-  value(key, needle, caseInsensitive) {
+  value (key, needle, caseInsensitive) {
     for (let i = 0; this.length; i++) {
       if (typeof this[i] !== 'object') {
         return undefined;
@@ -167,7 +167,7 @@ Object.defineProperty(Array.prototype, '$byKey', {
  * @param colorName
  */
 Object.defineProperty(String.prototype, '$colorize', {
-  value(colorName) {
+  value (colorName) {
     return colorize(colorName, this);
   },
   enumerable: false,
@@ -179,7 +179,7 @@ Object.defineProperty(String.prototype, '$colorize', {
  * @param {Array} rgbArray
  */
 Object.defineProperty(String.prototype, '$rgb', {
-  value(rgbArray) {
+  value (rgbArray) {
     return colorize.rgb(rgbArray, this);
   },
   enumerable: false,
@@ -192,7 +192,7 @@ Object.defineProperty(String.prototype, '$rgb', {
  * @param {Array|string} b
  */
 Object.defineProperty(String.prototype, '$style', {
-  value(a, b) {
+  value (a, b) {
     return style(this, a, b);
   },
   enumerable: false,
@@ -203,7 +203,7 @@ Object.defineProperty(String.prototype, '$style', {
  * Remove whitespace from a string
  */
 Object.defineProperty(String.prototype, '$stripWhitespace', {
-  value() {
+  value () {
     return this.replace(/\s/g, '');
   },
   enumerable: false,
@@ -214,7 +214,7 @@ Object.defineProperty(String.prototype, '$stripWhitespace', {
  * Emojify a string (parse out and substitute all :emoji:)
  */
 Object.defineProperty(String.prototype, '$emojify', {
-  value() {
+  value () {
     return emojify(this);
   },
   enumerable: false,
@@ -225,7 +225,7 @@ Object.defineProperty(String.prototype, '$emojify', {
  * Capitalize the first letter of a string
  */
 Object.defineProperty(String.prototype, '$capitalize', {
-  value() {
+  value () {
     return this.charAt(0).toUpperCase() + this.slice(1).toLowerCase();
   },
   enumerable: false,
@@ -236,7 +236,7 @@ Object.defineProperty(String.prototype, '$capitalize', {
  * Camelcase a string
  */
 Object.defineProperty(String.prototype, '$camelize', {
-  value() {
+  value () {
     return camelize(this);
   },
   enumerable: false,
@@ -246,33 +246,33 @@ Object.defineProperty(String.prototype, '$camelize', {
 /**
  * Read a JSON file through a sandbox to ensure it is a clean object
  */
-JSON.$read = function(path) {
+JSON.$read = function (path) {
   return vm.runInNewContext(`JSON.parse(fs.readFileSync('${ path }'));`, { fs });
 };
 
-JSON.$write = function(path, object) {
+JSON.$write = function (path, object) {
   return fs.writeFileSync(path, JSON.stringify(object, null, 2));
 };
 
-Object.$clone = function(object, deep = false) {
+Object.$clone = function (object, deep = false) {
   if (deep) {
     return deepClone(object);
   }
   return JSON.parse(JSON.stringify(object));
 };
 
-Object.$deepClone = function(object) {
+Object.$deepClone = function (object) {
   return deepClone(object);
 };
 
-Object.$merge = function(objectA, objectB, createNew = false) {
+Object.$merge = function (objectA, objectB, createNew = false) {
   return merge(objectA, objectB, createNew);
 };
 
 /**
  * Add a non-enumerable property to an object.  If the property already exists, just set it
  */
-Object.$private = function(body, key, value) {
+Object.$private = function (body, key, value) {
   if (typeof body !== 'object') {
     return;
   }

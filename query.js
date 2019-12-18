@@ -4,7 +4,7 @@ const { resolve } = require('./utils');
 
 const isOperator = (str) => { return str.startsWith('$'); };
 
-function equals(a, b) {
+function equals (a, b) {
   if (typeof a === 'string' && b instanceof RegExp) {
     return b.test(a);
   } else if (Array.isArray(a) && Array.isArray(b)) {
@@ -22,7 +22,7 @@ function equals(a, b) {
   return a === b;
 }
 
-function query(value, filter = {}) {
+function query (value, filter = {}) {
   if (typeof filter === 'function') {
     return Boolean(filter(value));
   }
