@@ -13,6 +13,7 @@ const modules = [
   'query',
   'shim',
   'style',
+  'term',
   'transforms',
   'utils',
   'validate'
