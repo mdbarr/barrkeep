@@ -14,6 +14,7 @@ class ProgressBar {
   } = {}) {
     this._total = total;
     this._value = value;
+
     this.width = width || Math.max(this._total, 60);
 
     this.stream = stream;
@@ -134,13 +135,13 @@ class ProgressBar {
 
     let completeLength = Math.max(0, Math.round(width * ratio));
     let headLength = 0;
-    if (completeLength < this._total && completeLength > 0) {
-      completeLength--;
+    if (this._value < this._total && completeLength > 0) {
       headLength = 1;
+      completeLength--;
     }
     const incompleteLength = Math.max(0, width - (completeLength + headLength));
 
-    const head = this.characters.head.repeat(headLength);
+    const head = headLength ? this.characters.head : '';
     const complete = this.characters.complete.repeat(completeLength);
     const incomplete = this.characters.incomplete.repeat(incompleteLength);
 
