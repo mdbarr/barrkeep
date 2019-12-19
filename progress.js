@@ -1,5 +1,6 @@
 'use strict';
 
+const styler = require('./style');
 const {
   duration, formatNumber, stripAnsi, timestamp
 } = require('./utils');
@@ -10,7 +11,7 @@ class ProgressBar {
   constructor ({
     total = 10, value = 0, format = '[$progress]', stream = process.stderr,
     y, x = 0, width, complete = '=', incomplete = ' ', head = '>', clear,
-    interval, tokens = {}, spinner = 'dots',
+    interval, tokens = {}, spinner = 'dots', spinnerStyle,
     durationOptions, formatOptions
   } = {}) {
     this._total = total;
@@ -34,6 +35,7 @@ class ProgressBar {
 
     this.spinner = spinners[spinner].frames;
     this.interval = interval || spinners[spinner].interval;
+    this.spinnerStyle = spinnerStyle;
 
     this.durationOptions = durationOptions;
     this.formatOptions = formatOptions;
@@ -112,7 +114,8 @@ class ProgressBar {
     const eta = this._value === 0 ? 0 : this.eta - (now - this.tick);
     const rate = this._value / (elapsed / 1000);
 
-    const spinner = this.spinner[this.ticks];
+    const spinner = this.spinnerStyle ? styler(this.spinner[this.ticks], this.spinnerStyle) :
+      this.spinner[this.ticks];
 
     let string = this.format.
       replace(/\$value/g, formatNumber(this._value, this.formatOptions)).
@@ -194,7 +197,7 @@ class ProgressBar {
 class Spinner {
   constructor ({
     spinner = 'dots', stream = process.stderr, x, y, interval, clear,
-    prepend = '', append = ''
+    style, prepend = '', append = ''
   } = {}) {
     spinner = spinners[spinner] ? spinner : 'dots';
 
@@ -210,6 +213,7 @@ class Spinner {
       this.x = 0;
     }
 
+    this.style = style;
     this.prepend = prepend;
     this.append = append;
 
@@ -234,7 +238,8 @@ class Spinner {
     this.stream.moveCursor(this.append.length * -1);
 
     this.update = setInterval(() => {
-      const character = this.frames[this.frame];
+      const character = this.style ? styler(this.frames[this.frame], this.style) :
+        this.frames[this.frame];
 
       this.position();
 
