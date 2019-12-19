@@ -206,8 +206,14 @@ class Spinner {
     this.x = x;
     this.y = y;
 
+    if (this.y !== undefined && this.x === undefined) {
+      this.x = 0;
+    }
+
     this.prepend = prepend;
     this.append = append;
+
+    this.offset = stripAnsi(this.prepend).length;
 
     this.clear = clear === undefined;
 
@@ -224,9 +230,7 @@ class Spinner {
     if (this.x !== undefined) {
       this.stream.cursorTo(this.x, this.y);
     }
-
     this.stream.write(`${ this.prepend } ${ this.append }`);
-
     this.stream.moveCursor(this.append.length * -1);
 
     this.update = setInterval(() => {
@@ -234,7 +238,7 @@ class Spinner {
 
       this.position();
 
-      this.stream.write(`${ character }`);
+      this.stream.write(`\x1b[?25l${ character }`);
 
       this.frame++;
       if (this.frame >= this.frames.length) {
@@ -245,7 +249,7 @@ class Spinner {
 
   position () {
     if (this.x !== undefined) {
-      this.stream.cursorTo(this.x + this.prepend.length, this.y);
+      this.stream.cursorTo(this.x + this.offset, this.y);
     } else {
       this.stream.moveCursor(-1);
     }
@@ -255,12 +259,16 @@ class Spinner {
     clearInterval(this.update);
 
     if (this.clear) {
-      this.position();
-      this.stream.write(' ');
+      if (this.x !== undefined) {
+        this.stream.cursorTo(this.x, this.y);
+      } else {
+        this.position();
+        this.stream.moveCursor(this.offset * -1);
+      }
+      this.stream.clearLine(1);
     }
 
     this.stream.write('\x1b[?25h');
-    this.stream.moveCursor(this.append.length);
   }
 }
 
