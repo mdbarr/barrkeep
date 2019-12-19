@@ -687,7 +687,19 @@ function ordinal (value) {
   return `${ value }th`;
 }
 
+const ansiPattern = [
+  '[\\u001B\\u009B][[\\]()#;?]*(?:(?:(?:[a-zA-Z\\d]*(?:;[-a-zA-Z\\d\\/#&.:=?%@~_]*)*)?\\u0007)',
+  '(?:(?:\\d{1,4}(?:;\\d{0,4})*)?[\\dA-PR-TZcf-ntqry=><~]))'
+].join('|');
+
+const ansiRegExp = new RegExp(ansiPattern, 'g');
+
+function stripAnsi (string) {
+  return string.replace(ansiRegExp, '');
+}
+
 module.exports = {
+  ansiRegExp,
   callback,
   camelize,
   debounce,
@@ -718,5 +730,6 @@ module.exports = {
   sha1,
   sha256,
   size,
+  stripAnsi,
   timestamp
 };

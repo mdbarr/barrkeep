@@ -1,7 +1,7 @@
 'use strict';
 
 const {
-  duration, formatNumber, timestamp
+  duration, formatNumber, stripAnsi, timestamp
 } = require('./utils');
 
 const spinners = require('./spinners.json');
@@ -114,8 +114,8 @@ class ProgressBar {
     const spinner = this.spinner[this.ticks];
 
     let string = this.format.
-      replace(/\$_value/g, formatNumber(this._value)).
-      replace(/\$_total/g, formatNumber(this._total)).
+      replace(/\$value/g, formatNumber(this._value)).
+      replace(/\$total/g, formatNumber(this._total)).
       replace(/\$remaining/g, formatNumber(this._total - this._value)).
       replace(/\$elapsed/g, duration(elapsed, this.durationOptions)).
       replace(/\$eta/g, isNaN(eta) || !isFinite(eta) || !eta ? 'unknown' : duration(eta, this.durationOptions)).
@@ -132,7 +132,8 @@ class ProgressBar {
         return '';
       });
 
-    const columns = Math.max(0, this.stream.columns - string.replace(/\$progress/g, '').length);
+    const length = stripAnsi(string.replace(/\$progress/g, '')).length;
+    const columns = Math.max(0, this.stream.columns - length);
     const width = Math.min(this.width, columns);
 
     let completeLength = Math.max(0, Math.round(width * ratio));
