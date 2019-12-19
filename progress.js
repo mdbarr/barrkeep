@@ -10,7 +10,7 @@ class ProgressBar {
   constructor ({
     total = 10, value = 0, format = '[$progress]', stream = process.stderr,
     y, x = 0, width, complete = '=', incomplete = ' ', head = '>', clear,
-    interval, environment = {}, spinner = 'dots'
+    interval, environment = {}, spinner = 'dots', durationOptions
   } = {}) {
     this._total = total;
     this._value = value;
@@ -33,6 +33,8 @@ class ProgressBar {
 
     this.spinner = spinners[spinner].frames;
     this.interval = interval || spinners[spinner].interval;
+
+    this.durationOptions = durationOptions;
 
     this.environment = environment;
     this.initialEnvironment = Object.assign({}, environment);
@@ -115,8 +117,8 @@ class ProgressBar {
       replace(/\$_value/g, formatNumber(this._value)).
       replace(/\$_total/g, formatNumber(this._total)).
       replace(/\$remaining/g, formatNumber(this._total - this._value)).
-      replace(/\$elapsed/g, duration(elapsed)).
-      replace(/\$eta/g, isNaN(eta) || !isFinite(eta) || !eta ? 'unknown' : duration(eta)).
+      replace(/\$elapsed/g, duration(elapsed, this.durationOptions)).
+      replace(/\$eta/g, isNaN(eta) || !isFinite(eta) || !eta ? 'unknown' : duration(eta, this.durationOptions)).
       replace(/\$percent/g, `${ percent.toFixed(0) }%`).
       replace(/\$rate/g, Math.round(rate)).
       replace(/\$spinner/g, spinner).

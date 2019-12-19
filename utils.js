@@ -639,7 +639,7 @@ function duration (diff, {
     if (days === 1) {
       parts.push(`${ days } day`);
     } else {
-      parts.push(`${ days } day`);
+      parts.push(`${ days } days`);
     }
   }
   if (hours > 0 && units.includes('h')) {
