@@ -84,7 +84,6 @@ class ProgressBar {
     this.render();
 
     if (this._value >= this._total) {
-      this.complete = true;
       this.done();
     }
   }
@@ -168,18 +167,20 @@ class ProgressBar {
   }
 
   done () {
-    clearInterval(this.ticker);
+    this.complete = true;
 
-    this.stream.write('\x1b[?25h');
+    clearInterval(this.ticker);
 
     if (this.clear) {
       if (this.stream.clearLine) {
-        this.stream.clearLine();
         this.stream.cursorTo(this.x, this.y);
+        this.stream.clearLine(1);
       }
     } else {
       this.stream.write('\n');
     }
+
+    this.stream.write('\x1b[?25h');
   }
 
   reset () {
