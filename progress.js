@@ -10,7 +10,7 @@ class ProgressBar {
   constructor ({
     total = 10, value = 0, format = '[$progress]', stream = process.stderr,
     y, x = 0, width, complete = '=', incomplete = ' ', head = '>', clear,
-    interval, environment = {}, spinner = 'dots',
+    interval, tokens = {}, spinner = 'dots',
     durationOptions, formatOptions
   } = {}) {
     this._total = total;
@@ -38,8 +38,8 @@ class ProgressBar {
     this.durationOptions = durationOptions;
     this.formatOptions = formatOptions;
 
-    this.environment = environment;
-    this.initialEnvironment = Object.assign({}, environment);
+    this.tokens = tokens;
+    this.initialTokens = Object.assign({}, tokens);
 
     this.complete = false;
     this.lastUpdate = false;
@@ -125,8 +125,14 @@ class ProgressBar {
       replace(/\$rate/g, Math.round(rate)).
       replace(/\$spinner/g, spinner).
       replace(/\$(.+?)\b/g, (match, token) => {
-        if (this.environment[token]) {
-          return this.environment[token];
+        if (this.tokens[token] !== undefined) {
+          let value = this.tokens[token];
+
+          if (typeof value === 'number') {
+            value = formatNumber(value, this.formatOptions);
+          }
+
+          return value;
         }
         if (token === 'progress') {
           return '$progress';
@@ -178,9 +184,9 @@ class ProgressBar {
 
   reset () {
     this._value = 0;
-    this.complete = 0;
+    this.complete = false;
     this.start = timestamp();
-    Object.assign(this.environment, this.initialEnvironment);
+    Object.assign(this.tokens, this.initialTokens);
   }
 }
 
