@@ -157,7 +157,7 @@ function camelize (string) {
     });
 }
 
-function formatNumber (value) {
+function formatNumber (value, { numeral = false } = {}) {
   value = Number(value);
   if (Number.isNaN(value) || Number === Infinity) {
     return value.toString();
@@ -167,7 +167,7 @@ function formatNumber (value) {
     'five', 'six', 'seven', 'eight', 'nine', 'ten' ];
 
   if (Number.isInteger(value)) {
-    if (words[value]) {
+    if (words[value] && !numeral) {
       return words[value];
     }
   } else {
