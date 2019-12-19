@@ -137,7 +137,7 @@ class ProgressBar {
 
     let completeLength = Math.max(0, Math.round(width * ratio));
     let headLength = 0;
-    if (this._value < this._total && completeLength > 0) {
+    if (this._value < this._total && completeLength > 0 && this.characters.head) {
       headLength = 1;
       completeLength--;
     }
