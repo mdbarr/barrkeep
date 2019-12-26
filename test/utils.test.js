@@ -65,7 +65,8 @@ describe('Utilities Test', () => {
   });
 
   it('should test precision rounding', () => {
-
+    expect(utils.precisionRound(1.34567347)).toBe(1.35);
+    expect(utils.precisionRound(0.9999999999999)).toBe(1);
   });
 
   it('should test inclusive $project', () => {
@@ -109,6 +110,34 @@ describe('Utilities Test', () => {
       b: 'fooo',
       c: [ 1, 2, 3 ],
       f: [ 5, 10, 15 ]
+    });
+  });
+
+  it('should test duration', () => {
+    expect(utils.duration(3534245)).toBe('58 minutes');
+    expect(utils.duration(23468, { units: 'h m s' })).toBe('23 seconds');
+    expect(utils.duration(9845)).toBe('less than a minute');
+    expect(utils.duration(4565467)).toBe('1 hour, 16 minutes');
+  });
+
+  it('should test flatten', () => {
+    const flatten = utils.flatten({
+      a: 1,
+      b: 2,
+      c: {
+        d: 3,
+        e: 4,
+        f: { g: 5 }
+      }
+    });
+    expect(flatten).toStrictEqual({
+      'a': 1,
+      'b': 2,
+      'c$type': 'Object',
+      'c.d': 3,
+      'c.e': 4,
+      'c.f$type': 'Object',
+      'c.f.g': 5
     });
   });
 });
