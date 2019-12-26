@@ -1,5 +1,49 @@
 'use strict';
 
+//////////
+
+const darkTheme = {
+  Boolean: '#00875f',
+  Date: '#d7d75f',
+  Function: '#5fd7ff',
+  Map: '#5fd787',
+  Null: '#5f00af',
+  Number: '#875fd7',
+  RegExp: '#ff8787',
+  Set: '#afd7d7',
+  String: '#005fd7',
+  Symbol: '#afaf5f',
+  Undefined: '#af0087',
+  Unknown: '#d78700',
+  circular: 'fg: #af0000; style: bold;',
+  decoration: '#1c1c1c',
+  nonEnumerable: '#ff0087',
+  property: '#8a8a8a'
+};
+
+const defaults = {
+  all: false,
+  color: true,
+  json: false,
+  lineNumbers: false,
+  print: true,
+  showDepth: true,
+  stream: process.stdout,
+  theme: darkTheme
+};
+
+const configuration = Object.assign({}, defaults);
+
+function configure (options = {}) {
+  Object.assign(configuration, options);
+}
+
+function reset () {
+  Object.assign({}, defaults);
+}
+
+///////////
+
 /**
  * Pretty print a JSON object to the console, if printNonEnumerables
  * is set then loops through all properties on an object and print them.
@@ -29,24 +73,8 @@ console.pretty = console.pp = function (...anything) {
   return output;
 };
 
-const darkTheme = {
-  Boolean: '#00875f',
-  Date: '#d7d75f',
-  Function: '#5fd7ff',
-  Map: '#5fd787',
-  Null: '#5f00af',
-  Number: '#875fd7',
-  RegExp: '#ff8787',
-  Set: '#afd7d7',
-  String: '#005fd7',
-  Symbol: '#afaf5f',
-  Undefined: '#af0087',
-  Unknown: '#d78700',
-  circular: 'fg: #af0000; style: bold;',
-  decoration: '#1c1c1c',
-  nonEnumerable: '#ff0087',
-  property: '#8a8a8a'
-};
+console.pp.configure = configure;
+console.pp.reset = reset;
 
 /**
  * Pretty Print any value with colorization.
@@ -61,17 +89,17 @@ const darkTheme = {
  */
 
 function prettyPrint (object, {
-  all = false,
-  color = true,
-  json = false,
-  lineNumbers = false,
-  print = true,
-  showDepth = true,
-  stream = process.stdout,
-  theme = darkTheme
+  all = configuration.all,
+  color = configuration.color,
+  json = configuration.json,
+  lineNumbers = configuration.lineNumbers,
+  print = configuration.print,
+  showDepth = configuration.showDepth,
+  stream = configuration.stream,
+  theme = configuration.theme
 } = {}) {
   let style;
-  if (color && process.stdout && process.stdout.isTTY) {
+  if (color && stream && stream.isTTY) {
     style = require('./style');
   } else {
     style = (string) => { return string; };
