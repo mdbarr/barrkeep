@@ -67,6 +67,7 @@ function prettyPrint (object, {
   lineNumbers = false,
   print = true,
   showDepth = true,
+  stream = process.stdout,
   theme = darkTheme
 } = {}) {
   let style;
@@ -225,7 +226,7 @@ function prettyPrint (object, {
   }
 
   if (print !== false) {
-    console.log(output);
+    stream.write(`${ output }\n`);
   }
   return output;
 }
