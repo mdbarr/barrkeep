@@ -5,7 +5,7 @@ const {
   duration, formatNumber, stripAnsi, timestamp
 } = require('./utils');
 
-const spinners = require('./spinners.json');
+const spinners = require('./data/spinners.json');
 
 class ProgressBar {
   constructor ({

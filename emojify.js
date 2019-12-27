@@ -1,6 +1,6 @@
 'use strict';
 
-const emojis = require('./emojis.json');
+const emojis = require('./data/emojis.json');
 
 const emojiAliases = {};
 

@@ -1,7 +1,7 @@
 'use strict';
 
 const colorize = require('./colorize');
-const colorCodes = require('./colors.json');
+const colorCodes = require('./data/colors.json');
 
 const styles = {
   bold: 1,
