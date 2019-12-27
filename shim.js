@@ -9,6 +9,11 @@ const emojify = require('./emojify');
 const colorize = require('./colorize');
 
 const {
+  stringEditDistance,
+  tokenize
+} = require('./nlp');
+
+const {
   camelize,
   deepClone,
   expand,
@@ -175,6 +180,18 @@ Object.defineProperty(String.prototype, '$colorize', {
 });
 
 /**
+ * String edit distance
+ * @param string
+ */
+Object.defineProperty(String.prototype, '$editDistance', {
+  value (string) {
+    return stringEditDistance(this, string);
+  },
+  enumerable: false,
+  configurable: true
+});
+
+/**
  * Colorize a string with RGB values
  * @param {Array} rgbArray
  */
@@ -205,6 +222,17 @@ Object.defineProperty(String.prototype, '$style', {
 Object.defineProperty(String.prototype, '$stripWhitespace', {
   value () {
     return this.replace(/\s/g, '');
+  },
+  enumerable: false,
+  configurable: true
+});
+
+/**
+ * Tokenize a string
+ */
+Object.defineProperty(String.prototype, '$tokenize', {
+  value (regExp) {
+    return tokenize(this, regExp);
   },
   enumerable: false,
   configurable: true
