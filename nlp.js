@@ -1,9 +1,36 @@
 'use strict';
 
-// eslint-disable-next-line no-useless-escape
-const tokenizerRegExp = /\w+-\w+|\w+'\w+|\w+|[~`!@#$%^&*()_\-+={}\[\]|\\;:'"<>,.?/]/g;
+//////////
+
+const languages = { english: require('./data/english') };
+
+const configuration = {
+  language: languages.english,
+  stripStopWords: false
+};
 
 //////////
+
+function configure ({
+  language, stripStopwords
+} = {}) {
+  if (language && languages[language]) {
+    configuration.language = languages[language];
+  }
+  if (stripStopwords !== undefined) {
+    configuration.stripStopwords = stripStopwords;
+  }
+
+  return configuration;
+}
+
+function isNotStopword (word) {
+  return !configuration.language.stopwordsRegExp.test(word);
+}
+
+function isStopword (word) {
+  return configuration.language.stopwordsRegExp.test(word);
+}
 
 function stringEditDistance (a, b, { ignoreWhitespace = false } = {}) {
   if (ignoreWhitespace) {
@@ -48,14 +75,26 @@ function stringEditDistance (a, b, { ignoreWhitespace = false } = {}) {
   return matrix[b.length][a.length];
 }
 
-function tokenize (string, tokenizer = tokenizerRegExp) {
-  return string.toString().
+function tokenize (string, {
+  tokenizer = configuration.language.tokenizerRegExp,
+  stripStopwords = configuration.stripStopwords
+} = {}) {
+  let tokens = string.toString().
     match(tokenizer);
+
+  if (stripStopwords) {
+    tokens = tokens.filter(token => { return isNotStopword(token); });
+  }
+
+  return tokens;
 }
 
 //////////
 
 module.exports = {
+  configure,
+  isNotStopword,
+  isStopword,
   stringEditDistance,
   tokenize
 };
