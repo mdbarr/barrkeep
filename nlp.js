@@ -357,6 +357,13 @@ function tokenize (string, {
   return tokens;
 }
 
+function toCamelCase (string) {
+  return string.toLowerCase().
+    replace(/[^a-zA-Z0-9]+(.)/g, (match, character) => {
+      return character.toUpperCase();
+    });
+}
+
 function toCharacterCode (character) {
   return toCharacter(character).charCodeAt(0);
 }
@@ -365,6 +372,28 @@ function toCharacter (character) {
   return String(character).
     charAt(0).
     toUpperCase();
+}
+
+function toKebabCase (string) {
+  return string.match(/[A-Z]{2,}(?=[A-Z][a-z]+[0-9]*|\b)|[A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+/g).
+    map(word => { return word.toLowerCase(); }).
+    join('-');
+}
+
+function toPascalCase (string) {
+  return string.replace(/\w\S*/g, (word) => {
+    return word.charAt(0).toUpperCase() + word.substring(1).toLowerCase();
+  });
+}
+
+function toSentenceCase (string) {
+  return string.charAt(0).toUpperCase() + string.substring(1).toLowerCase();
+}
+
+function toSnakeCase (string) {
+  return string.match(/[A-Z]{2,}(?=[A-Z][a-z]+[0-9]*|\b)|[A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+/g).
+    map(word => { return word.toLowerCase(); }).
+    join('_');
 }
 
 //////////
@@ -380,5 +409,10 @@ module.exports = {
   isVowel,
   metaphone,
   stringEditDistance,
-  tokenize
+  tokenize,
+  toCamelCase,
+  toKebabCase,
+  toPascalCase,
+  toSentenceCase,
+  toSnakeCase
 };

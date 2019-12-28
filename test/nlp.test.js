@@ -32,4 +32,24 @@ describe('Natural Lanuage Processing Tools Test', () => {
     });
     expect(tokens).toStrictEqual([ 'test' ]);
   });
+
+  it('should test camel casing', () => {
+    expect(nlp.toCamelCase('this is a test.')).toBe('thisIsATest.');
+  });
+
+  it('should test kebab casing', () => {
+    expect(nlp.toKebabCase('this is a test.')).toBe('this-is-a-test');
+  });
+
+  it('should test pascal casing', () => {
+    expect(nlp.toPascalCase('this is a test.')).toBe('This Is A Test.');
+  });
+
+  it('should test sentence casing', () => {
+    expect(nlp.toSentenceCase('this is a test.')).toBe('This is a test.');
+  });
+
+  it('should test snake casing', () => {
+    expect(nlp.toSnakeCase('this is a test.')).toBe('this_is_a_test');
+  });
 });
