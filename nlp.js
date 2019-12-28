@@ -6,7 +6,8 @@ const languages = { english: require('./data/english') };
 
 const configuration = {
   language: languages.english,
-  stripStopWords: false
+  stripPunctuation: false,
+  stripStopwords: false
 };
 
 //////////
@@ -39,8 +40,16 @@ function isAlpha (character) {
   return code >= 65 && code <= 90;
 }
 
+function isNotPunctuation (string) {
+  return !configuration.language.punctuationRegExp.test(string);
+}
+
 function isNotStopword (word) {
   return !configuration.language.stopwordsRegExp.test(word);
+}
+
+function isPunctuation (string) {
+  return configuration.language.punctuationRegExp.test(string);
 }
 
 function isSoft (character) {
@@ -331,10 +340,15 @@ function stringEditDistance (a, b, { ignoreWhitespace = false } = {}) {
 
 function tokenize (string, {
   tokenizer = configuration.language.tokenizerRegExp,
+  stripPunctuation = configuration.stripPunctuation,
   stripStopwords = configuration.stripStopwords
 } = {}) {
   let tokens = string.toString().
     match(tokenizer);
+
+  if (stripPunctuation) {
+    tokens = tokens.filter(token => { return isNotPunctuation(token); });
+  }
 
   if (stripStopwords) {
     tokens = tokens.filter(token => { return isNotStopword(token); });
@@ -358,7 +372,9 @@ function toCharacter (character) {
 module.exports = {
   configure,
   isAlpha,
+  isNotPunctuation,
   isNotStopword,
+  isPunctuation,
   isSoft,
   isStopword,
   isVowel,

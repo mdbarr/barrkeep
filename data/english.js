@@ -1,6 +1,9 @@
 'use strict';
 
 // eslint-disable-next-line no-useless-escape
+const punctuationRegExp = /^[~`!@#$%^&*()-_=+\[{\]}\|;:'",<.>\/?]+$/;
+
+// eslint-disable-next-line no-useless-escape
 const tokenizerRegExp = /\w+-\w+|\w+'\w+|\w+|[~`!@#$%^&*()_\-+={}\[\]|\\;:'"<>,.?/]/g;
 
 const stopwords = [
@@ -96,6 +99,7 @@ const stopwordsExtended = [
 const stopwordsExtendedRegExp = new RegExp(`^${ stopwordsExtended.join('|') }$`, 'i');
 
 module.exports = {
+  punctuationRegExp,
   stopwords,
   stopwordsRegExp,
   stopwordsExtended,

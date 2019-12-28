@@ -26,7 +26,10 @@ describe('Natural Lanuage Processing Tools Test', () => {
   });
 
   it('should test simple tokenization with stopword removal', () => {
-    const tokens = nlp.tokenize('This is a test.', { stripStopwords: true });
-    expect(tokens).toStrictEqual([ 'test', '.' ]);
+    const tokens = nlp.tokenize('This is a test.', {
+      stripPunctuation: true,
+      stripStopwords: true
+    });
+    expect(tokens).toStrictEqual([ 'test' ]);
   });
 });
