@@ -6,7 +6,6 @@ const modules = [
   'emojify',
   'expect',
   'git',
-  'nlp',
   'pp',
   'progress',
   'promise',
