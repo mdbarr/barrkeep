@@ -170,6 +170,10 @@ class ProgressBar {
   }
 
   done () {
+    if (this.complete) {
+      return;
+    }
+
     this.complete = true;
 
     clearInterval(this.ticker);
@@ -222,9 +226,17 @@ class Spinner {
     this.clear = clear === undefined;
 
     this.frame = 0;
+
+    this.running = false;
   }
 
   start () {
+    if (this.running) {
+      return;
+    }
+
+    this.running = true;
+
     if (this.update) {
       clearInterval(this.update);
     }
@@ -261,6 +273,12 @@ class Spinner {
   }
 
   stop () {
+    if (!this.running) {
+      return;
+    }
+
+    this.running = false;
+
     clearInterval(this.update);
 
     if (this.clear) {
