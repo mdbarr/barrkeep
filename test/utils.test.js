@@ -24,6 +24,11 @@ describe('Utilities Test', () => {
     expect(utils.resolve(b, 'c.d.e[0].f.g.h.i')).toEqual('rule');
   });
 
+  it('should test $set', () => {
+    expect(utils.set(b, 'c.d.e[0].f.g.h.i', 'rules')).toBe(true);
+    expect(utils.resolve(b, 'c.d.e[0].f.g.h.i')).toEqual('rules');
+  });
+
   it('should test formatting numbers as bytes', () => {
     expect(utils.formatBytes(1000)).toBe('1000 Bytes');
     expect(utils.formatBytes(1024)).toBe('1 KB');

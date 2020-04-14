@@ -186,6 +186,23 @@ function deepEqual (actual, expected) {
   });
 }
 
+function dividePath (path, delimiter = /[.]/) {
+  const parts = [];
+
+  for (const part of path.trim().split(delimiter)) {
+    if (arrayPartRegExp.test(part)) {
+      const match = part.match(arrayPartRegExp);
+      const subpart = match[1];
+      const index = Number(match[2]);
+      parts.push(subpart, index);
+    } else {
+      parts.push(part);
+    }
+  }
+
+  return parts;
+}
+
 function duration (diff, {
   units = 'd h m', separator = ', ', empty = 'less than a minute'
 } = {}) {
@@ -566,77 +583,53 @@ function remove (object, propertyPath, removeEmptyContainer = false) {
   return true;
 }
 
-function resolve (object, path = '', delimiter = '.') {
+function resolve (object, path = '', delimiter) {
   if (!object || !path) {
     return undefined;
   }
 
-  const parts = path.trim().split(delimiter);
+  const parts = dividePath(path, delimiter);
 
   for (const part of parts) {
-    if (arrayPartRegExp.test(part)) {
-      const match = part.match(arrayPartRegExp);
-      const subpart = match[1];
-      const index = Number(match[2]);
-
-      object = object[subpart];
-      if (!object) {
-        return object;
-      }
-
-      object = object[index];
-      if (!object) {
-        return object;
-      }
-    } else {
-      object = object[part];
-      if (!object) {
-        return object;
-      }
+    object = object[part];
+    if (!object) {
+      return object;
     }
   }
   return object;
 }
 
-function resolves (object, path = '', delimiter = '.') {
+function resolves (object, path = '', delimiter) {
   if (!object || !path) {
     return false;
   }
 
-  const parts = path.trim().split(delimiter);
+  const parts = dividePath(path, delimiter);
 
   for (const part of parts) {
-    if (arrayPartRegExp.test(part)) {
-      const match = part.match(arrayPartRegExp);
-      const subpart = match[1];
-      const index = Number(match[2]);
-
-      object = object[subpart];
-      if (!object) {
-        return false;
-      }
-
-      object = object[index];
-      if (!object) {
-        return false;
-      }
-    } else {
-      object = object[part];
-      if (!object) {
-        return false;
-      }
+    object = object[part];
+    if (!object) {
+      return false;
     }
   }
   return true;
 }
 
-function set (object, propertyPath, value) {
-  const parts = propertyPath.trim().split(/\./);
+function set (object, path, value, delimiter) {
+  if (!object || !path) {
+    return false;
+  }
+
+  const parts = dividePath(path, delimiter);
   const key = parts.pop();
 
   for (const part of parts) {
     if (object[part] === undefined) {
-      object[part] = {};
+      if (typeof part === 'number') {
+        object[part] = [];
+      } else {
+        object[part] = {};
+      }
     }
 
     object = object[part];
@@ -710,6 +703,7 @@ module.exports = {
   decrypt,
   deepClone,
   deepEqual,
+  dividePath,
   duration,
   encrypt,
   expand,
