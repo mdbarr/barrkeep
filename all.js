@@ -16,7 +16,7 @@ const modules = [
   'term',
   'transforms',
   'utils',
-  'validate'
+  'validate',
 ];
 
 const all = {};

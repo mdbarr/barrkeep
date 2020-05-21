@@ -22,9 +22,7 @@ function lookupEmoji (name) {
 
 function emojify (string) {
   if (/[:\s]/.test(string)) {
-    return string.replace(/:(.*?):/g, (match, name) => {
-      return lookupEmoji(name);
-    });
+    return string.replace(/:(.*?):/g, (match, name) => lookupEmoji(name));
   }
   return lookupEmoji(string);
 }

@@ -8,7 +8,7 @@ const styles = {
   faint: 2,
   underline: 4,
   blink: 5,
-  reverse: 7
+  reverse: 7,
 };
 
 function hexToRGB (string) {
@@ -20,12 +20,10 @@ function hexToRGB (string) {
 
   if (string.length === 3) {
     [ red, green, blue ] = string.match(/(\w)/g).
-      map((hex) => {
-        return parseInt(hex.repeat(2), 16);
-      });
+      map((hex) => parseInt(hex.repeat(2), 16));
   } else if (string.length === 6) {
     [ red, green, blue ] = string.match(/(\w\w)/g).
-      map(hex => { return parseInt(hex, 16); });
+      map(hex => parseInt(hex, 16));
   }
 
   return [ red, green, blue ];
@@ -44,10 +42,10 @@ function rgbToAnsi256 (red, green, blue) {
     return Math.round((red - 8) / 247 * 24) + 232;
   }
 
-  const ansi = 16
-      + 36 * Math.round(red / 255 * 5)
-      + 6 * Math.round(green / 255 * 5)
-      + Math.round(blue / 255 * 5);
+  const ansi = 16 +
+      36 * Math.round(red / 255 * 5) +
+      6 * Math.round(green / 255 * 5) +
+      Math.round(blue / 255 * 5);
 
   return ansi;
 }

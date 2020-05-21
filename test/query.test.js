@@ -8,7 +8,7 @@ const object = {
   c: [ 1, 2, 3 ],
   d: { e: 20 },
   f: [ 5, 10, 15 ],
-  g: 'bar'
+  g: 'bar',
 };
 
 describe('Query Test', () => {
@@ -17,20 +17,22 @@ describe('Query Test', () => {
       a: {
         $gt: 5,
         $lt: 25,
-        $mod: 2
+        $mod: 2,
       },
       b: 'fooo',
       'd.e': 20,
-      d: { $where: () => { return true; } },
+      d: { $where: () => true },
       c: {
         $elemMatch: { $eq: 2 },
-        $size: 3
+        $size: 3,
       },
-      f: { $all: {
-        $gte: 5,
-        $type: 'number'
-      } },
-      g: { $regexp: /ba.*/ }
+      f: {
+        $all: {
+          $gte: 5,
+          $type: 'number',
+        },
+      },
+      g: { $regexp: /ba.*/ },
     });
 
     expect(result).toBe(true);

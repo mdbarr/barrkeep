@@ -14,7 +14,7 @@ function generateValidator (object, {
   loopVariables = [ 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'x', 'y', 'z' ],
   returnPromise = false,
   variable = 'object',
-  width = 2
+  width = 2,
 } = {}) {
   function validatorIterator (chunk, name, depth = 1) {
     let validator = '';

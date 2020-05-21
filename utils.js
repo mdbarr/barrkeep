@@ -6,14 +6,14 @@ const crypto = require('crypto');
 
 const ansiPattern = [
   '[\\u001B\\u009B][[\\]()#;?]*(?:(?:(?:[a-zA-Z\\d]*(?:;[-a-zA-Z\\d\\/#&.:=?%@~_]*)*)?\\u0007)',
-  '(?:(?:\\d{1,4}(?:;\\d{0,4})*)?[\\dA-PR-TZcf-ntqry=><~]))'
+  '(?:(?:\\d{1,4}(?:;\\d{0,4})*)?[\\dA-PR-TZcf-ntqry=><~]))',
 ].join('|');
 
 const ansiRegExp = new RegExp(ansiPattern, 'g');
 
 const arrayPartRegExp = /([^]+)\[(\d+)\]$/;
 
-const noop = () => { return undefined; };
+const noop = () => undefined;
 
 //////////
 
@@ -99,9 +99,9 @@ function deepClone (object, seen = new WeakMap()) {
   if (object instanceof Buffer) {
     return result;
   } else if (object instanceof Map) {
-    object.forEach((value, key) => { return result.set(key, deepClone(value, seen)); });
+    object.forEach((value, key) => result.set(key, deepClone(value, seen)));
   } else if (object instanceof Set) {
-    object.forEach(value => { return result.add(deepClone(value, seen)); });
+    object.forEach(value => result.add(deepClone(value, seen)));
   } else {
     for (const key in object) {
       result[key] = deepClone(object[key], seen);
@@ -179,11 +179,7 @@ function deepEqual (actual, expected) {
   }
 
   const properties = Object.keys(actual);
-  return Object.keys(expected).every((i) => {
-    return properties.indexOf(i) !== -1;
-  }) && properties.every((i) => {
-    return deepEqual(actual[i], expected[i]);
-  });
+  return Object.keys(expected).every((i) => properties.indexOf(i) !== -1) && properties.every((i) => deepEqual(actual[i], expected[i]));
 }
 
 function dividePath (path, delimiter = /[.]/) {
@@ -204,7 +200,7 @@ function dividePath (path, delimiter = /[.]/) {
 }
 
 function duration (diff, {
-  units = 'd h m', separator = ', ', empty = 'less than a minute'
+  units = 'd h m', separator = ', ', empty = 'less than a minute',
 } = {}) {
   const days = Math.floor(diff / 86400000);
   diff = diff % 86400000;
@@ -398,8 +394,10 @@ function formatNumber (value, { numeral = false } = {}) {
     return value.toString();
   }
 
-  const words = [ 'zero', 'one', 'two', 'three', 'four',
-    'five', 'six', 'seven', 'eight', 'nine', 'ten' ];
+  const words = [
+    'zero', 'one', 'two', 'three', 'four',
+    'five', 'six', 'seven', 'eight', 'nine', 'ten',
+  ];
 
   if (Number.isInteger(value)) {
     if (words[value] && !numeral) {
@@ -421,7 +419,7 @@ function functionType (func) {
     native: false,
     bound: false,
     plain: false,
-    arrow: false
+    arrow: false,
   };
 
   if (flags.function) {
@@ -729,5 +727,5 @@ module.exports = {
   sha256,
   size,
   stripAnsi,
-  timestamp
+  timestamp,
 };

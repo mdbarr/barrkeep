@@ -1,9 +1,7 @@
 'use strict';
 
 const assert = require('assert').strict;
-const {
-  resolve, resolves
-} = require('./utils');
+const { resolve, resolves } = require('./utils');
 
 const AsyncFunction = Object.getPrototypeOf(async () => {}).constructor;
 
@@ -29,16 +27,20 @@ function Expectation (value) {
 
   //////////
 
-  Object.defineProperty(this, 'not', { get () {
-    this.negated = !this.negated;
-    return this;
-  } });
+  Object.defineProperty(this, 'not', {
+    get () {
+      this.negated = !this.negated;
+      return this;
+    },
+  });
 
-  Object.defineProperty(this, 'which', { get () {
-    this.value = this.next !== undefined ? this.next : this.value;
-    this.negated = false;
-    return this;
-  } });
+  Object.defineProperty(this, 'which', {
+    get () {
+      this.value = this.next !== undefined ? this.next : this.value;
+      this.negated = false;
+      return this;
+    },
+  });
 }
 
 //////////

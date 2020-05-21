@@ -9,6 +9,7 @@ const darkTheme = {
   Map: '#5fd787',
   Null: '#5f00af',
   Number: '#875fd7',
+  Promise: '#0073b1',
   RegExp: '#ff8787',
   Set: '#afd7d7',
   String: '#005fd7',
@@ -18,7 +19,7 @@ const darkTheme = {
   circular: 'fg: #af0000; style: bold;',
   decoration: '#1c1c1c',
   nonEnumerable: '#ff0087',
-  property: '#8a8a8a'
+  property: '#8a8a8a',
 };
 
 const defaults = {
@@ -29,7 +30,7 @@ const defaults = {
   print: true,
   showDepth: true,
   stream: process.stdout,
-  theme: darkTheme
+  theme: darkTheme,
 };
 
 const configuration = Object.assign({}, defaults);
@@ -55,7 +56,7 @@ console.json = function (json, printNonEnumerables) {
   return prettyPrint(json, {
     all: printNonEnumerables,
     json: true,
-    print: true
+    print: true,
   });
 };
 
@@ -96,13 +97,13 @@ function prettyPrint (object, {
   print = configuration.print,
   showDepth = configuration.showDepth,
   stream = configuration.stream,
-  theme = configuration.theme
+  theme = configuration.theme,
 } = {}) {
   let style;
   if (color && stream && stream.isTTY) {
     style = require('./style');
   } else {
-    style = (string) => { return string; };
+    style = (string) => string;
   }
 
   function indent (depth) {
@@ -242,11 +243,9 @@ function prettyPrint (object, {
   let output = prettyPrinter(object, 0);
 
   if (showDepth) {
-    output = output.replace(/\n {2}(\s+)/g, (match, spaces) => {
-      return `\n  ${ spaces.substring(2).split(/ {2}/).
-        map(() => { return style('\u2502 ', theme.decoration); }).
-        join('') }`;
-    });
+    output = output.replace(/\n {2}(\s+)/g, (match, spaces) => `\n  ${ spaces.substring(2).split(/ {2}/).
+      map(() => style('\u2502 ', theme.decoration)).
+      join('') }`);
   }
 
   if (lineNumbers) {

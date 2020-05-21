@@ -1,8 +1,6 @@
 'use strict';
 
-const modules = [
-  'CappedSet'
-];
+const modules = [ 'CappedSet' ];
 
 const classes = {};
 

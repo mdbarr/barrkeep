@@ -3,7 +3,7 @@
 const { pp } = require('./pp');
 const {
   camelize, duration, formatBytes, formatNumber, milliseconds, ordinal,
-  precisionRound, sha1, sha256
+  precisionRound, sha1, sha256,
 } = require('./utils');
 
 module.exports = {
@@ -101,7 +101,7 @@ module.exports = {
       json: false,
       lineNumbers: false,
       print: false,
-      showDepth: true
+      showDepth: true,
     });
   },
   reverse (value) {
@@ -131,5 +131,5 @@ module.exports = {
       return '';
     }
     return value.toString().toUpperCase();
-  }
+  },
 };

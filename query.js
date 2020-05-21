@@ -2,7 +2,7 @@
 
 const { resolve } = require('./utils');
 
-const isOperator = (str) => { return str.startsWith('$'); };
+const isOperator = (str) => str.startsWith('$');
 
 function equals (a, b) {
   if (typeof a === 'string' && b instanceof RegExp) {

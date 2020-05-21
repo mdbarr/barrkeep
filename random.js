@@ -161,5 +161,5 @@ function generatePerlinNoise (width, height, options) {
 
 module.exports = {
   MersenneTwister,
-  generatePerlinNoise
+  generatePerlinNoise,
 };

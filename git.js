@@ -44,7 +44,7 @@ function gitBranchChanges () {
       return {
         file,
         additions,
-        deletions
+        deletions,
       };
     });
 }
@@ -62,7 +62,7 @@ function gitBlame (file, lineNumber) {
     additions: hashInformation[1],
     deletions: hashInformation[2],
     author: { },
-    committer: {}
+    committer: {},
   };
 
   for (let i = 1; i < summary.length - 1; i++) {
@@ -95,7 +95,7 @@ function gitBlame (file, lineNumber) {
         previousInformation = value.split(/\s+/);
         blame.previous = {
           hash: previousInformation[0],
-          file: previousInformation[1]
+          file: previousInformation[1],
         };
         break;
       case 'filename':
@@ -126,7 +126,7 @@ function gitAddNotes (message, prefix, force) {
 
     childProcess.execSync(gitNotesCommand, {
       cwd: process.cwd(),
-      stdio: 'ignore'
+      stdio: 'ignore',
     });
 
     return true;
@@ -145,7 +145,7 @@ function gitRemoveNotes (prefix) {
 
     childProcess.execSync(gitNotesCommand, {
       cwd: process.cwd(),
-      stdio: 'ignore'
+      stdio: 'ignore',
     });
 
     return true;
@@ -164,7 +164,7 @@ function gitShowNotes (prefix) {
 
     const notes = childProcess.execSync(gitNotesCommand, {
       cwd: process.cwd(),
-      stdio: [ 'pipe', 'pipe', 'ignore' ]
+      stdio: [ 'pipe', 'pipe', 'ignore' ],
     }).toString().
       trim();
 
@@ -185,31 +185,29 @@ function gitStatus () {
   let [ branch, ...changes ] = status;
 
   branch = branch.replace('## ', '');
-  changes = changes.map((item) => {
-    return item.replace(/^[ ][MD]\s+(.*)$/, '$1 (modified)').
-      replace(/^M[ MD]\s+(.*)$/, '$1 (modified in index)').
-      replace(/^A[ MD]\s+(.*)$/, '$1 (added)').
-      replace(/^D[ M]\s+(.*)$/, '$1 (deleted)').
-      replace(/^R[ MD]\s+(.*)$/, '$1 (renamed)').
-      replace(/^C[ MD]\s+(.*)$/, '$1 (copied)').
-      replace(/^[MARC][ ]\s+(.*)$/, '$1 (index and work tree matches)').
-      replace(/^[ MARC]M\s+(.*)$/, '$1 (work tree changed since index)').
-      replace(/^[ MARC]D\s+(.*)$/, '$1 (deleted in work tree)').
-      replace(/^DD\s+(.*)$/, '$1 (unmerged, both deleted)').
-      replace(/^AU\s+(.*)$/, '$1 (unmerged, added by us)').
-      replace(/^UD\s+(.*)$/, '$1 (unmerged, deleted by them)').
-      replace(/^UA\s+(.*)$/, '$1 (unmerged, added by them)').
-      replace(/^DU\s+(.*)$/, '$1 (unmerged, deleted by us)').
-      replace(/^AA\s+(.*)$/, '$1 (unmerged, both added)').
-      replace(/^UU\s+(.*)$/, '$1 (unmerged, both modified)').
-      replace(/^\?\?\s+(.*)$/, '$1 (untracked)').
-      replace(/^!!\s+(.*)$/, '$1 (ignored)');
-  }).sort();
+  changes = changes.map((item) => item.replace(/^[ ][MD]\s+(.*)$/, '$1 (modified)').
+    replace(/^M[ MD]\s+(.*)$/, '$1 (modified in index)').
+    replace(/^A[ MD]\s+(.*)$/, '$1 (added)').
+    replace(/^D[ M]\s+(.*)$/, '$1 (deleted)').
+    replace(/^R[ MD]\s+(.*)$/, '$1 (renamed)').
+    replace(/^C[ MD]\s+(.*)$/, '$1 (copied)').
+    replace(/^[MARC][ ]\s+(.*)$/, '$1 (index and work tree matches)').
+    replace(/^[ MARC]M\s+(.*)$/, '$1 (work tree changed since index)').
+    replace(/^[ MARC]D\s+(.*)$/, '$1 (deleted in work tree)').
+    replace(/^DD\s+(.*)$/, '$1 (unmerged, both deleted)').
+    replace(/^AU\s+(.*)$/, '$1 (unmerged, added by us)').
+    replace(/^UD\s+(.*)$/, '$1 (unmerged, deleted by them)').
+    replace(/^UA\s+(.*)$/, '$1 (unmerged, added by them)').
+    replace(/^DU\s+(.*)$/, '$1 (unmerged, deleted by us)').
+    replace(/^AA\s+(.*)$/, '$1 (unmerged, both added)').
+    replace(/^UU\s+(.*)$/, '$1 (unmerged, both modified)').
+    replace(/^\?\?\s+(.*)$/, '$1 (untracked)').
+    replace(/^!!\s+(.*)$/, '$1 (ignored)')).sort();
 
   return {
     branch,
     changes,
-    clean: !changes.length
+    clean: !changes.length,
   };
 }
 
@@ -217,7 +215,7 @@ function gitMergeBase () {
   try {
     return childProcess.execSync(gitMergeBaseCommand, {
       cwd: process.cwd(),
-      stdio: [ 'pipe', 'pipe', 'ignore' ]
+      stdio: [ 'pipe', 'pipe', 'ignore' ],
     }).toString().
       trim();
   } catch (error) { // Likely a shallow clone
@@ -252,13 +250,13 @@ function gitChangeSet (initialCommit) {
           id,
           name,
           email,
-          changes: []
+          changes: [],
         };
 
         changeSet[id].changes.push({
           short: hash.substring(0, 12),
           hash,
-          title
+          title,
         });
       }
     }
@@ -278,5 +276,5 @@ module.exports = {
   gitMergeBase,
   gitRemoveNotes,
   gitShowNotes,
-  gitStatus
+  gitStatus,
 };

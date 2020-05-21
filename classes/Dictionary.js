@@ -6,7 +6,7 @@ function Dictionary (initial) {
 
   Object.defineProperty(this, 'size', {
     get () { return keys.size; },
-    set () {}
+    set () {},
   });
 
   this.clear = () => {
@@ -42,9 +42,7 @@ function Dictionary (initial) {
     return undefined;
   };
 
-  this.has = (key) => {
-    return keys.has(key) || values.has(key);
-  };
+  this.has = (key) => keys.has(key) || values.has(key);
 
   this.keys = keys.keys;
 

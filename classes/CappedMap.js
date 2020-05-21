@@ -9,7 +9,7 @@ function CappedMap (capacity = 100) {
 
   Object.defineProperty(this, 'size', {
     get () { return map.size; },
-    set () {}
+    set () {},
   });
 
   this.clear = () => {
@@ -19,9 +19,7 @@ function CappedMap (capacity = 100) {
     return map.clear();
   };
 
-  this.delete = (key) => {
-    return map.delete(key);
-  };
+  this.delete = (key) => map.delete(key);
 
   this.entries = map.entries;
 

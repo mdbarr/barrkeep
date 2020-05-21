@@ -9,7 +9,7 @@ function CappedSet (capacity = 100) {
 
   Object.defineProperty(this, 'size', {
     get () { return set.size; },
-    set () {}
+    set () {},
   });
 
   this.add = (id) => {
@@ -40,9 +40,7 @@ function CappedSet (capacity = 100) {
     return set.clear();
   };
 
-  this.delete = (id) => {
-    return set.delete(id);
-  };
+  this.delete = (id) => set.delete(id);
 
   this.entries = set.entries;
 

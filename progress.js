@@ -2,7 +2,7 @@
 
 const styler = require('./style');
 const {
-  duration, formatNumber, stripAnsi, timestamp
+  duration, formatNumber, stripAnsi, timestamp,
 } = require('./utils');
 
 const spinners = require('./data/spinners.json');
@@ -12,7 +12,7 @@ class ProgressBar {
     total = 10, value = 0, format = '[$progress]', stream = process.stderr,
     y, x = 0, width, complete = '=', incomplete = ' ', head = '>', clear,
     interval, tokens = {}, spinner = 'dots', spinnerStyle,
-    durationOptions, formatOptions
+    durationOptions, formatOptions,
   } = {}) {
     this._total = total;
     this._value = value;
@@ -24,7 +24,7 @@ class ProgressBar {
     this.characters = {
       complete,
       incomplete,
-      head
+      head,
     };
 
     this.clear = clear === undefined ? false : clear;
@@ -201,7 +201,7 @@ class ProgressBar {
 class Spinner {
   constructor ({
     spinner = 'dots', stream = process.stderr, x, y, interval, clear,
-    style, prepend = '', append = ''
+    style, prepend = '', append = '',
   } = {}) {
     spinner = spinners[spinner] ? spinner : 'dots';
 
@@ -297,5 +297,5 @@ class Spinner {
 
 module.exports = {
   ProgressBar,
-  Spinner
+  Spinner,
 };

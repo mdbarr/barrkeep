@@ -55,7 +55,7 @@ const validation = {
   },
   fail (reason) {
     return Promise.reject(reason ? reason : 'validation failed');
-  }
+  },
 };
 
 /**
@@ -108,9 +108,7 @@ const retry = function (promise, options, value, context) {
   options.counter++;
 
   return timeoutPromise(promise, options, value, context).
-    then((result) => {
-      return result;
-    }, (error) => {
+    then((result) => result, (error) => {
       if (error && (error.name === 'ReferenceError' || error.name === 'SyntaxError' ||
                     error.name === 'TypeError' || error.name === 'RangeError' ||
                     error.name === 'EvalError' || error.name === 'InternalError' ||
@@ -125,12 +123,10 @@ const retry = function (promise, options, value, context) {
 
 // Promise extension for retry as a then-able
 Promise.prototype.thenRetry = function (promise, options) {
-  return this.then((value) => {
-    return retry(promise, options, value);
-  });
+  return this.then((value) => retry(promise, options, value));
 };
 
 module.exports = {
   retry,
-  validation
+  validation,
 };

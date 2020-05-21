@@ -24,7 +24,7 @@ const {
   resolves,
   set,
   setTypes,
-  size
+  size,
 } = require('./utils');
 
 Math.$round = precisionRound;
@@ -49,7 +49,7 @@ Object.defineProperty(Array.prototype, '$random', {
     return Math.floor(Math.random() * this.length);
   },
   enumerable: false,
-  configurable: true
+  configurable: true,
 });
 
 Object.defineProperty(Array.prototype, '$shuffle', {
@@ -67,7 +67,7 @@ Object.defineProperty(Array.prototype, '$shuffle', {
     return this;
   },
   enumerable: false,
-  configurable: true
+  configurable: true,
 });
 
 Object.defineProperty(Array.prototype, '$pick', {
@@ -93,7 +93,7 @@ Object.defineProperty(Array.prototype, '$pick', {
     return picks;
   },
   enumerable: false,
-  configurable: true
+  configurable: true,
 });
 
 /**
@@ -110,7 +110,7 @@ Object.defineProperty(Array.prototype, '$byId', {
     return this.byKey('id', needle, caseInsensitive);
   },
   enumerable: false,
-  configurable: true
+  configurable: true,
 });
 
 /**
@@ -127,7 +127,7 @@ Object.defineProperty(Array.prototype, '$byName', {
     return this.byKey('name', needle, caseInsensitive);
   },
   enumerable: false,
-  configurable: true
+  configurable: true,
 });
 
 /**
@@ -159,7 +159,7 @@ Object.defineProperty(Array.prototype, '$byKey', {
     return undefined;
   },
   enumerable: false,
-  configurable: true
+  configurable: true,
 });
 
 /**
@@ -171,7 +171,7 @@ Object.defineProperty(String.prototype, '$colorize', {
     return colorize(colorName, this);
   },
   enumerable: false,
-  configurable: true
+  configurable: true,
 });
 
 /**
@@ -183,7 +183,7 @@ Object.defineProperty(String.prototype, '$rgb', {
     return colorize.rgb(rgbArray, this);
   },
   enumerable: false,
-  configurable: true
+  configurable: true,
 });
 
 /**
@@ -196,7 +196,7 @@ Object.defineProperty(String.prototype, '$style', {
     return style(this, a, b);
   },
   enumerable: false,
-  configurable: true
+  configurable: true,
 });
 
 /**
@@ -207,7 +207,7 @@ Object.defineProperty(String.prototype, '$stripWhitespace', {
     return this.replace(/\s/g, '');
   },
   enumerable: false,
-  configurable: true
+  configurable: true,
 });
 
 /**
@@ -218,7 +218,7 @@ Object.defineProperty(String.prototype, '$emojify', {
     return emojify(this);
   },
   enumerable: false,
-  configurable: true
+  configurable: true,
 });
 
 /**
@@ -229,7 +229,7 @@ Object.defineProperty(String.prototype, '$capitalize', {
     return this.charAt(0).toUpperCase() + this.slice(1).toLowerCase();
   },
   enumerable: false,
-  configurable: true
+  configurable: true,
 });
 
 /**
@@ -240,7 +240,7 @@ Object.defineProperty(String.prototype, '$camelize', {
     return camelize(this);
   },
   enumerable: false,
-  configurable: true
+  configurable: true,
 });
 
 /**
@@ -283,7 +283,7 @@ Object.$private = function (body, key, value) {
       value,
       enumerable: false,
       writable: true,
-      configurable: true
+      configurable: true,
     });
   }
 };

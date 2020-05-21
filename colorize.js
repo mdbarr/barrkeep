@@ -24,7 +24,7 @@ const colors = {
   'bright blue': 94,
   'bright magenta': 95,
   'bright cyan': 96,
-  'bright white': 97
+  'bright white': 97,
 };
 
 function colorize (name, string) {

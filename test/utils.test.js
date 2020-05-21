@@ -9,13 +9,15 @@ const a = {
   b: 'fooo',
   c: [ 1, 2, 3 ],
   d: { e: 20 },
-  f: [ 5, 10, 15 ]
+  f: [ 5, 10, 15 ],
 };
 
-const b = { c: {
-  c: 10,
-  d: { e: [ { f: { g: { h: { i: 'rule' } } } } ] }
-} };
+const b = {
+  c: {
+    c: 10,
+    d: { e: [ { f: { g: { h: { i: 'rule' } } } } ] },
+  },
+};
 
 describe('Utilities Test', () => {
   it('should test $resolve(s)', () => {
@@ -78,11 +80,11 @@ describe('Utilities Test', () => {
     expect(utils.project(a, {
       a: 1,
       c: 1,
-      f: 1
+      f: 1,
     })).toEqual({
       a: 10,
       c: [ 1, 2, 3 ],
-      f: [ 5, 10, 15 ]
+      f: [ 5, 10, 15 ],
     });
   });
 
@@ -90,10 +92,10 @@ describe('Utilities Test', () => {
     expect(utils.project(a, {
       a: 0,
       c: 0,
-      f: 0
+      f: 0,
     })).toEqual({
       b: 'fooo',
-      d: { e: 20 }
+      d: { e: 20 },
     });
   });
 
@@ -104,7 +106,7 @@ describe('Utilities Test', () => {
   it('should test $filter', () => {
     expect(utils.filter(a, /[abc]/, false)).toEqual({
       d: { e: 20 },
-      f: [ 5, 10, 15 ]
+      f: [ 5, 10, 15 ],
     });
   });
 
@@ -114,7 +116,7 @@ describe('Utilities Test', () => {
       a: 10,
       b: 'fooo',
       c: [ 1, 2, 3 ],
-      f: [ 5, 10, 15 ]
+      f: [ 5, 10, 15 ],
     });
   });
 
@@ -132,8 +134,8 @@ describe('Utilities Test', () => {
       c: {
         d: 3,
         e: 4,
-        f: { g: 5 }
-      }
+        f: { g: 5 },
+      },
     });
     expect(flatten).toStrictEqual({
       'a': 1,
@@ -142,7 +144,7 @@ describe('Utilities Test', () => {
       'c.d': 3,
       'c.e': 4,
       'c.f$type': 'Object',
-      'c.f.g': 5
+      'c.f.g': 5,
     });
   });
 });
