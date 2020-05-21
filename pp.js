@@ -9,7 +9,9 @@ const darkTheme = {
   Map: '#5fd787',
   Null: '#5f00af',
   Number: '#875fd7',
-  Promise: '#0073b1',
+  Promise: '#5bb761',
+  PromisePending: '#83c6ea',
+  PromiseRejected: '#fc6c86',
   RegExp: '#ff8787',
   Set: '#afd7d7',
   String: '#005fd7',
@@ -208,6 +210,16 @@ function prettyPrint (object, {
 
         depth--;
         line += `${ indent(depth) }]`;
+      } else if (value instanceof Promise) {
+        const details = process.binding('util').getPromiseDetails(value);
+        if (details[0] === 0) {
+          line += `${ style('Promise', theme.Promise) } { ${ style('pending', theme.PromisePending) } }`;
+        } else if (details[0] === 1) {
+          const result = prettyPrinter(details[1], 0, seen).replace(/\n+$/, '');
+          line += `${ style('Promise', theme.Promise) } { ${ result } }`;
+        } else if (details[0] === 2) {
+          line += `${ style('Promise', theme.Promise) } { ${ style('rejected', theme.PromiseRejected) } }`;
+        }
       } else if (typeof value === 'object') {
         line += '{';
         let keys = Object.getOwnPropertyNames(value);
