@@ -43,7 +43,7 @@ class Enum {
       },
       getOwnPropertyDescriptor (target, property) {
         property = property.toUpperCase();
-        if (self.type.has(property)) {
+        if (types.has(property)) {
           return {
             configurable: false,
             selferable: true,
@@ -53,7 +53,7 @@ class Enum {
         return undefined;
       },
       getPrototypeOf () {
-        return self;
+        return this;
       },
       has (target, key) {
         key = key.toUpperCase();
