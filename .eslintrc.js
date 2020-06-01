@@ -1,11 +1,17 @@
+'use strict';
+
 module.exports = {
   root: true,
   'parser': 'espree',
   'parserOptions': {
     'ecmaVersion': 9,
-    'sourceType': 'script'
+    'sourceType': 'script',
   },
-  env: { node: true, es6: true, jest: true },
+  env: {
+    node: true,
+    es6: true,
+    jest: true,
+  },
   rules: {
     'accessor-pairs': 'error',
     'array-bracket-newline': [ 'error', { multiline: true } ],
@@ -28,10 +34,12 @@ module.exports = {
     eqeqeq: [ 'error', 'always' ],
     'handle-callback-err': 'error',
     indent: [ 'error', 2, { SwitchCase: 1 } ],
-    'key-spacing': [ 'error', {
-      beforeColon: false,
-      afterColon: true,
-    } ],
+    'key-spacing': [
+      'error', {
+        beforeColon: false,
+        afterColon: true,
+      },
+    ],
     'keyword-spacing': 'error',
     'max-params': [ 'error', 5 ],
     'new-cap': 'error',
@@ -112,17 +120,27 @@ module.exports = {
     'no-useless-return': 'error',
     'no-var': 'error',
     'no-void': 'error',
-    'no-warning-comments': [ 'error', {
-      terms: [ 'todo', 'fixme', 'hack' ],
-      location: 'anywhere',
-    } ],
+    'no-warning-comments': [
+      'error', {
+        terms: [ 'todo', 'fixme', 'hack' ],
+        location: 'anywhere',
+      },
+    ],
     'no-with': 'error',
-    'object-curly-newline': [ 'error',{
-      'ObjectExpression': { multiline: true, minProperties: 2 },
-      'ObjectPattern': { minProperties: 3 },
-      'ImportDeclaration': { minProperties: 3 },
-      'ExportDeclaration': { multiline: true, minProperties: 3 }
-    } ],
+    'object-curly-newline': [
+      'error', {
+        'ObjectExpression': {
+          multiline: true,
+          minProperties: 2,
+        },
+        'ObjectPattern': { minProperties: 3 },
+        'ImportDeclaration': { minProperties: 3 },
+        'ExportDeclaration': {
+          multiline: true,
+          minProperties: 3,
+        },
+      },
+    ],
     'object-curly-spacing': [ 'error', 'always' ],
     'object-property-newline': 'error',
     'object-shorthand': 'error',
@@ -142,9 +160,12 @@ module.exports = {
     semi: [ 'error', 'always' ],
     'spaced-comment': [ 'error', 'always', { exceptions: [ '/' ] } ],
     'space-before-blocks': 'error',
-    'space-before-function-paren': [ 'error', {
-      anonymous: 'ignore', named: 'always',
-    } ],
+    'space-before-function-paren': [
+      'error', {
+        anonymous: 'ignore',
+        named: 'always',
+      },
+    ],
     'space-infix-ops': 'error',
     strict: 'error',
     'template-curly-spacing': [ 'error', 'always' ],

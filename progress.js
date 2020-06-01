@@ -12,7 +12,7 @@ class ProgressBar {
     total = 10, value = 0, format = '[$progress]', stream = process.stderr,
     y, x = 0, width, complete = '=', incomplete = ' ', head = '>', clear,
     interval, tokens = {}, spinner = 'dots', spinnerStyle,
-    durationOptions, formatOptions,
+    durationOptions, formatOptions, onTick,
   } = {}) {
     this._total = total;
     this._value = value;
@@ -51,6 +51,14 @@ class ProgressBar {
     this.tick = this.start;
     this.eta = 0;
 
+    this.onTicks = onTick ? [ onTick ] : [ ];
+    Object.defineProperty(this, 'onTick', {
+      get () { return this.onTicks; },
+      set (tick) { this.onTicks.push(tick); },
+      enumerable: true,
+      configurable: true,
+    });
+
     if (this._total === 0) {
       this.complete = true;
     } else {
@@ -60,6 +68,12 @@ class ProgressBar {
           this.ticks++;
           if (this.ticks >= this.spinner.length) {
             this.ticks = 0;
+          }
+
+          for (const tick of this.onTicks) {
+            if (typeof tick === 'function') {
+              tick();
+            }
           }
 
           this.render();
