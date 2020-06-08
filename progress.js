@@ -215,7 +215,7 @@ class ProgressBar {
 class Spinner {
   constructor ({
     spinner = 'dots', stream = process.stderr, x, y, interval, clear,
-    style, prepend = '', append = '',
+    style, prepend = '', append = '', onTick,
   } = {}) {
     spinner = spinners[spinner] ? spinner : 'dots';
 
@@ -242,6 +242,14 @@ class Spinner {
     this.frame = 0;
 
     this.running = false;
+
+    this.onTicks = onTick ? [ onTick ] : [ ];
+    Object.defineProperty(this, 'onTick', {
+      get () { return this.onTicks; },
+      set (tick) { this.onTicks.push(tick); },
+      enumerable: true,
+      configurable: true,
+    });
   }
 
   start () {
@@ -264,6 +272,12 @@ class Spinner {
     this.stream.moveCursor(this.append.length * -1);
 
     this.update = setInterval(() => {
+      for (const tick of this.onTicks) {
+        if (typeof tick === 'function') {
+          tick();
+        }
+      }
+
       const character = this.style ? styler(this.frames[this.frame], this.style) :
         this.frames[this.frame];
 
