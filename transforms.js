@@ -40,6 +40,9 @@ module.exports = {
     }
     return `${ symbol }${ precisionRound(value) }`;
   },
+  degrees (radians = 0) {
+    return radians * (180 / Math.PI);
+  },
   duration (value) {
     if (!value) {
       return '';
@@ -57,6 +60,14 @@ module.exports = {
       return '';
     }
     return JSON.stringify(value, null, indent);
+  },
+  kebabcase (value) {
+    if (!value) {
+      return '';
+    }
+    return value.toString().trim().
+      toLowerCase().
+      replace(/\s+/g, '-');
   },
   lowercase (value) {
     if (!value) {
@@ -85,6 +96,12 @@ module.exports = {
     }
     return ordinal(value);
   },
+  pascalcase (value) {
+    if (!value) {
+      return '';
+    }
+    return value.replace(/\w\S*/g, (word) => word.charAt(0).toUpperCase() + word.substring(1).toLowerCase());
+  },
   pluralize (word, count, form = '$1s') {
     if (count === 1) {
       return word;
@@ -104,6 +121,9 @@ module.exports = {
       showDepth: true,
     });
   },
+  radians (degrees = 0) {
+    return degrees * (Math.PI / 180);
+  },
   reverse (value) {
     if (!value) {
       return '';
@@ -114,11 +134,25 @@ module.exports = {
       reverse().
       join('');
   },
+  sentencecase (value) {
+    if (!value) {
+      return '';
+    }
+    return value.charAt(0).toUpperCase() + value.substring(1).toLowerCase();
+  },
   sha1 (value = '') {
     return sha1(value);
   },
   sha256 (value = '') {
     return sha256(value);
+  },
+  snakecase (value) {
+    if (!value) {
+      return '';
+    }
+    return value.match(/[A-Z]{2,}(?=[A-Z][a-z]+[0-9]*|\b)|[A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+/g).
+      map(word => word.toLowerCase()).
+      join('_');
   },
   trim (value) {
     if (!value) {
