@@ -443,7 +443,15 @@ function merge (objectA, objectB, createNew = false, seen) {
 
   const keys = Object.getOwnPropertyNames(objectB);
   for (const key of keys) {
-    if (typeof objectB[key] === 'object' && !seen.has(objectB[key])) {
+    if (objectB[key] === null || Array.isArray(objectB[key]) || objectB[key] instanceof Buffer ||
+      objectB[key] instanceof Date || objectB[key] instanceof Map || objectB[key] instanceof Set ||
+      objectB[key] instanceof RegExp) {
+      if (createNew) {
+        objectA[key] = deepClone(objectB[key]);
+      } else {
+        objectA[key] = objectB[key];
+      }
+    } else if (typeof objectB[key] === 'object' && !seen.has(objectB[key])) {
       if (typeof objectA[key] === 'object') {
         objectA[key] = merge(objectA[key], objectB[key], createNew, seen);
       } else if (createNew) {
@@ -454,7 +462,11 @@ function merge (objectA, objectB, createNew = false, seen) {
 
       seen.add(objectB[key]);
     } else {
-      objectA[key] = objectB[key];
+      if (createNew) {
+        objectA[key] = deepClone(objectB[key]);
+      } else {
+        objectA[key] = objectB[key];
+      }
     }
   }
   return objectA;
