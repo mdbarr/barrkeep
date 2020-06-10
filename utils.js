@@ -182,6 +182,22 @@ function deepEqual (actual, expected) {
   return Object.keys(expected).every((i) => properties.indexOf(i) !== -1) && properties.every((i) => deepEqual(actual[i], expected[i]));
 }
 
+function distinct (array, selector) {
+  if (typeof selector !== 'function') {
+    return Array.from(new Set(array));
+  }
+
+  const items = new Set();
+
+  return array.filter(item => {
+    if (items.has(selector(item))) {
+      return false;
+    }
+    items.add(selector(item));
+    return true;
+  });
+}
+
 function dividePath (path, delimiter = /[.]/) {
   const parts = [];
 
@@ -726,6 +742,7 @@ module.exports = {
   deepClone,
   deepEqual,
   dividePath,
+  distinct,
   duration,
   encrypt,
   expand,

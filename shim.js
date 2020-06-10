@@ -9,7 +9,7 @@ const emojify = require('./emojify');
 const colorize = require('./colorize');
 
 const {
-  camelize, deepClone, expand, filter, flatten, formatBytes, formatNumber, merge,
+  camelize, deepClone, distinct, expand, filter, flatten, formatBytes, formatNumber, merge,
   precisionRound, project, range, remove, resolve, resolves, set, setTypes, size,
 } = require('./utils');
 
@@ -30,6 +30,14 @@ Object.$resolves = resolves;
 Object.$set = set;
 Object.$setTypes = setTypes;
 Object.$size = size;
+
+Object.defineProperty(Array.prototype, '$distinct', {
+  value (selector) {
+    return distinct(this, selector);
+  },
+  enumerable: false,
+  configurable: true,
+});
 
 Object.defineProperty(Array.prototype, '$random', {
   value () {
