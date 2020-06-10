@@ -10,7 +10,7 @@ const colorize = require('./colorize');
 
 const {
   camelize, deepClone, distinct, expand, filter, flatten, formatBytes, formatNumber, merge,
-  precisionRound, project, range, remove, resolve, resolves, set, setTypes, size,
+  precisionRound, project, range, remove, resolve, resolves, set, setTypes, size, unique,
 } = require('./utils');
 
 Math.$round = precisionRound;
@@ -34,6 +34,14 @@ Object.$size = size;
 Object.defineProperty(Array.prototype, '$distinct', {
   value (selector) {
     return distinct(this, selector);
+  },
+  enumerable: false,
+  configurable: true,
+});
+
+Object.defineProperty(Array.prototype, '$unique', {
+  value () {
+    return unique(this);
   },
   enumerable: false,
   configurable: true,

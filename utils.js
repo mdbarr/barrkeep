@@ -733,6 +733,10 @@ function timestamp (date) {
   return Date.now();
 }
 
+function unique (array) {
+  return Array.from(new Set(array));
+}
+
 module.exports = {
   ansiRegExp,
   callback,
@@ -770,4 +774,5 @@ module.exports = {
   size,
   stripAnsi,
   timestamp,
+  unique,
 };
