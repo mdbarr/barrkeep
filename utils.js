@@ -461,12 +461,10 @@ function merge (objectA, objectB, createNew = false, seen) {
       }
 
       seen.add(objectB[key]);
+    } else if (createNew) {
+      objectA[key] = deepClone(objectB[key]);
     } else {
-      if (createNew) {
-        objectA[key] = deepClone(objectB[key]);
-      } else {
-        objectA[key] = objectB[key];
-      }
+      objectA[key] = objectB[key];
     }
   }
   return objectA;
@@ -563,6 +561,20 @@ function project (object, projection) {
       }
     }
   }
+  return result;
+}
+
+function range (start, end, increment = 1) {
+  if (end < start) {
+    increment *= -1;
+  }
+
+  const result = [ ];
+
+  for (let i = start; i <= end; i += increment) {
+    result.push(i);
+  }
+
   return result;
 }
 
@@ -730,6 +742,7 @@ module.exports = {
   ordinal,
   precisionRound,
   project,
+  range,
   remove,
   resolve,
   resolves,

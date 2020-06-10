@@ -9,28 +9,15 @@ const emojify = require('./emojify');
 const colorize = require('./colorize');
 
 const {
-  camelize,
-  deepClone,
-  expand,
-  filter,
-  flatten,
-  formatBytes,
-  formatNumber,
-  merge,
-  precisionRound,
-  project,
-  remove,
-  resolve,
-  resolves,
-  set,
-  setTypes,
-  size,
+  camelize, deepClone, expand, filter, flatten, formatBytes, formatNumber, merge,
+  precisionRound, project, range, remove, resolve, resolves, set, setTypes, size,
 } = require('./utils');
 
 Math.$round = precisionRound;
 
 Number.$asBytes = formatBytes;
 Number.$format = formatNumber;
+Number.$range = range;
 
 Object.$expand = expand;
 Object.$filter = filter;
