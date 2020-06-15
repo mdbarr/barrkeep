@@ -43,11 +43,11 @@ module.exports = {
   degrees (radians = 0) {
     return radians * (180 / Math.PI);
   },
-  duration (value) {
+  duration (value, options) {
     if (!value) {
       return '';
     }
-    return duration(value);
+    return duration(value, options);
   },
   hexadecimal (value) {
     if (!value) {
