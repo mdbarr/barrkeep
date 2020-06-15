@@ -13,12 +13,12 @@ module.exports = {
     }
     return Number(value).toString(2);
   },
-  bytes (value) {
+  bytes (value, options) {
     if (!value) {
       return '';
     }
     value = Number(value);
-    return formatBytes(value);
+    return formatBytes(value, options);
   },
   camelcase (value) {
     if (!value) {
@@ -81,8 +81,8 @@ module.exports = {
     }
     return milliseconds(value);
   },
-  number (value) {
-    return formatNumber(value);
+  number (value, options = { numeral: true }) {
+    return formatNumber(value, options);
   },
   octal (value) {
     if (!value) {
