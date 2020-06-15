@@ -545,6 +545,45 @@ function ordinal (value) {
   return `${ value }th`;
 }
 
+async function poll (fn, options = {}, done) {
+  const interval = typeof options === 'number' ? options : options.interval || 1000;
+  const retries = typeof options.retries === 'number' ? options.retries : Infinity;
+  const validate = typeof options.validate === 'function' ? options.validate : (x) => x === true;
+
+  if (fn.length === 1) { // function takes a callback
+    const originalFn = fn;
+
+    fn = new Promise((resolve, reject) => {
+      originalFn((error, result) => {
+        if (error) {
+          return reject(error);
+        }
+        return resolve(result);
+      });
+    });
+  }
+
+  let attempts = 0;
+  const poller = async (resolve, reject) => {
+    const result = await fn();
+    attempts++;
+
+    if (validate(result)) {
+      return resolve(result);
+    } else if (attempts > retries) {
+      return reject(new Error('Exceeded max retries'));
+    }
+    return setTimeout(poller, interval, resolve, reject);
+  };
+
+  if (typeof done === 'function') {
+    return new Promise(poller).
+      then((result) => done(null, result)).
+      catch((error) => done(error));
+  }
+  return new Promise(poller);
+}
+
 function precisionRound (number, precision = 2) {
   const factor = Math.pow(10, precision);
   return Math.round(number * factor) / factor;
@@ -761,6 +800,7 @@ module.exports = {
   nop: noop,
   once,
   ordinal,
+  poll,
   precisionRound,
   project,
   range,
