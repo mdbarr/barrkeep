@@ -548,7 +548,7 @@ function ordinal (value) {
 async function poll (fn, options = {}, done) {
   const interval = typeof options === 'number' ? options : options.interval || 1000;
   const retries = typeof options.retries === 'number' ? options.retries : Infinity;
-  const validate = typeof options.validate === 'function' ? options.validate : (x) => x === true;
+  const validate = typeof options.validate === 'function' ? options.validate : (x) => Boolean(x);
 
   if (fn.length === 1) { // function takes a callback
     const originalFn = fn;
