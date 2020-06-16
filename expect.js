@@ -256,6 +256,24 @@ Expectation.prototype.within = function (lower, upper, inclusive = true) {
   return this;
 };
 
+Expectation.prototype.above = function (value, inclusive = true) {
+  if (inclusive) {
+    this.strictEqual(this.value >= value, true);
+  } else {
+    this.strictEqual(this.value > value, true);
+  }
+  return this;
+};
+
+Expectation.prototype.below = function (value, inclusive = true) {
+  if (inclusive) {
+    this.strictEqual(this.value <= value, true);
+  } else {
+    this.strictEqual(this.value < value, true);
+  }
+  return this;
+};
+
 Expectation.prototype.approximately = function (value, tolerance = 0.00005) {
   this.strictEqual(Math.abs(value - this.value) <= tolerance, true);
   return this;
