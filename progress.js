@@ -232,8 +232,23 @@ class Spinner {
     }
 
     this.style = style;
-    this.prepend = prepend;
-    this.append = append;
+
+    this._prepend = prepend;
+    this._append = append;
+
+    Object.defineProperty(this, 'prepend', {
+      get () { return this._prepend; },
+      set (string) { this._prepend = string; this.needsRedraw = 1; },
+      enumerable: true,
+      configurable: true,
+    });
+
+    Object.defineProperty(this, 'append', {
+      get () { return this._append; },
+      set (string) { this._append = string; this.needsRedraw = 1; },
+      enumerable: true,
+      configurable: true,
+    });
 
     this.offset = stripAnsi(this.prepend).length;
 
@@ -263,19 +278,29 @@ class Spinner {
       clearInterval(this.update);
     }
 
-    this.stream.write('\x1b[?25l');
+    this.needsRedraw = 1;
 
-    if (this.x !== undefined) {
-      this.stream.cursorTo(this.x, this.y);
-    }
-    this.stream.write(`${ this.prepend } ${ this.append }`);
-    this.stream.moveCursor(this.append.length * -1);
+    this.redraw = () => {
+      this.stream.write('\x1b[?25l');
+
+      if (this.x !== undefined) {
+        this.stream.cursorTo(this.x, this.y);
+      }
+      this.stream.write(`${ this.prepend } ${ this.append }`);
+      this.stream.moveCursor(this.append.length * -1);
+
+      this.needsRedraw = 0;
+    };
 
     this.update = setInterval(() => {
       for (const tick of this.onTicks) {
         if (typeof tick === 'function') {
           tick();
         }
+      }
+
+      if (this.needsRedraw) {
+        this.redraw();
       }
 
       const character = this.style ? styler(this.frames[this.frame], this.style) :
