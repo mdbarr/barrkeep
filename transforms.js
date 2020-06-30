@@ -154,6 +154,12 @@ module.exports = {
       map(word => word.toLowerCase()).
       join('_');
   },
+  titlecase (value = '') {
+    return value.split(/[-_.\s]/).
+      map((word) => word.charAt(0).toUpperCase() + word.substring(1).toLowerCase()).
+      join(' ').
+      trim();
+  },
   trim (value) {
     if (!value) {
       return '';
