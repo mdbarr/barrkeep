@@ -398,10 +398,9 @@ function formatBytes (bytes, decimals = 2) {
     return '0 Bytes';
   }
   const kilobyte = 1024;
-  const places = decimals + 1;
   const sizes = [ 'Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB' ];
   const index = Math.floor(Math.log(bytes) / Math.log(kilobyte));
-  return `${ parseFloat((bytes / Math.pow(kilobyte, index)).toFixed(places)) } ${ sizes[index] }`;
+  return `${ parseFloat((bytes / Math.pow(kilobyte, index)).toFixed(decimals)) } ${ sizes[index] }`;
 }
 
 function formatNumber (value, { numeral = false } = {}) {
