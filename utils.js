@@ -465,6 +465,13 @@ function isObject (value) {
   return value !== null && (type === 'object' || type === 'function');
 }
 
+function isPrimitive (value) {
+  if (typeof value === 'object') {
+    return value === null;
+  }
+  return typeof value !== 'function';
+}
+
 function merge (objectA, objectB, createNew = false, seen) {
   if (createNew) {
     objectA = deepClone(objectA);
@@ -811,6 +818,7 @@ module.exports = {
   functionType,
   isNative,
   isObject,
+  isPrimitive,
   merge,
   milliseconds,
   noop,
