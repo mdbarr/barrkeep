@@ -787,6 +787,12 @@ function stripAnsi (string) {
   return string.replace(ansiRegExp, '');
 }
 
+function times (count = 1, func, ...args) {
+  for (let i = 0; i < count; i++) {
+    func(...args);
+  }
+}
+
 function timestamp (date) {
   if (date) {
     return new Date(date).getTime();
@@ -838,6 +844,7 @@ module.exports = {
   sha256,
   size,
   stripAnsi,
+  times,
   timestamp,
   unique,
 };
