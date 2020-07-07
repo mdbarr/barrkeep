@@ -449,6 +449,22 @@ function functionType (func) {
   return flags;
 }
 
+const reRegExpChar = /[\\^$.*+?()[\]{}|]/g;
+const isNativeRegExp = RegExp(`^${
+  Function.prototype.toString.call(Object.prototype.hasOwnProperty).
+    replace(reRegExpChar, '\\$&').
+    replace(/hasOwnProperty|(function).*?(?=\\\()| for .+?(?=\\\])/g, '$1.*?')
+}$`);
+
+function isNative (value) {
+  return isObject(value) && isNativeRegExp.test(value);
+}
+
+function isObject (value) {
+  const type = typeof value;
+  return value !== null && (type === 'object' || type === 'function');
+}
+
 function merge (objectA, objectB, createNew = false, seen) {
   if (createNew) {
     objectA = deepClone(objectA);
@@ -793,6 +809,8 @@ module.exports = {
   formatBytes,
   formatNumber,
   functionType,
+  isNative,
+  isObject,
   merge,
   milliseconds,
   noop,
