@@ -656,6 +656,13 @@ function range (start, end, increment = 1) {
 }
 
 function remove (object, propertyPath, removeEmptyContainer = false) {
+  if (Array.isArray(propertyPath)) {
+    for (const path of propertyPath) {
+      remove(object, path, removeEmptyContainer);
+    }
+    return true;
+  }
+
   const parts = propertyPath.trim().split(/\./);
   const key = parts.pop();
 
