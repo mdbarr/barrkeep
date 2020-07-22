@@ -28,6 +28,7 @@ module.exports = {
     'comma-style': [ 'error', 'last' ],
     'consistent-return': 'error',
     'constructor-super': 'error',
+    'curly': 'error',
     'dot-location': [ 'error', 'object' ],
     'dot-notation': 'error',
     'eol-last': 'error',
