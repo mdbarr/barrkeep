@@ -8,8 +8,8 @@
   "license": "MIT",
   "private": false,
   "devDependencies": {
-    "eslint": "^7.6.0",
-    "jest": "^26.2.2"
+    "eslint": "^7.9.0",
+    "jest": "^26.4.2"
   },
   "scripts": {
     "lint": "eslint *.js classes/*.js test/*.js",
