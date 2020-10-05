@@ -807,6 +807,17 @@ function timestamp (date) {
   return Date.now();
 }
 
+const regExpPattern = /^\/(.*?)\/([gim]*)$/;
+const escapePattern = /[|\\{}()[\]^$+*?.]/g;
+
+function toRegExp (string) {
+  const parts = string.match(regExpPattern);
+  if (parts) {
+    return new RegExp(parts[1], parts[2]);
+  }
+  return new RegExp(`^${ string.replace(escapePattern, '\\$&') }$`);
+}
+
 function unique (array) {
   return Array.from(new Set(array));
 }
@@ -853,5 +864,6 @@ module.exports = {
   stripAnsi,
   times,
   timestamp,
+  toRegExp,
   unique,
 };
