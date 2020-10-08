@@ -1,4 +1,8 @@
-on: push
+name: npm publish
+on:
+  push:
+    branches:
+      - master
 
 jobs:
   publish:
