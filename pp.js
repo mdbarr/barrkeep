@@ -5,6 +5,7 @@
 const darkTheme = {
   Boolean: '#00875f',
   Date: '#d7d75f',
+  Error: '#af0000',
   Function: '#5fd7ff',
   Map: '#5fd787',
   Null: '#5f00af',
@@ -22,6 +23,7 @@ const darkTheme = {
   decoration: '#1c1c1c',
   nonEnumerable: '#ff0087',
   property: '#8a8a8a',
+  stack: '#bbbbbb',
 };
 
 const defaults = {
@@ -152,6 +154,12 @@ function prettyPrint (object, {
         line += style(value, theme.Undefined);
       } else if (value === null) {
         line += style(value, theme.Null);
+      } else if (value instanceof Error) {
+        const joiner = indent(depth);
+        const parts = value.stack.toString().split(/\n/);
+        line += style(parts.shift(), theme.Error);
+        line += `\n${ joiner }`;
+        line += parts.map((item) => style(item, theme.stack)).join(`\n${ joiner }`);
       } else if (value instanceof Date) {
         line += style(value.toString(), theme.Date);
       } else if (value instanceof RegExp) {
