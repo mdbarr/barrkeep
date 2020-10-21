@@ -100,6 +100,7 @@ class ProgressBar {
     this.render();
 
     if (this._value >= this._total) {
+      this.eta = 0;
       this.done();
     }
   }
@@ -125,7 +126,7 @@ class ProgressBar {
 
     const now = timestamp();
     const elapsed = now - this.start;
-    const eta = this._value === 0 ? 0 : this.eta - (now - this.tick);
+    const eta = this._value === 0 ? 0 : this.eta;
     const rate = this._value / (elapsed / 1000);
 
     const spinner = this.spinnerStyle ? styler(this.spinner[this.ticks], this.spinnerStyle) :
