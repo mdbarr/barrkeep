@@ -364,28 +364,45 @@ function filter (object, check, include = true, path) {
   return clone;
 }
 
-function flatten (object, prefix = '', container = {}) {
+function flatten (object, {
+  container = {}, delimiter = '.', prefix = '', types = true,
+} = {}) {
   if (typeof object !== 'object') {
     container[prefix] = object;
     return container;
   }
 
-  if (prefix.length) {
-    prefix += '.';
+  if (prefix.length && prefix !== delimiter) {
+    prefix += delimiter;
   }
 
   for (const key in object) {
     const pathKey = prefix + key;
 
     if (Array.isArray(object[key])) {
-      container[`${ pathKey }$type`] = 'Array';
+      if (types) {
+        container[`${ pathKey }$type`] = 'Array';
+      }
+
       const array = object[key];
       for (let i = 0; i < array.length; i++) {
-        flatten(array[i], `${ pathKey }.${ i }`, container);
+        flatten(array[i], {
+          container,
+          delimiter,
+          prefix: `${ pathKey }${ delimiter }${ i }`,
+          types,
+        });
       }
     } else if (typeof object[key] === 'object' && object[key] !== null) {
-      container[`${ pathKey }$type`] = 'Object';
-      flatten(object[key], pathKey, container);
+      if (types) {
+        container[`${ pathKey }$type`] = 'Object';
+      }
+      flatten(object[key], {
+        container,
+        delimiter,
+        prefix: pathKey,
+        types,
+      });
     } else {
       container[ pathKey ] = object[key];
     }
