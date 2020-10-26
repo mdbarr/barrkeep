@@ -824,6 +824,32 @@ function timestamp (date) {
   return Date.now();
 }
 
+function toBoolean (value) {
+  if (value instanceof Map || value instanceof Set) {
+    return value.size > 0;
+  } else if (Array.isArray(value)) {
+    return value.length > 0;
+  } else if (typeof value === 'object' && value !== null) {
+    return Object.keys(value).length > 0;
+  } else if (typeof value === 'string') {
+    value = value.toLowerCase();
+
+    if (value === 'true' || value === 'yes' || value === '1') {
+      return true;
+    } else if (value === 'false' || value === 'no' || value === '0') {
+      return false;
+    }
+  } else if (typeof value === 'number') {
+    if (value === 0) {
+      return false;
+    }
+
+    return true;
+  }
+
+  return Boolean(value);
+}
+
 const regExpPattern = /^\/(.*?)\/([gim]*)$/;
 const escapePattern = /[|\\{}()[\]^$+*?.]/g;
 
@@ -881,6 +907,7 @@ module.exports = {
   stripAnsi,
   times,
   timestamp,
+  toBoolean,
   toRegExp,
   unique,
 };
