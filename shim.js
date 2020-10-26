@@ -33,6 +33,14 @@ Object.$size = size;
 
 //////////
 
+Object.defineProperty(Array.prototype, '$all', {
+  value (predicate) {
+    return this.reduce((acc, value) => acc && predicate(value), true);
+  },
+  enumerable: false,
+  configurable: true,
+});
+
 /**
  * For arrays of objects that have an id field find the object that matches
  * the passed in id.  If the Array has an item that's not an Object, or an item
@@ -129,6 +137,32 @@ Object.defineProperty(Array.prototype, '$last', {
   configurable: true,
 });
 
+Object.defineProperty(Array.prototype, '$none', {
+  value (predicate) {
+    return this.reduce((acc, value) => !acc && !predicate(value), false);
+  },
+  enumerable: false,
+  configurable: true,
+});
+
+Object.defineProperty(Array.prototype, '$partition', {
+  value (predicate) {
+    return this.reduce((result, item) => {
+      const [ listA, listB ] = result;
+
+      if (predicate(item) === true) {
+        listA.push(item);
+      } else {
+        listB.push(item);
+      }
+
+      return result;
+    }, [ [], [] ]);
+  },
+  enumerable: false,
+  configurable: true,
+});
+
 Object.defineProperty(Array.prototype, '$pick', {
   value (count, asArray) {
     const arr = this.slice();
@@ -176,6 +210,14 @@ Object.defineProperty(Array.prototype, '$shuffle', {
       this[j] = x;
     }
     return this;
+  },
+  enumerable: false,
+  configurable: true,
+});
+
+Object.defineProperty(Array.prototype, '$some', {
+  value (predicate) {
+    return this.reduce((acc, value) => acc || predicate(value), false);
   },
   enumerable: false,
   configurable: true,
