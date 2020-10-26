@@ -31,73 +31,7 @@ Object.$set = set;
 Object.$setTypes = setTypes;
 Object.$size = size;
 
-Object.defineProperty(Array.prototype, '$distinct', {
-  value (selector) {
-    return distinct(this, selector);
-  },
-  enumerable: false,
-  configurable: true,
-});
-
-Object.defineProperty(Array.prototype, '$unique', {
-  value () {
-    return unique(this);
-  },
-  enumerable: false,
-  configurable: true,
-});
-
-Object.defineProperty(Array.prototype, '$random', {
-  value () {
-    return Math.floor(Math.random() * this.length);
-  },
-  enumerable: false,
-  configurable: true,
-});
-
-Object.defineProperty(Array.prototype, '$shuffle', {
-  value () {
-    let j;
-    let x;
-    let i;
-
-    for (i = this.length; i; i--) {
-      j = Math.floor(Math.random() * i);
-      x = this[i - 1];
-      this[i - 1] = this[j];
-      this[j] = x;
-    }
-    return this;
-  },
-  enumerable: false,
-  configurable: true,
-});
-
-Object.defineProperty(Array.prototype, '$pick', {
-  value (count, asArray) {
-    const arr = this.slice();
-    const picks = [];
-
-    if (count === 1 && arr.length === 1) {
-      return arr[0];
-    } else if (count >= arr.length) {
-      return arr;
-    }
-
-    while (picks.length < count) {
-      const i = arr.$random();
-      picks.push(arr[i]);
-      arr.splice(i, 1);
-    }
-
-    if (picks.length === 1 && !asArray) {
-      return picks[0];
-    }
-    return picks;
-  },
-  enumerable: false,
-  configurable: true,
-});
+//////////
 
 /**
  * For arrays of objects that have an id field find the object that matches
@@ -164,6 +98,98 @@ Object.defineProperty(Array.prototype, '$byKey', {
   enumerable: false,
   configurable: true,
 });
+
+Object.defineProperty(Array.prototype, '$distinct', {
+  value (selector) {
+    return distinct(this, selector);
+  },
+  enumerable: false,
+  configurable: true,
+});
+
+Object.defineProperty(Array.prototype, '$first', {
+  value () {
+    if (this.length) {
+      return this[0];
+    }
+    return undefined;
+  },
+  enumerable: false,
+  configurable: true,
+});
+
+Object.defineProperty(Array.prototype, '$last', {
+  value () {
+    if (this.length) {
+      return this[this.length - 1];
+    }
+    return undefined;
+  },
+  enumerable: false,
+  configurable: true,
+});
+
+Object.defineProperty(Array.prototype, '$pick', {
+  value (count, asArray) {
+    const arr = this.slice();
+    const picks = [];
+
+    if (count === 1 && arr.length === 1) {
+      return arr[0];
+    } else if (count >= arr.length) {
+      return arr;
+    }
+
+    while (picks.length < count) {
+      const i = arr.$random();
+      picks.push(arr[i]);
+      arr.splice(i, 1);
+    }
+
+    if (picks.length === 1 && !asArray) {
+      return picks[0];
+    }
+    return picks;
+  },
+  enumerable: false,
+  configurable: true,
+});
+
+Object.defineProperty(Array.prototype, '$random', {
+  value () {
+    return Math.floor(Math.random() * this.length);
+  },
+  enumerable: false,
+  configurable: true,
+});
+
+Object.defineProperty(Array.prototype, '$shuffle', {
+  value () {
+    let j;
+    let x;
+    let i;
+
+    for (i = this.length; i; i--) {
+      j = Math.floor(Math.random() * i);
+      x = this[i - 1];
+      this[i - 1] = this[j];
+      this[j] = x;
+    }
+    return this;
+  },
+  enumerable: false,
+  configurable: true,
+});
+
+Object.defineProperty(Array.prototype, '$unique', {
+  value () {
+    return unique(this);
+  },
+  enumerable: false,
+  configurable: true,
+});
+
+//////////
 
 /**
  * Colorize a string with a common color name.
