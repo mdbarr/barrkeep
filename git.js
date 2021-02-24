@@ -10,6 +10,7 @@ const gitBranchCommand = 'git branch --show-current';
 const gitChangeSetCommand = 'git log --first-parent --pretty="format:%H, %aE, %cN, %s"';
 const gitChangeSetRegExp = /^(\w{40}),\s(.*?),\s(.*?),\s(.*)$/;
 const gitConfigCommand = 'git config';
+const gitGrepCommand = 'git grep';
 const gitMergeBaseCommand = 'git merge-base master HEAD';
 const gitOrigin = /^origin\//;
 const gitSHACommand = 'git rev-parse HEAD';
@@ -161,6 +162,13 @@ function gitConfig (name, value) {
   return '';
 }
 
+function gitGrep (pattern) {
+  return execSync(`${ gitGrepCommand } ${ pattern }`, { cwd: process.cwd() }).toString().
+    trim().
+    split('\n').
+    map((line) => line.match(/^([^:]+):(.*?)$/).slice(1, 3));
+}
+
 function gitMergeBase () {
   try {
     return execSync(gitMergeBaseCommand, {
@@ -290,6 +298,7 @@ module.exports = {
     email: (value) => gitConfig('user.email', value),
     user: (value) => gitConfig('user.name', value),
   }),
+  grep: gitGrep,
   mergeBase: gitMergeBase,
   notes: {
     add: gitNotesAdd,
