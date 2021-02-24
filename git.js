@@ -9,6 +9,7 @@ const gitBranchChangesCommand = 'git diff --numstat $(git merge-base master HEAD
 const gitBranchCommand = 'git branch --show-current';
 const gitChangeSetCommand = 'git log --first-parent --pretty="format:%H, %aE, %cN, %s"';
 const gitChangeSetRegExp = /^(\w{40}),\s(.*?),\s(.*?),\s(.*)$/;
+const gitConfigCommand = 'git config';
 const gitMergeBaseCommand = 'git merge-base master HEAD';
 const gitOrigin = /^origin\//;
 const gitSHACommand = 'git rev-parse HEAD';
@@ -148,6 +149,18 @@ function gitChangeSet (initialCommit) {
   return changeSet;
 }
 
+function gitConfig (name, value) {
+  if (name) {
+    let command = `${ gitConfigCommand } ${ name }`;
+    if (value) {
+      command += ` ${ value }`;
+    }
+    return execSync(command, { cwd: process.cwd() }).toString().
+      trim();
+  }
+  return '';
+}
+
 function gitMergeBase () {
   try {
     return execSync(gitMergeBaseCommand, {
@@ -271,6 +284,12 @@ module.exports = {
   branch: gitBranch,
   branchChanges: gitBranchChanges,
   changeSet: gitChangeSet,
+  config: Object.assign(gitConfig, {
+    alias: (name, value) => gitConfig(`alias.${ name }`, value),
+    editor: (value) => gitConfig('editor', value),
+    email: (value) => gitConfig('user.email', value),
+    user: (value) => gitConfig('user.name', value),
+  }),
   mergeBase: gitMergeBase,
   notes: {
     add: gitNotesAdd,
