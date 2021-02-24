@@ -1,56 +1,28 @@
 'use strict';
 
-const childProcess = require('child_process');
+const { execSync } = require('child_process');
 
 const gitAuthorEmailCommand = 'git log --format="%ae" -n 1';
 const gitBlameCommand = 'git blame --porcelain';
 const gitBlameEmailClean = /[<>]/g;
 const gitBranchChangesCommand = 'git diff --numstat $(git merge-base master HEAD)';
-const gitBranchCommand = 'git rev-parse --abbrev-ref HEAD';
+const gitBranchCommand = 'git branch --show-current';
 const gitChangeSetCommand = 'git log --first-parent --pretty="format:%H, %aE, %cN, %s"';
 const gitChangeSetRegExp = /^(\w{40}),\s(.*?),\s(.*?),\s(.*)$/;
-const gitHashCommand = 'git rev-parse HEAD';
 const gitMergeBaseCommand = 'git merge-base master HEAD';
 const gitOrigin = /^origin\//;
+const gitSHACommand = 'git rev-parse HEAD';
 const gitStatusCommand = 'git status --branch --porcelain --untracked-files=all';
 
 const emailRegExp = /(@.*)$/;
 
-function gitBranch () {
-  let branch = process.env.GIT_BRANCH || process.env.BRANCH_NAME;
-  if (!branch) {
-    branch = childProcess.execSync(gitBranchCommand, { cwd: process.cwd() }).toString();
-  }
-  branch = branch || 'detached HEAD';
-  return branch.trim().replace(gitOrigin, '');
-}
-
-function gitHash () {
-  return childProcess.execSync(gitHashCommand, { cwd: process.cwd() }).toString().
-    trim();
-}
-
 function gitAuthorEmail () {
-  return childProcess.execSync(gitAuthorEmailCommand, { cwd: process.cwd() }).toString().
+  return execSync(gitAuthorEmailCommand, { cwd: process.cwd() }).toString().
     trim();
-}
-
-function gitBranchChanges () {
-  return childProcess.execSync(gitBranchChangesCommand, { cwd: process.cwd() }).toString().
-    trim().
-    split('\n').
-    map((line) => {
-      const [ additions, deletions, file ] = line.split(/\s+/);
-      return {
-        file,
-        additions,
-        deletions,
-      };
-    });
 }
 
 function gitBlame (file, lineNumber) {
-  const summary = childProcess.execSync(
+  const summary = execSync(
     `${ gitBlameCommand } -L${ lineNumber },${ lineNumber } ${ file }`,
     { cwd: process.cwd() }).toString().
     trim().
@@ -111,7 +83,84 @@ function gitBlame (file, lineNumber) {
   return blame;
 }
 
-function gitAddNotes (message, prefix, force) {
+function gitBranch () {
+  let branch = process.env.GIT_BRANCH || process.env.BRANCH_NAME;
+  if (!branch) {
+    branch = execSync(gitBranchCommand, { cwd: process.cwd() }).toString();
+  }
+  branch = branch || 'detached HEAD';
+  return branch.trim().replace(gitOrigin, '');
+}
+
+function gitBranchChanges () {
+  return execSync(gitBranchChangesCommand, { cwd: process.cwd() }).toString().
+    trim().
+    split('\n').
+    map((line) => {
+      const [ additions, deletions, file ] = line.split(/\s+/);
+      return {
+        file,
+        additions,
+        deletions,
+      };
+    });
+}
+
+function gitChangeSet (initialCommit) {
+  let command = gitChangeSetCommand;
+  if (initialCommit) {
+    command += ` "${ initialCommit }..HEAD"`;
+  } else if (process.env.LAST_SUCCESSFUL_COMMIT) {
+    command += ` "${ process.env.LAST_SUCCESSFUL_COMMIT }..HEAD"`;
+  } else {
+    return null;
+  }
+
+  const changes = execSync(command, { cwd: process.cwd() }).toString().
+    trim().
+    split('\n');
+
+  const changeSet = {};
+
+  changes.forEach((change) => {
+    if (gitChangeSetRegExp.test(change)) {
+      const [ , hash, email, name, title ] = change.match(gitChangeSetRegExp);
+
+      if (emailRegExp.test(email)) {
+        const id = email.replace(emailRegExp, '').toLowerCase();
+
+        changeSet[id] = changeSet[id] || {
+          id,
+          name,
+          email,
+          changes: [],
+        };
+
+        changeSet[id].changes.push({
+          short: hash.substring(0, 12),
+          hash,
+          title,
+        });
+      }
+    }
+  });
+
+  return changeSet;
+}
+
+function gitMergeBase () {
+  try {
+    return execSync(gitMergeBaseCommand, {
+      cwd: process.cwd(),
+      stdio: [ 'pipe', 'pipe', 'ignore' ],
+    }).toString().
+      trim();
+  } catch (error) { // Likely a shallow clone
+    return null;
+  }
+}
+
+function gitNotesAdd (message, prefix, force) {
   try {
     let gitNotesCommand = 'git notes';
     if (prefix) {
@@ -124,7 +173,7 @@ function gitAddNotes (message, prefix, force) {
       gitNotesCommand += ' -f';
     }
 
-    childProcess.execSync(gitNotesCommand, {
+    execSync(gitNotesCommand, {
       cwd: process.cwd(),
       stdio: 'ignore',
     });
@@ -135,7 +184,7 @@ function gitAddNotes (message, prefix, force) {
   }
 }
 
-function gitRemoveNotes (prefix) {
+function gitNotesRemove (prefix) {
   try {
     let gitNotesCommand = 'git notes';
     if (prefix) {
@@ -143,7 +192,7 @@ function gitRemoveNotes (prefix) {
     }
     gitNotesCommand += ' remove';
 
-    childProcess.execSync(gitNotesCommand, {
+    execSync(gitNotesCommand, {
       cwd: process.cwd(),
       stdio: 'ignore',
     });
@@ -154,7 +203,7 @@ function gitRemoveNotes (prefix) {
   }
 }
 
-function gitShowNotes (prefix) {
+function gitNotesShow (prefix) {
   try {
     let gitNotesCommand = 'git notes';
     if (prefix) {
@@ -162,7 +211,7 @@ function gitShowNotes (prefix) {
     }
     gitNotesCommand += ' show';
 
-    const notes = childProcess.execSync(gitNotesCommand, {
+    const notes = execSync(gitNotesCommand, {
       cwd: process.cwd(),
       stdio: [ 'pipe', 'pipe', 'ignore' ],
     }).toString().
@@ -177,8 +226,13 @@ function gitShowNotes (prefix) {
   }
 }
 
+function gitSHA () {
+  return execSync(gitSHACommand, { cwd: process.cwd() }).toString().
+    trim();
+}
+
 function gitStatus () {
-  const status = childProcess.execSync(gitStatusCommand, { cwd: process.cwd() }).toString().
+  const status = execSync(gitStatusCommand, { cwd: process.cwd() }).toString().
     trim().
     split('\n');
 
@@ -211,70 +265,18 @@ function gitStatus () {
   };
 }
 
-function gitMergeBase () {
-  try {
-    return childProcess.execSync(gitMergeBaseCommand, {
-      cwd: process.cwd(),
-      stdio: [ 'pipe', 'pipe', 'ignore' ],
-    }).toString().
-      trim();
-  } catch (error) { // Likely a shallow clone
-    return null;
-  }
-}
-
-function gitChangeSet (initialCommit) {
-  let command = gitChangeSetCommand;
-  if (initialCommit) {
-    command += ` "${ initialCommit }..HEAD"`;
-  } else if (process.env.LAST_SUCCESSFUL_COMMIT) {
-    command += ` "${ process.env.LAST_SUCCESSFUL_COMMIT }..HEAD"`;
-  } else {
-    return null;
-  }
-
-  const changes = childProcess.execSync(command, { cwd: process.cwd() }).toString().
-    trim().
-    split('\n');
-
-  const changeSet = {};
-
-  changes.forEach((change) => {
-    if (gitChangeSetRegExp.test(change)) {
-      const [ , hash, email, name, title ] = change.match(gitChangeSetRegExp);
-
-      if (emailRegExp.test(email)) {
-        const id = email.replace(emailRegExp, '').toLowerCase();
-
-        changeSet[id] = changeSet[id] || {
-          id,
-          name,
-          email,
-          changes: [],
-        };
-
-        changeSet[id].changes.push({
-          short: hash.substring(0, 12),
-          hash,
-          title,
-        });
-      }
-    }
-  });
-
-  return changeSet;
-}
-
 module.exports = {
-  gitAddNotes,
-  gitAuthorEmail,
-  gitBlame,
-  gitBranch,
-  gitBranchChanges,
-  gitChangeSet,
-  gitHash,
-  gitMergeBase,
-  gitRemoveNotes,
-  gitShowNotes,
-  gitStatus,
+  authorEmail: gitAuthorEmail,
+  blame: gitBlame,
+  branch: gitBranch,
+  branchChanges: gitBranchChanges,
+  changeSet: gitChangeSet,
+  mergeBase: gitMergeBase,
+  notes: {
+    add: gitNotesAdd,
+    remove: gitNotesRemove,
+    show: gitNotesShow,
+  },
+  sha: gitSHA,
+  status: gitStatus,
 };
