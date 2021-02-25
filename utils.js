@@ -851,12 +851,6 @@ function toBoolean (value) {
     } else if (value === 'false' || value === 'no' || value === '0') {
       return false;
     }
-  } else if (typeof value === 'number') {
-    if (value === 0) {
-      return false;
-    }
-
-    return true;
   }
 
   return Boolean(value);
