@@ -2,30 +2,32 @@
 
 const { execSync } = require('child_process');
 
-const gitAuthorEmailCommand = 'git log --format="%ae" -n 1';
-const gitBlameCommand = 'git blame --porcelain';
-const gitBlameEmailClean = /[<>]/g;
-const gitBranchChangesCommand = 'git diff --numstat $(git merge-base master HEAD)';
-const gitBranchCommand = 'git branch --show-current';
-const gitChangeSetCommand = 'git log --first-parent --pretty="format:%H, %aE, %cN, %s"';
-const gitChangeSetRegExp = /^(\w{40}),\s(.*?),\s(.*?),\s(.*)$/;
-const gitConfigCommand = 'git config';
-const gitGrepCommand = 'git grep';
-const gitMergeBaseCommand = 'git merge-base master HEAD';
-const gitOrigin = /^origin\//;
-const gitSHACommand = 'git rev-parse HEAD';
-const gitStatusCommand = 'git status --branch --porcelain --untracked-files=all';
-
-const emailRegExp = /(@.*)$/;
+const defaults = {
+  authorEmailCommand: 'git log --format="%ae" -n 1',
+  blameCommand: 'git blame --porcelain',
+  blameEmailClean: /[<>]/g,
+  branchChangesCommand: 'git diff --numstat $(git merge-base master HEAD)',
+  branchCommand: 'git branch --show-current',
+  changeSetCommand: 'git log --first-parent --pretty="format:%H, %aE, %cN, %s"',
+  changeSetRegExp: /^(\w{40}),\s(.*?),\s(.*?),\s(.*)$/,
+  configCommand: 'git config',
+  emailRegExp: /(@.*)$/,
+  grepCommand: 'git grep',
+  mergeBaseCommand: 'git merge-base master HEAD',
+  notesCommands: 'git notes',
+  origin: /^origin\//,
+  shaCommand: 'git rev-parse HEAD',
+  statusCommand: 'git status --branch --porcelain --untracked-files=all',
+};
 
 function gitAuthorEmail () {
-  return execSync(gitAuthorEmailCommand, { cwd: process.cwd() }).toString().
+  return execSync(defaults.authorEmailCommand, { cwd: process.cwd() }).toString().
     trim();
 }
 
 function gitBlame (file, lineNumber) {
   const summary = execSync(
-    `${ gitBlameCommand } -L${ lineNumber },${ lineNumber } ${ file }`,
+    `${ defaults.blameCommand } -L${ lineNumber },${ lineNumber } ${ file }`,
     { cwd: process.cwd() }).toString().
     trim().
     split(/\n/);
@@ -48,7 +50,7 @@ function gitBlame (file, lineNumber) {
         blame.author.name = value;
         break;
       case 'author-mail':
-        blame.author.email = value.replace(gitBlameEmailClean, '');
+        blame.author.email = value.replace(defaults.blameEmailClean, '');
         break;
       case 'author-time':
         blame.author.date = new Date(Number(value) * 1000);
@@ -57,7 +59,7 @@ function gitBlame (file, lineNumber) {
         blame.committer.name = value;
         break;
       case 'committer-mail':
-        blame.committer.email = value.replace(gitBlameEmailClean, '');
+        blame.committer.email = value.replace(defaults.blameEmailClean, '');
         break;
       case 'committer-time':
         blame.committer.date = new Date(Number(value) * 1000);
@@ -88,14 +90,14 @@ function gitBlame (file, lineNumber) {
 function gitBranch () {
   let branch = process.env.GIT_BRANCH || process.env.BRANCH_NAME;
   if (!branch) {
-    branch = execSync(gitBranchCommand, { cwd: process.cwd() }).toString();
+    branch = execSync(defaults.branchCommand, { cwd: process.cwd() }).toString();
   }
   branch = branch || 'detached HEAD';
-  return branch.trim().replace(gitOrigin, '');
+  return branch.trim().replace(defaults.origin, '');
 }
 
 function gitBranchChanges () {
-  return execSync(gitBranchChangesCommand, { cwd: process.cwd() }).toString().
+  return execSync(defaults.branchChangesCommand, { cwd: process.cwd() }).toString().
     trim().
     split('\n').
     map((line) => {
@@ -109,7 +111,7 @@ function gitBranchChanges () {
 }
 
 function gitChangeSet (initialCommit) {
-  let command = gitChangeSetCommand;
+  let command = defaults.changeSetCommand;
   if (initialCommit) {
     command += ` "${ initialCommit }..HEAD"`;
   } else if (process.env.LAST_SUCCESSFUL_COMMIT) {
@@ -125,11 +127,11 @@ function gitChangeSet (initialCommit) {
   const changeSet = {};
 
   changes.forEach((change) => {
-    if (gitChangeSetRegExp.test(change)) {
-      const [ , hash, email, name, title ] = change.match(gitChangeSetRegExp);
+    if (defaults.changeSetRegExp.test(change)) {
+      const [ , hash, email, name, title ] = change.match(defaults.changeSetRegExp);
 
-      if (emailRegExp.test(email)) {
-        const id = email.replace(emailRegExp, '').toLowerCase();
+      if (defaults.emailRegExp.test(email)) {
+        const id = email.replace(defaults.emailRegExp, '').toLowerCase();
 
         changeSet[id] = changeSet[id] || {
           id,
@@ -152,7 +154,7 @@ function gitChangeSet (initialCommit) {
 
 function gitConfig (name, value) {
   if (name) {
-    let command = `${ gitConfigCommand } ${ name }`;
+    let command = `${ defaults.configCommand } ${ name }`;
     if (value) {
       command += ` ${ value }`;
     }
@@ -163,7 +165,7 @@ function gitConfig (name, value) {
 }
 
 function gitGrep (pattern) {
-  return execSync(`${ gitGrepCommand } ${ pattern }`, { cwd: process.cwd() }).toString().
+  return execSync(`${ defaults.grepCommand } ${ pattern }`, { cwd: process.cwd() }).toString().
     trim().
     split('\n').
     map((line) => line.match(/^([^:]+):(.*?)$/).slice(1, 3));
@@ -171,7 +173,7 @@ function gitGrep (pattern) {
 
 function gitMergeBase () {
   try {
-    return execSync(gitMergeBaseCommand, {
+    return execSync(defaults.mergeBaseCommand, {
       cwd: process.cwd(),
       stdio: [ 'pipe', 'pipe', 'ignore' ],
     }).toString().
@@ -183,18 +185,18 @@ function gitMergeBase () {
 
 function gitNotesAdd (message, prefix, force) {
   try {
-    let gitNotesCommand = 'git notes';
+    let command = defaults.notesCommand;
     if (prefix) {
-      gitNotesCommand += ` --ref=${ prefix }`;
+      command += ` --ref=${ prefix }`;
     }
 
-    gitNotesCommand += ` add -m "${ message }"`;
+    command += ` add -m "${ message }"`;
 
     if (force) {
-      gitNotesCommand += ' -f';
+      command += ' -f';
     }
 
-    execSync(gitNotesCommand, {
+    execSync(command, {
       cwd: process.cwd(),
       stdio: 'ignore',
     });
@@ -207,13 +209,13 @@ function gitNotesAdd (message, prefix, force) {
 
 function gitNotesRemove (prefix) {
   try {
-    let gitNotesCommand = 'git notes';
+    let command = defaults.notesCommand;
     if (prefix) {
-      gitNotesCommand += ` --ref=${ prefix }`;
+      command += ` --ref=${ prefix }`;
     }
-    gitNotesCommand += ' remove';
+    command += ' remove';
 
-    execSync(gitNotesCommand, {
+    execSync(command, {
       cwd: process.cwd(),
       stdio: 'ignore',
     });
@@ -226,13 +228,13 @@ function gitNotesRemove (prefix) {
 
 function gitNotesShow (prefix) {
   try {
-    let gitNotesCommand = 'git notes';
+    let command = defaults.notesCommand;
     if (prefix) {
-      gitNotesCommand += ` --ref=${ prefix }`;
+      command += ` --ref=${ prefix }`;
     }
-    gitNotesCommand += ' show';
+    command += ' show';
 
-    const notes = execSync(gitNotesCommand, {
+    const notes = execSync(command, {
       cwd: process.cwd(),
       stdio: [ 'pipe', 'pipe', 'ignore' ],
     }).toString().
@@ -248,12 +250,12 @@ function gitNotesShow (prefix) {
 }
 
 function gitSHA () {
-  return execSync(gitSHACommand, { cwd: process.cwd() }).toString().
+  return execSync(defaults.shaCommand, { cwd: process.cwd() }).toString().
     trim();
 }
 
 function gitStatus () {
-  const status = execSync(gitStatusCommand, { cwd: process.cwd() }).toString().
+  const status = execSync(defaults.statusCommand, { cwd: process.cwd() }).toString().
     trim().
     split('\n');
 
@@ -298,6 +300,7 @@ module.exports = {
     email: (value) => gitConfig('user.email', value),
     user: (value) => gitConfig('user.name', value),
   }),
+  defaults,
   grep: gitGrep,
   mergeBase: gitMergeBase,
   notes: {
