@@ -477,6 +477,18 @@ function isNative (value) {
   return isObject(value) && isNativeRegExp.test(value);
 }
 
+function isNumber (value) {
+  if (typeof value === 'number') {
+    return value - value === 0;
+  }
+
+  if (typeof value === 'string' && value.trim() !== '') {
+    return Number.isFinite(Number(value));
+  }
+
+  return false;
+}
+
 function isObject (value) {
   const type = typeof value;
   return value !== null && (type === 'object' || type === 'function');
@@ -884,6 +896,7 @@ module.exports = {
   formatNumber,
   functionType,
   isNative,
+  isNumber,
   isObject,
   isPrimitive,
   merge,
