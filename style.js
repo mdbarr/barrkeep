@@ -61,7 +61,7 @@ function parseColorToCode (color) {
       const [ red, green, blue ] = hexToRGB(color);
       return rgbToAnsi256(red, green, blue);
     } else if (colorCodes[color] !== undefined) {
-      if (colorCodes[color].startsWith('#')) {
+      if (typeof colorCodes[color] === 'string' && colorCodes[color].startsWith('#')) {
         const [ red, green, blue ] = hexToRGB(colorCodes[color]);
         return rgbToAnsi256(red, green, blue);
       }
