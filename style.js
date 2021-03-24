@@ -9,6 +9,7 @@ const styles = {
   underline: 4,
   blink: 5,
   reverse: 7,
+  strike: 9,
 };
 
 function hexToRGB (string) {
