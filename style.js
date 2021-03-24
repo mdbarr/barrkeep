@@ -51,16 +51,6 @@ function rgbToAnsi256 (red, green, blue) {
   return ansi;
 }
 
-function parseFormatString (string) {
-  const format = {};
-  const items = string.replace(/\s/g, '').split(';');
-  for (const item of items) {
-    const [ key, value ] = item.split(':');
-    format[key] = value;
-  }
-  return format;
-}
-
 function parseColorToCode (color) {
   if (Array.isArray(color)) {
     const [ red, green, blue ] = color;
@@ -79,37 +69,65 @@ function parseColorToCode (color) {
   return 0;
 }
 
-function style (string, a, b) {
-  if (typeof a === 'string') {
-    if (b === undefined) {
-      if (a.includes(':')) {
-        return style(string, parseFormatString(a));
+function style (string, styling = 'fg:white', value) {
+  let output = '';
+
+  if (typeof styling === 'object' && styling !== null) {
+    let combined = '';
+    for (const key of Object.keys(styling)) {
+      combined += `${ key }:${ styling[key] };`;
+    }
+    styling = combined;
+  }
+
+  if (typeof styling === 'string' && typeof value === 'string') {
+    styling = `${ styling }:${ value }`;
+  }
+
+  if (!styling.includes(':')) {
+    styling = `fg:${ styling }`;
+  }
+
+  styling = styling.replace(/\s/g, '').toLowerCase();
+
+  const items = styling.split(/;/);
+
+  for (const item of items) {
+    if (!item) {
+      continue;
+    }
+
+    const [ type, codes ] = item.split(/:/);
+
+    const values = codes.split(/,/);
+
+    for (const part of values) {
+      const code = parseColorToCode(part);
+
+      switch (type) {
+        case 'fg':
+        case 'foreground':
+          output += `\u001b[38;5;${ code }m`;
+          break;
+        case 'bg':
+        case 'background':
+          output += `\u001b[48;5;${ code }m$`;
+          break;
+        case 'style':
+          output += `\u001b[${ code }m`;
+          break;
+        default:
+          output += `\u001b[38;5;${ code }m`;
+          break;
       }
-      b = a;
-      a = 'fg';
-    }
-
-    const type = a.toLowerCase();
-    const code = parseColorToCode(b);
-
-    if (type === 'fg' || type === 'foreground') {
-      string = `\u001b[38;5;${ code }m${ string }\u001b[0m`;
-    } else if (type === 'bg' || type === 'background') {
-      string = `\u001b[48;5;${ code }m${ string }\u001b[0m`;
-    } else if (type === 'style' ) {
-      string = `\u001b[${ code }m${ string }\u001b[0m`;
-    } else if (b === undefined) {
-      const styleCode = parseColorToCode(a);
-      string = `\u001b[${ styleCode }m${ string }\u001b[0m`;
-    }
-  } else if (typeof a === 'object') {
-    for (const key in a) {
-      string = style(string, key, a[key]);
     }
   }
 
-  string = string.replace(/(\u001b\[0m)+$/, '\u001b[0m');
-  return string;
+  if (!output.endsWith('\u001b[0m')) {
+    output += `${ string }\u001b[0m`;
+  }
+
+  return output;
 }
 
 colorize.rgb = function (color, string) {
