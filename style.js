@@ -56,11 +56,15 @@ function parseColorToCode (color) {
     const [ red, green, blue ] = color;
     return rgbToAnsi256(red, green, blue);
   } else if (typeof color === 'string') {
-    color = color.toLowerCase();
+    color = color.toLowerCase().replace(/[-_\s/]/g, '');
     if (color.startsWith('#')) {
       const [ red, green, blue ] = hexToRGB(color);
       return rgbToAnsi256(red, green, blue);
     } else if (colorCodes[color] !== undefined) {
+      if (colorCodes[color].startsWith('#')) {
+        const [ red, green, blue ] = hexToRGB(colorCodes[color]);
+        return rgbToAnsi256(red, green, blue);
+      }
       return colorCodes[color];
     } else if (styles[color] !== undefined) {
       return styles[color];
