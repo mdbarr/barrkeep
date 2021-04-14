@@ -184,7 +184,7 @@ class ProgressBar {
     }
   }
 
-  done () {
+  done (text = '') {
     if (this.complete) {
       return;
     }
@@ -193,16 +193,17 @@ class ProgressBar {
 
     clearInterval(this.ticker);
 
-    if (this.clear) {
-      if (this.stream.clearLine) {
-        this.stream.cursorTo(this.x, this.y);
-        this.stream.clearLine(1);
+    if (this.stream.isTTY) {
+      if (this.clear || text) {
+        if (this.stream.clearLine) {
+          this.stream.cursorTo(this.x, this.y);
+          this.stream.clearLine(1);
+        }
       }
-    } else {
-      this.stream.write('\n');
+      this.stream.write(`${ text }\x1b[?25h`);
+    } else if (text) {
+      console.log(text);
     }
-
-    this.stream.write('\x1b[?25h');
   }
 
   reset () {
@@ -282,6 +283,10 @@ class Spinner {
     this.needsRedraw = 1;
 
     this.redraw = () => {
+      if (!this.stream.isTTY) {
+        return;
+      }
+
       this.stream.write('\x1b[?25l');
 
       if (this.x !== undefined) {
@@ -304,29 +309,33 @@ class Spinner {
         this.redraw();
       }
 
-      const character = this.style ? styler(this.frames[this.frame], this.style) :
-        this.frames[this.frame];
+      if (this.stream.isTTY) {
+        const character = this.style ? styler(this.frames[this.frame], this.style) :
+          this.frames[this.frame];
 
-      this.position();
+        this.position();
 
-      this.stream.write(`\x1b[?25l${ character }`);
+        this.stream.write(`\x1b[?25l${ character }`);
 
-      this.frame++;
-      if (this.frame >= this.frames.length) {
-        this.frame = 0;
+        this.frame++;
+        if (this.frame >= this.frames.length) {
+          this.frame = 0;
+        }
       }
     }, this.interval);
   }
 
   position () {
-    if (this.x !== undefined) {
-      this.stream.cursorTo(this.x + this.offset, this.y);
-    } else {
-      this.stream.moveCursor(-1);
+    if (this.stream.isTTY) {
+      if (this.x !== undefined) {
+        this.stream.cursorTo(this.x + this.offset, this.y);
+      } else {
+        this.stream.moveCursor(-1);
+      }
     }
   }
 
-  stop () {
+  stop (text = '') {
     if (!this.running) {
       return;
     }
@@ -335,17 +344,21 @@ class Spinner {
 
     clearInterval(this.update);
 
-    if (this.clear) {
-      if (this.x !== undefined) {
-        this.stream.cursorTo(this.x, this.y);
-      } else {
-        this.position();
-        this.stream.moveCursor(this.offset * -1);
+    if (this.stream.isTTY) {
+      if (this.clear || text) {
+        if (this.x !== undefined) {
+          this.stream.cursorTo(this.x, this.y);
+        } else {
+          this.position();
+          this.stream.moveCursor(this.offset * -1);
+        }
+        this.stream.clearLine(1);
       }
-      this.stream.clearLine(1);
-    }
 
-    this.stream.write('\x1b[?25h');
+      this.stream.write(`${ text }\x1b[?25h`);
+    } else if (text) {
+      console.log(text);
+    }
   }
 }
 
