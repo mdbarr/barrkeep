@@ -17,6 +17,7 @@ const defaults = {
   notesCommands: 'git notes',
   origin: /^origin\//,
   shaCommand: 'git rev-parse HEAD',
+  shortSHACommand: 'git rev-parse --short HEAD',
   statusCommand: 'git status --branch --porcelain --untracked-files=all',
 };
 
@@ -254,6 +255,11 @@ function gitSHA () {
     trim();
 }
 
+function gitShortSHA () {
+  return execSync(defaults.shortSHACommand, { cwd: process.cwd() }).toString().
+    trim();
+}
+
 function gitStatus () {
   const status = execSync(defaults.statusCommand, { cwd: process.cwd() }).toString().
     trim().
@@ -309,5 +315,6 @@ module.exports = {
     show: gitNotesShow,
   },
   sha: gitSHA,
+  shortSHA: gitShortSHA,
   status: gitStatus,
 };
