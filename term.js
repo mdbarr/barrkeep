@@ -1,6 +1,7 @@
 'use strict';
 
 const CSI = '\x1b[';
+const CPR_REGEXP = /\x1b\[(\d+);(\d+)R/;
 
 const sequences = {
   controlSequenceIntroducer: () => CSI,
@@ -26,4 +27,41 @@ const sequences = {
   disableAlternativeBuffer: () => `${ CSI }?1049l`,
 };
 
-module.exports = { sequences };
+function cursorPosition () {
+  return new Promise((resolve) => {
+    if (!process.stdout.isTTY) {
+      return resolve({
+        x: 1,
+        y: 1,
+      });
+    }
+
+    const handler = (data) => {
+      data = data.toString();
+      if (CPR_REGEXP.test(data)) {
+        const [ , y, x ] = data.match(CPR_REGEXP);
+
+        process.stdin.setRawMode(false);
+        process.stdin.off('data', handler);
+        process.stdin.unref();
+
+        return resolve({
+          x,
+          y,
+        });
+      }
+
+      return data;
+    };
+
+    process.stdin.setRawMode(true);
+    process.stdin.on('data', handler);
+    process.stdout.write(sequences.deviceStatusReport());
+    return true;
+  });
+}
+
+module.exports = {
+  cursorPosition,
+  sequences,
+};
