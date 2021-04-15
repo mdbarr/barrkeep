@@ -13,7 +13,7 @@ class ProgressBar {
   constructor ({
     total = 10, value = 0, format = '[$progress]', stream = process.stderr,
     y, x = 0, width, complete = '=', incomplete = ' ', head = '>', clear,
-    interval, tokens = {}, spinner = 'dots', spinnerStyle,
+    interval, tokens = {}, spinner = 'dots', spinnerStyle, cursor = true,
     durationOptions, formatOptions, onTick,
   } = {}) {
     this._total = total;
@@ -22,6 +22,7 @@ class ProgressBar {
     this.width = width || Math.max(this._total, 60);
 
     this.stream = stream;
+    this.cursor = cursor;
     this.format = format;
     this.characters = {
       complete,
@@ -180,7 +181,10 @@ class ProgressBar {
 
     if (this.lastUpdate !== string) {
       this.stream.cursorTo(this.x, this.y);
-      this.stream.write(`\x1b[?25l${ string }`);
+      if (this.cursor) {
+        this.stream.write('\x1b[?25l');
+      }
+      this.stream.write(string);
       this.stream.clearLine(1);
       this.lastUpdate = string;
     }
@@ -202,7 +206,12 @@ class ProgressBar {
           this.stream.clearLine(1);
         }
       }
-      this.stream.write(`${ text }\x1b[?25h`);
+      if (text) {
+        this.stream.write(text);
+      }
+      if (this.cursor) {
+        this.stream.write('\x1b[?25h');
+      }
     } else if (text) {
       console.log(text);
     }
@@ -219,7 +228,7 @@ class ProgressBar {
 class Spinner {
   constructor ({
     spinner = 'dots', stream = process.stderr, x, y, interval, clear,
-    style, prepend = '', append = '', onTick,
+    style, prepend = '', append = '', onTick, cursor = true,
   } = {}) {
     spinner = spinners[spinner] ? spinner : 'dots';
 
@@ -228,6 +237,7 @@ class Spinner {
     this.frames = this.spinner.frames;
 
     this.stream = stream;
+    this.cursor = cursor;
     this.x = x;
     this.y = y;
 
@@ -289,7 +299,9 @@ class Spinner {
         return;
       }
 
-      this.stream.write('\x1b[?25l');
+      if (this.cursor) {
+        this.stream.write('\x1b[?25l');
+      }
 
       if (this.x !== undefined) {
         this.stream.cursorTo(this.x, this.y);
@@ -317,7 +329,10 @@ class Spinner {
 
         this.position();
 
-        this.stream.write(`\x1b[?25l${ character }`);
+        if (this.cursor) {
+          this.stream.write('\x1b[?25l');
+        }
+        this.stream.write(character);
 
         this.frame++;
         if (this.frame >= this.frames.length) {
@@ -357,7 +372,12 @@ class Spinner {
         this.stream.clearLine(1);
       }
 
-      this.stream.write(`${ text }\x1b[?25h`);
+      if (text) {
+        this.stream.write(text);
+      }
+      if (this.cursor) {
+        this.stream.write('\x1b[?25h');
+      }
     } else if (text) {
       console.log(text);
     }
@@ -397,6 +417,7 @@ class Stack {
       slot.progress = (options) => {
         slot.progress = new ProgressBar(Object.assign(options, {
           stream: this.stream,
+          cursor: false,
           y,
         }));
         return slot.progress;
@@ -405,6 +426,7 @@ class Stack {
       slot.spinner = (options) => {
         slot.spinner = new Spinner(Object.assign(options, {
           stream: this.stream,
+          cursor: false,
           y,
         }));
         slot.spinner.start();
