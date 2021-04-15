@@ -434,6 +434,9 @@ class Stack {
         this.stream.clearScreenDown();
       } else {
         this.stream.cursorTo(0, this.y + this.rows);
+        if (this.y + this.rows >= this.stream.rows) {
+          this.stream.write('\n');
+        }
       }
     }
   }
