@@ -448,7 +448,6 @@ class Stack {
     }
 
     if (this.stream.isTTY) {
-      this.stream.write('\n');
       this.stream.write(sequences.showCursor());
 
       if (this.clear) {
