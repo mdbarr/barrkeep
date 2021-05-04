@@ -227,6 +227,10 @@ function duration (diff, {
   const seconds = Math.floor(diff / 1000);
   const millis = diff % 1000;
 
+  if (typeof units === 'string') {
+    units = units.split(/[\s,]/);
+  }
+
   const parts = [];
   if (days > 0 && units.includes('d')) {
     if (brief) {
@@ -237,7 +241,8 @@ function duration (diff, {
       parts.push(`${ days } days`);
     }
   }
-  if (hours > 0 && units.includes('h')) {
+  if (hours > 0 && (units.includes('h') ||
+                    units.includes('h?') && parts.length === 0)) {
     if (brief) {
       parts.push(`${ hours }h`);
     } else if (hours === 1) {
@@ -246,7 +251,8 @@ function duration (diff, {
       parts.push(`${ hours } hours`);
     }
   }
-  if (minutes > 0 && units.includes('m')) {
+  if (minutes > 0 && (units.includes('m') ||
+                      units.includes('m?') && parts.length === 0)) {
     if (brief) {
       parts.push(`${ minutes }m`);
     } else if (minutes === 1) {
@@ -256,7 +262,8 @@ function duration (diff, {
     }
   }
 
-  if (seconds > 0 && units.includes('s')) {
+  if (seconds > 0 && (units.includes('s') ||
+                      units.includes('s?') && parts.length === 0)) {
     if (brief) {
       parts.push(`${ seconds }s`);
     } else if (seconds === 1) {
@@ -266,7 +273,8 @@ function duration (diff, {
     }
   }
 
-  if (millis > 0 && units.includes('ms')) {
+  if (millis > 0 && (units.includes('ms') ||
+                     units.includes('ms?') && parts.length === 0)) {
     if (brief) {
       parts.push(`${ millis }ms`);
     } else if (millis === 1) {
