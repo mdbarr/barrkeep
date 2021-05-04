@@ -216,7 +216,7 @@ function dividePath (path, delimiter = /[.]/) {
 }
 
 function duration (diff, {
-  units = 'd h m', separator = ', ', empty = 'less than a minute',
+  units = 'd h m', separator = ', ', empty = 'less than a minute', brief = false,
 } = {}) {
   const days = Math.floor(diff / 86400000);
   diff = diff % 86400000;
@@ -229,21 +229,27 @@ function duration (diff, {
 
   const parts = [];
   if (days > 0 && units.includes('d')) {
-    if (days === 1) {
+    if (brief) {
+      parts.push(`${ days }d`);
+    } else if (days === 1) {
       parts.push(`${ days } day`);
     } else {
       parts.push(`${ days } days`);
     }
   }
   if (hours > 0 && units.includes('h')) {
-    if (hours === 1) {
+    if (brief) {
+      parts.push(`${ hours }h`);
+    } else if (hours === 1) {
       parts.push(`${ hours } hour`);
     } else {
       parts.push(`${ hours } hours`);
     }
   }
   if (minutes > 0 && units.includes('m')) {
-    if (minutes === 1) {
+    if (brief) {
+      parts.push(`${ minutes }m`);
+    } else if (minutes === 1) {
       parts.push(`${ minutes } minute`);
     } else {
       parts.push(`${ minutes } minutes`);
@@ -251,7 +257,9 @@ function duration (diff, {
   }
 
   if (seconds > 0 && units.includes('s')) {
-    if (seconds === 1) {
+    if (brief) {
+      parts.push(`${ seconds }s`);
+    } else if (seconds === 1) {
       parts.push(`${ seconds } second`);
     } else {
       parts.push(`${ seconds } seconds`);
@@ -259,10 +267,12 @@ function duration (diff, {
   }
 
   if (millis > 0 && units.includes('ms')) {
-    if (millis === 1) {
-      parts.push(`${ millis } ms`);
+    if (brief) {
+      parts.push(`${ millis }ms`);
+    } else if (millis === 1) {
+      parts.push(`${ millis } millisecond`);
     } else {
-      parts.push(`${ millis } ms`);
+      parts.push(`${ millis } milliseconds`);
     }
   }
 
