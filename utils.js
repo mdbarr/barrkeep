@@ -225,6 +225,7 @@ function duration (diff, {
   const minutes = Math.floor(diff / 60000);
   diff = diff % 60000;
   const seconds = Math.floor(diff / 1000);
+  const millis = diff % 1000;
 
   const parts = [];
   if (days > 0 && units.includes('d')) {
@@ -254,6 +255,14 @@ function duration (diff, {
       parts.push(`${ seconds } second`);
     } else {
       parts.push(`${ seconds } seconds`);
+    }
+  }
+
+  if (millis > 0 && units.includes('ms')) {
+    if (millis === 1) {
+      parts.push(`${ millis } ms`);
+    } else {
+      parts.push(`${ millis } ms`);
     }
   }
 
