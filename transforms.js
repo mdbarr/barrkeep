@@ -2,8 +2,7 @@
 
 const { pp } = require('./pp');
 const {
-  camelize, duration, formatBytes, formatNumber, milliseconds, ordinal,
-  precisionRound, sha1, sha256,
+  camelize, duration, formatBytes, formatNumber, milliseconds, ordinal, precisionRound,
 } = require('./utils');
 
 module.exports = {
@@ -139,12 +138,6 @@ module.exports = {
       return '';
     }
     return value.charAt(0).toUpperCase() + value.substring(1).toLowerCase();
-  },
-  sha1 (value = '') {
-    return sha1(value);
-  },
-  sha256 (value = '') {
-    return sha256(value);
   },
   snakecase (value) {
     if (!value) {

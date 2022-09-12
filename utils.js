@@ -1,9 +1,5 @@
 'use strict';
 
-const crypto = require('crypto');
-
-//////////
-
 const ansiPattern = [
   '[\\u001B\\u009B][[\\]()#;?]*(?:(?:(?:[a-zA-Z\\d]*(?:;[-a-zA-Z\\d\\/#&.:=?%@~_]*)*)?\\u0007)',
   '(?:(?:\\d{1,4}(?:;\\d{0,4})*)?[\\dA-PR-TZcf-ntqry=><~]))',
@@ -54,20 +50,6 @@ function debounce (func, wait) {
       func(...args);
     }, wait || 500);
   };
-}
-
-function decrypt (text, secret, algorithm = 'aes-256-cbc') {
-  let decrypted = null;
-  secret = secret.replace(/-/g, '').substring(0, 32);
-  const textParts = text.split(':');
-  const iv = Buffer.from(textParts.shift(), 'hex');
-  const encryptedText = Buffer.from(textParts.join(':'), 'hex');
-  const decipher = crypto.createDecipheriv(algorithm, secret, iv);
-  decrypted = decipher.update(encryptedText);
-
-  decrypted = Buffer.concat([ decrypted, decipher.final() ]).toString();
-
-  return decrypted;
 }
 
 function deepClone (object, seen = new WeakMap()) {
@@ -288,18 +270,6 @@ function duration (diff, {
     return parts.join(separator);
   }
   return empty;
-}
-
-function encrypt (text, secret, algorithm = 'aes-256-cbc', ivLength = 16) {
-  let encrypted = null;
-  secret = secret.replace(/-/g, '').substring(0, 32);
-  const iv = crypto.randomBytes(ivLength);
-  const cipher = crypto.createCipheriv(algorithm, secret, iv);
-  encrypted = cipher.update(text);
-  encrypted = Buffer.concat([ encrypted, cipher.final() ]);
-  encrypted = `${ iv.toString('hex') }:${ encrypted.toString('hex') }`;
-
-  return encrypted;
 }
 
 function expand (container, object = {}) {
@@ -823,22 +793,6 @@ function setTypes (object) {
   return object;
 }
 
-function sha1 (input) {
-  if (typeof input !== 'string') {
-    input = JSON.stringify(input);
-  }
-  return crypto.createHash('sha1').update(input).
-    digest('hex');
-}
-
-function sha256 (input) {
-  if (typeof input !== 'string') {
-    input = JSON.stringify(input);
-  }
-  return crypto.createHash('sha256').update(input).
-    digest('hex');
-}
-
 function size (object) {
   if (typeof object === 'object') {
     return Object.getOwnPropertyNames(object).length;
@@ -903,13 +857,11 @@ module.exports = {
   callback,
   camelize,
   debounce,
-  decrypt,
   deepClone,
   deepEqual,
   dividePath,
   distinct,
   duration,
-  encrypt,
   expand,
   filter,
   flatten,
@@ -935,8 +887,6 @@ module.exports = {
   resolves,
   set,
   setTypes,
-  sha1,
-  sha256,
   size,
   stripAnsi,
   times,

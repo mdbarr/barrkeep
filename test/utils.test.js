@@ -1,7 +1,6 @@
 'use strict';
 
 require('../pp');
-const crypto = require('crypto');
 const utils = require('../utils');
 
 const a = {
@@ -43,21 +42,6 @@ describe('Utilities Test', () => {
   it('should test formatting a number as a string', () => {
     expect(utils.formatNumber(1)).toBe('one');
     expect(utils.formatNumber(11)).toBe('11');
-  });
-
-  it('should test sha1 hashing', () => {
-    expect(utils.sha1('foo')).toBe('0beec7b5ea3f0fdbc95d0dd47f3c5bc275da8a33');
-  });
-
-  it('should test sha256 hashing', () => {
-    expect(utils.sha256('foo')).
-      toBe('2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae');
-  });
-
-  it('should test encrypt and decrypt', () => {
-    const key = crypto.randomBytes(16).toString('hex');
-    const encrypted = utils.encrypt('super-secret', key);
-    expect(utils.decrypt(encrypted, key)).toBe('super-secret');
   });
 
   it('should test once function wrapper', () => {
