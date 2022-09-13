@@ -1,6 +1,5 @@
 'use strict';
 
-const { pp } = require('./pp');
 const {
   camelize, duration, formatBytes, formatNumber, milliseconds, ordinal, precisionRound,
 } = require('./utils');
@@ -106,19 +105,6 @@ module.exports = {
       return word;
     }
     return form.replace('$1', word);
-  },
-  pp (value) {
-    if (!value) {
-      return '';
-    }
-    return pp(value, {
-      all: false,
-      color: false,
-      json: false,
-      lineNumbers: false,
-      print: false,
-      showDepth: true,
-    });
   },
   radians (degrees = 0) {
     return degrees * (Math.PI / 180);
