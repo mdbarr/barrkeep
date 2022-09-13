@@ -64,7 +64,7 @@ function deepClone (object, seen = new WeakMap()) {
   }
 
   let result;
-  if (object instanceof Buffer) {
+  if (typeof Buffer !== 'undefined' && object instanceof Buffer) {
     result = Buffer.from(object);
   } else if (object instanceof Date) {
     result = new Date(object);
@@ -78,7 +78,7 @@ function deepClone (object, seen = new WeakMap()) {
 
   seen.set(object, result);
 
-  if (object instanceof Buffer) {
+  if (typeof Buffer !== 'undefined' && object instanceof Buffer) {
     return result;
   } else if (object instanceof Map) {
     object.forEach((value, key) => result.set(key, deepClone(value, seen)));
@@ -507,9 +507,10 @@ function merge (objectA, objectB, createNew = false, seen) {
 
   const keys = Object.getOwnPropertyNames(objectB);
   for (const key of keys) {
-    if (objectB[key] === null || Array.isArray(objectB[key]) || objectB[key] instanceof Buffer ||
-      objectB[key] instanceof Date || objectB[key] instanceof Map || objectB[key] instanceof Set ||
-      objectB[key] instanceof RegExp) {
+    if (objectB[key] === null || Array.isArray(objectB[key]) ||
+        objectB[key] instanceof Date || objectB[key] instanceof Map ||
+        objectB[key] instanceof Set || objectB[key] instanceof RegExp ||
+        typeof Buffer !== 'undefined' && objectB[key] instanceof Buffer) {
       if (createNew) {
         objectA[key] = deepClone(objectB[key]);
       } else {
