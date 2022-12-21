@@ -122,9 +122,9 @@ describe('Utilities Test', () => {
       },
     });
     expect(flatten).toStrictEqual({
-      'a': 1,
-      'b': 2,
-      'c$type': 'Object',
+      a: 1,
+      b: 2,
+      c$type: 'Object',
       'c.d': 3,
       'c.e': 4,
       'c.f$type': 'Object',
