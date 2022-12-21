@@ -499,17 +499,19 @@ function isPrimitive (value) {
 }
 
 function naturalCompare (a, b) {
-  let i; let codeA
-	; let codeB = 1
-	; let posA = 0
-	; let posB = 0
-	; const alphabet = String.alphabet;
+  let i;
+  let codeA;
+  let codeB = 1;
+  let posA = 0;
+  let posB = 0;
+  const alphabet = String.alphabet;
 
   function getCode (str, pos, code) {
     if (code) {
       for (i = pos; getCode(str, i) < 76 && getCode(str, i) > 65;) { ++i; }
       return Number(str.slice(pos - 1, i));
     }
+
     code = alphabet && alphabet.indexOf(str.charAt(pos));
     code = code > -1 ? code + 76 : (code = str.charCodeAt(pos) || 0, code < 45 || code > 127) ? code :
       code < 46 ? 65 : // -
@@ -520,11 +522,12 @@ function naturalCompare (a, b) {
                 code < 97 ? code - 37 :
                   code < 123 ? code + 5 : // a-z
                     code - 63;
+
     return code;
   }
 
   if ((a = String(a)) !== (b = String(b))) {
-    for (;codeB;) {
+    while (codeB) {
       codeA = getCode(a, posA++);
       codeB = getCode(b, posB++);
 
@@ -537,6 +540,7 @@ function naturalCompare (a, b) {
       if (codeA !== codeB) { return codeA < codeB ? -1 : 1; }
     }
   }
+
   return 0;
 }
 
