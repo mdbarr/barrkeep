@@ -131,4 +131,82 @@ describe('Utilities Test', () => {
       'c.f.g': 5,
     });
   });
+
+  describe('utils.naturalCompare', () => {
+    const arr1 = [ 1.001, 1.002, 1.010, 1.02, 1.1, 1.3 ];
+    const arr2 = [ -1.001, -1.002, -1.010, -1.02, -1.1, -1.3 ];
+    const arr3 = [ 0.001, 0.002, 0.010, 0.02, 0.1, 0.3 ];
+    const arr4 = [ -0.001, -0.002, -0.010, -0.02, -0.1, -0.3 ];
+
+    it('compare strings as usual', () => {
+      expect(utils.naturalCompare('a', 'a')).toBe( 0 );
+      expect(utils.naturalCompare('a', 'b')).toBe( -1 );
+      expect(utils.naturalCompare('b', 'a')).toBe( 1 );
+      expect(utils.naturalCompare('a', 'aa')).toBe( -1 );
+      expect(utils.naturalCompare('aa', 'a')).toBe( 1 );
+      expect(utils.naturalCompare('a', 'ba')).toBe( -1 );
+      expect(utils.naturalCompare('aa', 'b')).toBe( -1 );
+      expect(utils.naturalCompare('aa', 'ba')).toBe( -1 );
+      expect(utils.naturalCompare('ba', 'a')).toBe( 1 );
+      expect(utils.naturalCompare('b', 'aa')).toBe( 1 );
+      expect(utils.naturalCompare('ba', 'aa')).toBe( 1 );
+      expect(`${ [ 'a', 'c', 'b', 'd' ].sort(utils.naturalCompare) }`).toBe('a,b,c,d');
+    });
+
+    it('compare integers', () => {
+      expect(utils.naturalCompare('a', 'a1')).toBe( -1 );
+      expect(utils.naturalCompare('a1', 'a')).toBe( 1 );
+      expect(utils.naturalCompare('a', '1')).toBe( 1 );
+      expect(utils.naturalCompare('1', '1')).toBe( 0 );
+      expect(utils.naturalCompare('2', '3')).toBe( -1 );
+      expect(utils.naturalCompare('3', '2')).toBe( 1 );
+      expect(utils.naturalCompare('9', '2')).toBe( 1 );
+      expect(utils.naturalCompare('1', 'a')).toBe( -1 );
+      expect(utils.naturalCompare('a1', 'a1')).toBe( 0 );
+      expect(utils.naturalCompare('a1', 'a2')).toBe( -1 );
+      expect(utils.naturalCompare('a2', 'a1')).toBe( 1 );
+      expect(utils.naturalCompare('a1', 'a11')).toBe( -1 );
+      expect(utils.naturalCompare('a11', 'a12')).toBe( -1 );
+      expect(utils.naturalCompare('a12', 'a11')).toBe( 1 );
+      expect(utils.naturalCompare('a11', 'a1')).toBe( 1 );
+      expect(utils.naturalCompare('a1a', 'a1')).toBe( 1 );
+      expect(utils.naturalCompare('a1', 'a1a')).toBe( -1 );
+      expect(utils.naturalCompare('a1a', 'a11')).toBe( -1 );
+      expect(utils.naturalCompare('a11', 'a1a')).toBe( 1 );
+      expect(utils.naturalCompare('a11a', 'a1a')).toBe( 1 );
+      expect(utils.naturalCompare('a1a', 'a11a')).toBe( -1 );
+      expect(`${ [ 'file-2.txt', 'file-1.txt', 'file-3.txt' ].sort(utils.naturalCompare) }`).
+        toBe('file-1.txt,file-2.txt,file-3.txt');
+    });
+
+    it('work with 0 in string', () => {
+      expect(utils.naturalCompare('a 0 a', 'a 0 b')).toBe( -1 );
+      expect(utils.naturalCompare('a 0 a', 'a 00 b')).toBe( -1 );
+      expect(utils.naturalCompare('a 0 b', 'a 0 a')).toBe( 1 );
+    });
+
+    it('compare positive and negative number', () => {
+      expect(utils.naturalCompare('a 1', 'a -1')).toBe( 1 );
+      expect(utils.naturalCompare('a -1', 'a 1')).toBe( -1 );
+      expect(utils.naturalCompare('a 2', 'a -1')).toBe( 1 );
+      expect(utils.naturalCompare('a -1', 'a 2')).toBe( -1 );
+      expect(utils.naturalCompare('a 1', 'a -2')).toBe( 1 );
+      expect(utils.naturalCompare('a -2', 'a 1')).toBe( -1 );
+      expect(utils.naturalCompare('a -1', 'a -1')).toBe( 0 );
+      expect(`${ [ -1, 1, -2, 2, -10, 10, -11, 11, -100, 100 ].sort(utils.naturalCompare) }`).
+        toBe('-1,-2,-10,-11,-100,1,2,10,11,100' );
+    });
+
+    it('handle leading zeros on decimal fractions', () => {
+      expect(utils.naturalCompare('1.01', '1.001')).toBe( 1 );
+      expect(utils.naturalCompare('1.001', '1.01')).toBe( -1 );
+      expect(arr1.sort(utils.naturalCompare).join(',')).toBe( '1.001,1.002,1.01,1.02,1.1,1.3');
+      expect(arr1.reverse().sort(utils.naturalCompare).
+        join(',')).
+        toBe( '1.001,1.002,1.01,1.02,1.1,1.3');
+      expect(arr2.sort(utils.naturalCompare).join(',')).toBe( '-1.001,-1.002,-1.01,-1.02,-1.1,-1.3');
+      expect(arr3.sort(utils.naturalCompare).join(',')).toBe('0.001,0.002,0.01,0.02,0.1,0.3');
+      expect(arr4.sort(utils.naturalCompare).join(',')).toBe( '-0.001,-0.002,-0.01,-0.02,-0.1,-0.3');
+    });
+  });
 });
