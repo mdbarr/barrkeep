@@ -1,6 +1,7 @@
 'use strict';
 
 const CSI = '\x1b[';
+// eslint-disable-next-line no-control-regex
 const CPR_REGEXP = /\x1b\[(\d+);(\d+)R/;
 
 const sequences = {
