@@ -1,6 +1,6 @@
 'use strict';
 
-const crypto = require('crypto');
+const crypto = require('node:crypto');
 
 function decrypt (text, secret, algorithm = 'aes-256-cbc') {
   let decrypted = null;

@@ -201,11 +201,11 @@ function duration (diff, {
   units = 'd h m', separator = ', ', empty = 'less than a minute', brief = false,
 } = {}) {
   const days = Math.floor(diff / 86400000);
-  diff = diff % 86400000;
+  diff %= 86400000;
   const hours = Math.floor(diff / 3600000);
-  diff = diff % 3600000;
+  diff %= 3600000;
   const minutes = Math.floor(diff / 60000);
-  diff = diff % 60000;
+  diff %= 60000;
   const seconds = Math.floor(diff / 1000);
   const millis = diff % 1000;
 
@@ -414,7 +414,7 @@ function formatBytes (bytes, decimals = 2) {
   const kilobyte = 1024;
   const sizes = [ 'Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB' ];
   const index = Math.floor(Math.log(bytes) / Math.log(kilobyte));
-  return `${ parseFloat((bytes / Math.pow(kilobyte, index)).toFixed(decimals)) } ${ sizes[index] }`;
+  return `${ parseFloat((bytes / kilobyte ** index).toFixed(decimals)) } ${ sizes[index] }`;
 }
 
 function formatNumber (value, { numeral = false } = {}) {
@@ -456,7 +456,7 @@ function functionType (func) {
     flags.native = func.toString().trim().
       endsWith('() { [native code] }');
     flags.bound = flags.native && flags.name.startsWith('bound ');
-    flags.plain = !flags.native && func.hasOwnProperty('prototype');
+    flags.plain = !flags.native && Object.hasOwn(func, 'prototype');
     flags.arrow = !(flags.native || flags.plain);
   }
 
@@ -504,7 +504,7 @@ function naturalCompare (a, b) {
   let codeB = 1;
   let posA = 0;
   let posB = 0;
-  const alphabet = String.alphabet;
+  const { alphabet } = String;
 
   function getCode (str, pos, code) {
     if (code) {
@@ -520,7 +520,7 @@ function naturalCompare (a, b) {
             code < 65 ? code - 11 :
               code < 91 ? code + 11 : // A-Z
                 code < 97 ? code - 37 :
-                  code < 123 ? code + 5 : // a-z
+                  code < 123 ? code + 5 : // A-z
                     code - 63;
 
     return code;
@@ -586,7 +586,7 @@ function milliseconds (value) {
     return value;
   } else if (typeof value === 'string') {
     let millis = 0;
-    value.replace(/(\d+\.?\d*)\s*([mshd]+)/g, (match, time, unit) => {
+    value.replace(/(\d+\.?\d*)\s*([mshdy]+)/g, (match, time, unit) => {
       time = Number(time) || 0;
       if (unit === 'ms') {
         time *= 1;
@@ -598,6 +598,8 @@ function milliseconds (value) {
         time *= 1000 * 60 * 60;
       } else if (unit === 'd') {
         time *= 1000 * 60 * 60 * 24;
+      } else if (unit === 'y') {
+        time *= 1000 * 60 * 60 * 24 * 365;
       }
 
       millis += time;
@@ -645,7 +647,7 @@ async function poll (fn, options = {}, done) {
   const retries = typeof options.retries === 'number' ? options.retries : Infinity;
   const validate = typeof options.validate === 'function' ? options.validate : (x) => Boolean(x);
 
-  if (fn.length === 1) { // function takes a callback
+  if (fn.length === 1) { // Function takes a callback
     const originalFn = fn;
 
     fn = new Promise((resolve, reject) => {
@@ -680,7 +682,7 @@ async function poll (fn, options = {}, done) {
 }
 
 function precisionRound (number, precision = 2) {
-  const factor = Math.pow(10, precision);
+  const factor = 10 ** precision;
   return Math.round(number * factor) / factor;
 }
 
@@ -690,28 +692,32 @@ function project (object, projection) {
     sum += projection[key] ? 1 : 0;
   }
 
-  if (sum === 0) { // selective removal
+  if (sum === 0) { // Selective removal
     const result = deepClone(object);
     for (const key in projection) {
       remove(result, key, true);
     }
     return result;
   }
-  // selective inclusion
+  // Selective inclusion
   const result = {};
 
   for (const key in projection) {
     if (projection[key]) {
-      if (typeof projection[key] === 'string') { // key change
+      if (typeof projection[key] === 'string') { // Key change
         set(result, projection[key], resolve(object, key));
-      } else if (typeof projection[key] === 'function') { // value transform
+      } else if (typeof projection[key] === 'function') { // Value transform
         set(result, key, projection[key](resolve(object, key)));
       } else {
-        set(result, key, resolve(object, key)); // simple projection
+        set(result, key, resolve(object, key)); // Simple projection
       }
     }
   }
   return result;
+}
+
+function random (min = 0, max = 10) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
 function range (start, end, increment = 1) {
@@ -929,6 +935,7 @@ module.exports = {
   poll,
   precisionRound,
   project,
+  random,
   range,
   remove,
   resolve,

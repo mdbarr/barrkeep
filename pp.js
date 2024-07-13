@@ -37,14 +37,14 @@ const defaults = {
   theme: darkTheme,
 };
 
-const configuration = Object.assign({}, defaults);
+const configuration = { ...defaults };
 
 function configure (options = {}) {
   Object.assign(configuration, options);
 }
 
 function reset () {
-  Object.assign({}, defaults);
+  Object.assign(configuration, defaults);
 }
 
 ///////////

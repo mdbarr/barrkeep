@@ -44,7 +44,7 @@ class ProgressBar {
     this.formatOptions = formatOptions;
 
     this.tokens = tokens;
-    this.initialTokens = Object.assign({}, tokens);
+    this.initialTokens = { ...tokens };
 
     this.complete = false;
     this.lastUpdate = false;
@@ -160,7 +160,7 @@ class ProgressBar {
         return '';
       });
 
-    const length = stripAnsi(string.replace(/\$progress/g, '')).length;
+    const { length } = stripAnsi(string.replace(/\$progress/g, ''));
     const columns = Math.max(0, this.stream.columns - length);
     const width = Math.min(this.width, columns);
 

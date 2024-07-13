@@ -1,7 +1,7 @@
 'use strict';
 
-const fs = require('fs');
-const vm = require('vm');
+const fs = require('node:fs');
+const vm = require('node:vm');
 
 const query = require('./query');
 const style = require('./style');
@@ -9,10 +9,12 @@ const emojify = require('./emojify');
 const colorize = require('./colorize');
 
 const {
-  camelize, deepClone, distinct, expand, filter, flatten, formatBytes, formatNumber, merge,
-  precisionRound, project, range, remove, resolve, resolves, set, setTypes, size, unique,
+  camelize, deepClone, distinct, expand, filter, flatten, formatBytes,
+  formatNumber, merge, precisionRound, project, random, range, remove,
+  resolve, resolves, set, setTypes, size, unique,
 } = require('./utils');
 
+Math.$random = random;
 Math.$round = precisionRound;
 
 Number.$asBytes = formatBytes;
@@ -347,7 +349,7 @@ Object.$private = function (body, key, value) {
   if (typeof body !== 'object') {
     return;
   }
-  if (body.hasOwnProperty(key)) {
+  if (Object.hasOwn(body, key)) {
     body[key] = value;
   } else {
     Object.defineProperty(body, key, {

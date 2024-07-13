@@ -1,6 +1,6 @@
 'use strict';
 
-const { execSync } = require('child_process');
+const { execSync } = require('node:child_process');
 
 const defaults = {
   authorEmailCommand: 'git log --format="%ae" -n 1',
@@ -93,7 +93,7 @@ function gitBranch () {
   if (!branch) {
     branch = execSync(defaults.branchCommand, { cwd: process.cwd() }).toString();
   }
-  branch = branch || 'detached HEAD';
+  branch ||= 'detached HEAD';
   return branch.trim().replace(defaults.origin, '');
 }
 
@@ -179,7 +179,7 @@ function gitMergeBase () {
       stdio: [ 'pipe', 'pipe', 'ignore' ],
     }).toString().
       trim();
-  } catch (error) { // Likely a shallow clone
+  } catch { // Likely a shallow clone
     return null;
   }
 }
@@ -203,7 +203,7 @@ function gitNotesAdd (message, prefix, force) {
     });
 
     return true;
-  } catch (error) {
+  } catch {
     return false;
   }
 }
@@ -222,7 +222,7 @@ function gitNotesRemove (prefix) {
     });
 
     return true;
-  } catch (error) {
+  } catch {
     return false;
   }
 }
@@ -245,7 +245,7 @@ function gitNotesShow (prefix) {
       return null;
     }
     return notes;
-  } catch (error) {
+  } catch {
     return null;
   }
 }

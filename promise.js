@@ -1,7 +1,7 @@
 'use strict';
 
 function parseRetryOptions (options) {
-  options = options || { };
+  options ||= { };
 
   if (options.parsed) {
     return options;
@@ -16,7 +16,7 @@ function parseRetryOptions (options) {
       options = { timeout: options };
     }
   }
-  // don't use count by default
+  // Don't use count by default
   if (typeof options.count !== 'number') {
     options.count = -1;
   }
