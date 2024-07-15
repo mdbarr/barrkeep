@@ -4,7 +4,7 @@ module.exports = {
   emojify: require('./emojify'),
   expect: require('./expect'),
   git: require('./git'),
-  pp: require('./pp'),
+  pretty: require('./pretty'),
   promise: require('./promise'),
   query: require('./query'),
   random: require('./random'),

@@ -1,6 +1,5 @@
 'use strict';
 
-require('../pp');
 const utils = require('../utils');
 
 const a = {

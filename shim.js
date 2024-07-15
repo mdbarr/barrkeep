@@ -4,16 +4,54 @@
 const fs = require('node:fs');
 const vm = require('node:vm');
 
-const query = require('./query');
-const style = require('./style');
+const colorize = require('./terminal/colorize');
 const emojify = require('./emojify');
-const colorize = require('./colorize');
+const pretty = require('./pretty');
+const query = require('./query');
+const style = require('./terminal/style');
 
 const {
   camelize, deepClone, distinct, expand, filter, flatten, formatBytes,
   formatNumber, merge, precisionRound, project, random, range, remove,
   resolve, resolves, set, setTypes, size, unique,
 } = require('./utils');
+
+///////////
+
+/**
+ * Pretty print a JSON object to the console, if printNonEnumerables
+ * is set then loops through all properties on an object and print them.
+ * @param {Object} json : the JSON object
+ * @param {boolean} printNonEnumerables : print non enumerable properties
+ */
+
+console.json = function (json, printNonEnumerables = false) {
+  return pretty(json, {
+    all: printNonEnumerables,
+    json: true,
+    lineNumbers: false,
+    print: true,
+    showDepth: false,
+  });
+};
+
+/**
+ * Pretty print to the console.
+ * @param anything : any value
+ * @param {Object=} options : print options
+ */
+
+console.pretty = function (...anything) {
+  let output = '';
+  for (const item of anything) {
+    output += pretty(item);
+  }
+  return output;
+};
+
+console.pretty.configure = pretty.configure;
+console.pretty.reset = pretty.reset;
+console.pp = console.pretty;
 
 Math.$random = random;
 Math.$round = precisionRound;

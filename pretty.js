@@ -49,43 +49,6 @@ function reset () {
   Object.assign(configuration, defaults);
 }
 
-///////////
-
-/**
- * Pretty print a JSON object to the console, if printNonEnumerables
- * is set then loops through all properties on an object and print them.
- * @param {Object} json : the JSON object
- * @param {boolean} printNonEnumerables : print non enumerable properties
- */
-
-console.json = function (json, printNonEnumerables = false) {
-  return prettyPrint(json, {
-    all: printNonEnumerables,
-    json: true,
-    lineNumbers: false,
-    print: true,
-    showDepth: false,
-  });
-};
-
-/**
- * Pretty print to the console.
- * @param anything : any value
- * @param {Object=} options : print options
- */
-
-console.pretty = function (...anything) {
-  let output = '';
-  for (const item of anything) {
-    output += prettyPrint(item);
-  }
-  return output;
-};
-
-console.pretty.configure = configure;
-console.pretty.reset = reset;
-console.pp = console.pretty;
-
 /**
  * Pretty Print any value with colorization.
  * @param {*} object : any object or value
@@ -283,5 +246,8 @@ function prettyPrint (object, {
 
   return output;
 }
+
+prettyPrint.configure = configure;
+prettyPrint.reset = reset;
 
 module.exports = prettyPrint;

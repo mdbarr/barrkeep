@@ -1,5 +1,7 @@
 'use strict';
 
+const process = require('node:process');
+
 const ProgressBar = require('./progressBar');
 const Spinner = require('./spinner');
 

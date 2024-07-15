@@ -1,5 +1,7 @@
 'use strict';
 
+const process = require('node:process');
+
 const styler = require('./style');
 const {
   duration, formatNumber, stripAnsi, timestamp,
