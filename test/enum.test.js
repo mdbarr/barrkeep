@@ -1,6 +1,6 @@
 'use strict';
 
-const Enum = require('../classes/Enum');
+const Enum = require('../types/Enum');
 
 describe('Enum Test', () => {
   let Foo;

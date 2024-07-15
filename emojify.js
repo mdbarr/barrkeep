@@ -30,3 +30,5 @@ function emojify (string) {
 emojify.alias = function (to, from) {
   emojiAliases[to] = from;
 };
+
+module.exports = emojify;

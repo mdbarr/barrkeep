@@ -3,9 +3,9 @@
 const styler = require('./style');
 const {
   duration, formatNumber, stripAnsi, timestamp,
-} = require('./utils');
+} = require('../utils');
 
-const spinners = require('./data/spinners.json');
+const spinners = require('../data/spinners.json');
 
 class ProgressBar {
   #total;
