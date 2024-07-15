@@ -6,16 +6,19 @@ class Enum {
 
     if (args.length === 1) {
       if (Array.isArray(args[0])) {
-        const array = args[0];
+        const [ array ] = args;
         for (let i = 0; i < array.length; i++) {
           const type = String(array[i]).toUpperCase();
           types.set(type, i);
         }
       } else if (typeof args[0] === 'object' && args[0] !== null) {
-        for (const key in args[0]) {
-          const value = args[0][key];
-          const type = String(key).toUpperCase();
-          types.set(type, value);
+        const [ object ] = args;
+        for (const key in object) {
+          if (Object.hasOwn(object, key)) {
+            const value = object[key];
+            const type = String(key).toUpperCase();
+            types.set(type, value);
+          }
         }
       } else {
         throw new Error('Invalid self type specification');
@@ -32,32 +35,33 @@ class Enum {
         throw new Error('Invalid attempt to define property on self');
       },
       deleteProperty () {
-        return undefined;
+        return false;
       },
       get (target, property) {
-        property = property.toUpperCase();
-        if (types.has(property)) {
-          return types.get(property);
+        const name = property.toUpperCase();
+        if (types.has(name)) {
+          return types.get(name);
         }
+        // eslint-disable-next-line no-undefined
         return undefined;
       },
       getOwnPropertyDescriptor (target, property) {
-        property = property.toUpperCase();
-        if (types.has(property)) {
+        const key = property.toUpperCase();
+        if (types.has(key)) {
           return {
             configurable: false,
             selferable: true,
-            value: types.get(property),
+            value: types.get(key),
           };
         }
+        // eslint-disable-next-line no-undefined
         return undefined;
       },
       getPrototypeOf () {
         return this;
       },
       has (target, key) {
-        key = key.toUpperCase();
-        return types.has(key);
+        return types.has(key.toUpperCase());
       },
       isExtensible () {
         return false;
@@ -65,7 +69,9 @@ class Enum {
       ownKeys () {
         const keys = [];
         for (const key in types) {
-          keys.push(key);
+          if (Object.hasOwn(types, key)) {
+            keys.push(key);
+          }
         }
         return keys.sort();
       },
@@ -74,6 +80,7 @@ class Enum {
         return Reflect.preventExtensions(target);
       },
       set () {
+        // eslint-disable-next-line no-undefined
         return undefined;
       },
       setPrototypeOf () {

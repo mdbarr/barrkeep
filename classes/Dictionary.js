@@ -4,10 +4,7 @@ function Dictionary (initial) {
   const keys = new Map();
   const values = new Map();
 
-  Object.defineProperty(this, 'size', {
-    get () { return keys.size; },
-    set () {},
-  });
+  Object.defineProperty(this, 'size', { get () { return keys.size; } });
 
   this.clear = () => {
     keys.clear();
@@ -23,8 +20,8 @@ function Dictionary (initial) {
       return true;
     } else if (values.has(key)) {
       const value = key;
-      key = values.get(value);
-      keys.delete(key);
+      const id = values.get(value);
+      keys.delete(id);
       values.delete(value);
       return true;
     }
@@ -39,6 +36,7 @@ function Dictionary (initial) {
     } else if (values.has(key)) {
       return values.get(key);
     }
+    // eslint-disable-next-line no-undefined
     return undefined;
   };
 
@@ -59,7 +57,9 @@ function Dictionary (initial) {
 
   if (initial) {
     for (const key in initial) {
-      this.set(key, initial[key]);
+      if (Object.hasOwn(initial, key)) {
+        this.set(key, initial[key]);
+      }
     }
   }
 }

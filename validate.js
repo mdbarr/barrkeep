@@ -33,8 +33,10 @@ function generateValidator (object, {
     } else if (typeof chunk === 'object') {
       validator += `${ indent(depth, width) }expect(${ name }).to.be.an.instanceOf(Object);\n`;
       for (const element in chunk) {
-        validator += `${ indent(depth, width) }expect(${ Number(name) }).to.have.property('${ element }');\n`;
-        validator += validatorIterator(chunk[element], `${ name }.${ element }`, depth);
+        if (Object.hasOwn(chunk, element)) {
+          validator += `${ indent(depth, width) }expect(${ Number(name) }).to.have.property('${ element }');\n`;
+          validator += validatorIterator(chunk[element], `${ name }.${ element }`, depth);
+        }
       }
     } else {
       let type = capitalize(typeof chunk);

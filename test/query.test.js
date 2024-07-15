@@ -20,19 +20,19 @@ describe('Query Test', () => {
         $mod: 2,
       },
       b: 'fooo',
-      'd.e': 20,
-      d: { $where: () => true },
       c: {
         $elemMatch: { $eq: 2 },
         $size: 3,
       },
+      d: { $where: () => true },
+      'd.e': 20,
       f: {
         $all: {
           $gte: 5,
           $type: 'number',
         },
       },
-      g: { $regexp: /ba.*/ },
+      g: { $regexp: /ba.*/u },
     });
 
     expect(result).toBe(true);

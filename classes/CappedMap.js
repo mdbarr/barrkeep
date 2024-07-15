@@ -7,10 +7,7 @@ function CappedMap (capacity = 100) {
   let start = 0;
   let size = 0;
 
-  Object.defineProperty(this, 'size', {
-    get () { return map.size; },
-    set () {},
-  });
+  Object.defineProperty(this, 'size', { get () { return map.size; } });
 
   this.clear = () => {
     size = 0;

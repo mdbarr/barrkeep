@@ -41,7 +41,6 @@ export default [
       'guard-for-in': 'error',
       'handle-callback-err': 'error',
       indent: [ 'error', 2, { SwitchCase: 1 } ],
-      'init-declarations': 'error',
       'key-spacing': [
         'error', {
           beforeColon: false,
@@ -51,7 +50,7 @@ export default [
       'keyword-spacing': 'error',
       'logical-assignment-operators': 'error',
       'max-classes-per-file': 'error',
-      'max-depth': 'error',
+      'max-depth': [ 'error', 6 ],
       'max-params': [ 'error', 5 ],
       'new-cap': 'error',
       'newline-per-chained-call': 'error',

@@ -1,21 +1,22 @@
 'use strict';
 
+const process = require('node:process');
 const { execSync } = require('node:child_process');
 
 const defaults = {
   authorEmailCommand: 'git log --format="%ae" -n 1',
   blameCommand: 'git blame --porcelain',
-  blameEmailClean: /[<>]/g,
+  blameEmailClean: /[<>]/gu,
   branchChangesCommand: 'git diff --numstat $(git merge-base master HEAD)',
   branchCommand: 'git branch --show-current',
   changeSetCommand: 'git log --first-parent --pretty="format:%H, %aE, %cN, %s"',
-  changeSetRegExp: /^(\w{40}),\s(.*?),\s(.*?),\s(.*)$/,
+  changeSetRegExp: /^(\w{40}),\s(.*?),\s(.*?),\s(.*)$/u,
   configCommand: 'git config',
-  emailRegExp: /(@.*)$/,
+  emailRegExp: /(@.*)$/u,
   grepCommand: 'git grep',
   mergeBaseCommand: 'git merge-base master HEAD',
   notesCommands: 'git notes',
-  origin: /^origin\//,
+  origin: /^origin\//u,
   shaCommand: 'git rev-parse HEAD',
   shortSHACommand: 'git rev-parse --short HEAD',
   statusCommand: 'git status --branch --porcelain --untracked-files=all',
@@ -31,19 +32,19 @@ function gitBlame (file, lineNumber) {
     `${ defaults.blameCommand } -L${ lineNumber },${ lineNumber } ${ file }`,
     { cwd: process.cwd() }).toString().
     trim().
-    split(/\n/);
+    split(/\n/u);
 
-  const hashInformation = summary[0].split(/\s+/);
+  const hashInformation = summary[0].split(/\s+/u);
   const blame = {
-    hash: hashInformation[0],
     additions: hashInformation[1],
-    deletions: hashInformation[2],
     author: { },
     committer: {},
+    deletions: hashInformation[2],
+    hash: hashInformation[0],
   };
 
   for (let i = 1; i < summary.length - 1; i++) {
-    const [ , type, value ] = summary[i].match(/^(.*?)\s(.*)$/);
+    const [ , type, value ] = summary[i].match(/^(.*?)\s(.*)$/u);
     let previousInformation;
 
     switch (type) {
@@ -69,10 +70,10 @@ function gitBlame (file, lineNumber) {
         blame.summary = value;
         break;
       case 'previous':
-        previousInformation = value.split(/\s+/);
+        previousInformation = value.split(/\s+/u);
         blame.previous = {
-          hash: previousInformation[0],
           file: previousInformation[1],
+          hash: previousInformation[0],
         };
         break;
       case 'filename':
@@ -102,11 +103,11 @@ function gitBranchChanges () {
     trim().
     split('\n').
     map((line) => {
-      const [ additions, deletions, file ] = line.split(/\s+/);
+      const [ additions, deletions, file ] = line.split(/\s+/u);
       return {
-        file,
         additions,
         deletions,
+        file,
       };
     });
 }
@@ -134,16 +135,16 @@ function gitChangeSet (initialCommit) {
       if (defaults.emailRegExp.test(email)) {
         const id = email.replace(defaults.emailRegExp, '').toLowerCase();
 
-        changeSet[id] = changeSet[id] || {
+        changeSet[id] ||= {
+          changes: [],
+          email,
           id,
           name,
-          email,
-          changes: [],
         };
 
         changeSet[id].changes.push({
-          short: hash.substring(0, 12),
           hash,
+          short: hash.substring(0, 12),
           title,
         });
       }
@@ -169,7 +170,7 @@ function gitGrep (pattern) {
   return execSync(`${ defaults.grepCommand } ${ pattern }`, { cwd: process.cwd() }).toString().
     trim().
     split('\n').
-    map((line) => line.match(/^([^:]+):(.*?)$/).slice(1, 3));
+    map((line) => line.match(/^([^:]+):(.*?)$/u).slice(1, 3));
 }
 
 function gitMergeBase () {
@@ -179,7 +180,7 @@ function gitMergeBase () {
       stdio: [ 'pipe', 'pipe', 'ignore' ],
     }).toString().
       trim();
-  } catch { // Likely a shallow clone
+  } catch {
     return null;
   }
 }
@@ -268,24 +269,24 @@ function gitStatus () {
   let [ branch, ...changes ] = status;
 
   branch = branch.replace('## ', '');
-  changes = changes.map((item) => item.replace(/^[ ][MD]\s+(.*)$/, '$1 (modified)').
-    replace(/^M[ MD]\s+(.*)$/, '$1 (modified in index)').
-    replace(/^A[ MD]\s+(.*)$/, '$1 (added)').
-    replace(/^D[ M]\s+(.*)$/, '$1 (deleted)').
-    replace(/^R[ MD]\s+(.*)$/, '$1 (renamed)').
-    replace(/^C[ MD]\s+(.*)$/, '$1 (copied)').
-    replace(/^[MARC][ ]\s+(.*)$/, '$1 (index and work tree matches)').
-    replace(/^[ MARC]M\s+(.*)$/, '$1 (work tree changed since index)').
-    replace(/^[ MARC]D\s+(.*)$/, '$1 (deleted in work tree)').
-    replace(/^DD\s+(.*)$/, '$1 (unmerged, both deleted)').
-    replace(/^AU\s+(.*)$/, '$1 (unmerged, added by us)').
-    replace(/^UD\s+(.*)$/, '$1 (unmerged, deleted by them)').
-    replace(/^UA\s+(.*)$/, '$1 (unmerged, added by them)').
-    replace(/^DU\s+(.*)$/, '$1 (unmerged, deleted by us)').
-    replace(/^AA\s+(.*)$/, '$1 (unmerged, both added)').
-    replace(/^UU\s+(.*)$/, '$1 (unmerged, both modified)').
-    replace(/^\?\?\s+(.*)$/, '$1 (untracked)').
-    replace(/^!!\s+(.*)$/, '$1 (ignored)')).sort();
+  changes = changes.map((item) => item.replace(/^[ ][MD]\s+(.*)$/u, '$1 (modified)').
+    replace(/^M[ MD]\s+(.*)$/u, '$1 (modified in index)').
+    replace(/^A[ MD]\s+(.*)$/u, '$1 (added)').
+    replace(/^D[ M]\s+(.*)$/u, '$1 (deleted)').
+    replace(/^R[ MD]\s+(.*)$/u, '$1 (renamed)').
+    replace(/^C[ MD]\s+(.*)$/u, '$1 (copied)').
+    replace(/^[MARC][ ]\s+(.*)$/u, '$1 (index and work tree matches)').
+    replace(/^[ MARC]M\s+(.*)$/u, '$1 (work tree changed since index)').
+    replace(/^[ MARC]D\s+(.*)$/u, '$1 (deleted in work tree)').
+    replace(/^DD\s+(.*)$/u, '$1 (unmerged, both deleted)').
+    replace(/^AU\s+(.*)$/u, '$1 (unmerged, added by us)').
+    replace(/^UD\s+(.*)$/u, '$1 (unmerged, deleted by them)').
+    replace(/^UA\s+(.*)$/u, '$1 (unmerged, added by them)').
+    replace(/^DU\s+(.*)$/u, '$1 (unmerged, deleted by us)').
+    replace(/^AA\s+(.*)$/u, '$1 (unmerged, both added)').
+    replace(/^UU\s+(.*)$/u, '$1 (unmerged, both modified)').
+    replace(/^\?\?\s+(.*)$/u, '$1 (untracked)').
+    replace(/^!!\s+(.*)$/u, '$1 (ignored)')).sort();
 
   return {
     branch,

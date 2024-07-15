@@ -4,26 +4,26 @@ const colorize = require('./colorize');
 const colorCodes = require('./data/colors.json');
 
 const styles = {
+  blink: 5,
   bold: 1,
   faint: 2,
-  underline: 4,
-  blink: 5,
   reverse: 7,
   strike: 9,
+  underline: 4,
 };
 
-function hexToRGB (string) {
+function hexToRGB (input) {
   let red = 255;
   let green = 255;
   let blue = 255;
 
-  string = string.replace(/^#/, '');
+  const string = input.toString().replace(/^#/u, '');
 
   if (string.length === 3) {
-    [ red, green, blue ] = string.match(/(\w)/g).
+    [ red, green, blue ] = string.match(/(\w)/gu).
       map((hex) => parseInt(hex.repeat(2), 16));
   } else if (string.length === 6) {
-    [ red, green, blue ] = string.match(/(\w\w)/g).
+    [ red, green, blue ] = string.match(/(\w\w)/gu).
       map(hex => parseInt(hex, 16));
   }
 
@@ -51,29 +51,31 @@ function rgbToAnsi256 (red, green, blue) {
   return ansi;
 }
 
-function parseColorToCode (color) {
+function parseColorToCode (name) {
+  let color = name;
   if (Array.isArray(color)) {
     const [ red, green, blue ] = color;
     return rgbToAnsi256(red, green, blue);
   } else if (typeof color === 'string') {
-    color = color.toLowerCase().replace(/[-_\s/]/g, '');
+    color = color.toLowerCase().replace(/[-_\s/]/gu, '');
     if (color.startsWith('#')) {
       const [ red, green, blue ] = hexToRGB(color);
       return rgbToAnsi256(red, green, blue);
-    } else if (colorCodes[color] !== undefined) {
+    } else if (typeof colorCodes[color] !== 'undefined') {
       if (typeof colorCodes[color] === 'string' && colorCodes[color].startsWith('#')) {
         const [ red, green, blue ] = hexToRGB(colorCodes[color]);
         return rgbToAnsi256(red, green, blue);
       }
       return colorCodes[color];
-    } else if (styles[color] !== undefined) {
+    } else if (typeof styles[color] !== 'undefined') {
       return styles[color];
     }
   }
   return 0;
 }
 
-function style (string, styling = 'fg:white', value) {
+function style (string, input = 'fg:white', value) {
+  let styling = input;
   let output = '';
 
   if (typeof styling === 'object' && styling !== null) {
@@ -92,18 +94,18 @@ function style (string, styling = 'fg:white', value) {
     styling = `fg:${ styling }`;
   }
 
-  styling = styling.replace(/\s/g, '').toLowerCase();
+  styling = styling.replace(/\s/gu, '').toLowerCase();
 
-  const items = styling.split(/;/);
+  const items = styling.split(/;/u);
 
   for (const item of items) {
     if (!item) {
       continue;
     }
 
-    const [ type, codes ] = item.split(/:/);
+    const [ type, codes ] = item.split(/:/u);
 
-    const values = codes.split(/,/);
+    const values = codes.split(/,/u);
 
     for (const part of values) {
       const code = parseColorToCode(part);

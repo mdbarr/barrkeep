@@ -1,34 +1,34 @@
 'use strict';
 
+const process = require('node:process');
+
 const colors = {
-  bold: 1,
-  faint: 2,
-  underline: 4,
-  blink: 5,
-  reverse: 7,
-
   black: 30,
-  red: 31,
-  green: 32,
-  yellow: 33,
+  blink: 5,
   blue: 34,
-  magenta: 35,
-  cyan: 36,
-  white: 37,
-
-  gray: 90,
-  grey: 90,
-  'bright red': 91,
-  'bright green': 92,
-  'bright yellow': 93,
+  bold: 1,
   'bright blue': 94,
-  'bright magenta': 95,
   'bright cyan': 96,
+  'bright green': 92,
+  'bright magenta': 95,
+  'bright red': 91,
   'bright white': 97,
+  'bright yellow': 93,
+  cyan: 36,
+  faint: 2,
+  gray: 90,
+  green: 32,
+  grey: 90,
+  magenta: 35,
+  red: 31,
+  reverse: 7,
+  underline: 4,
+  white: 37,
+  yellow: 33,
 };
 
 function colorize (name, string) {
-  if (global.flags && global.flags.noColor) {
+  if (process?.stdout?.isTTY) {
     return string;
   }
 

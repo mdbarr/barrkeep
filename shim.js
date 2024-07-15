@@ -1,3 +1,4 @@
+/* eslint-disable no-extend-native */
 'use strict';
 
 const fs = require('node:fs');
@@ -36,65 +37,67 @@ Object.$size = size;
 //////////
 
 Object.defineProperty(Array.prototype, '$all', {
+  configurable: true,
+  enumerable: false,
   value (predicate) {
     return this.reduce((acc, value) => acc && predicate(value), true);
   },
-  enumerable: false,
-  configurable: true,
 });
 
 /**
  * For arrays of objects that have an id field find the object that matches
  * the passed in id.  If the Array has an item that's not an Object, or an item
  * does not contain a valid 'id', or we don't find the id 'needle' then return
- * undefined
+ * null
  * @param needle
  * @param caseInsensitive
  * @returns {*}
  */
 Object.defineProperty(Array.prototype, '$byId', {
+  configurable: true,
+  enumerable: false,
   value (needle, caseInsensitive) {
     return this.byKey('id', needle, caseInsensitive);
   },
-  enumerable: false,
-  configurable: true,
 });
 
 /**
  * For arrays of objects that have an name field find the object that matches
  * the passed in name.  If the Array has an item that's not an Object, or an item
  * does not contain a valid 'name', or we don't find the name 'needle' then return
- * undefined
+ * null
  * @param needle
  * @param caseInsensitive
  * @returns {*}
  */
 Object.defineProperty(Array.prototype, '$byName', {
+  configurable: true,
+  enumerable: false,
   value (needle, caseInsensitive) {
     return this.byKey('name', needle, caseInsensitive);
   },
-  enumerable: false,
-  configurable: true,
 });
 
 /**
  * For arrays of objects that have the specified key field find the object that matches
  * the passed in needle value.  If the Array has an item that's not an Object, or an item
  * does not contain a valid key field, or we don't find the name 'needle' then return
- * undefined
+ * null
  * @param key
  * @param needle
  * @param caseInsensitive
  * @returns {*}
  */
 Object.defineProperty(Array.prototype, '$byKey', {
+  configurable: true,
+  enumerable: false,
   value (key, needle, caseInsensitive) {
     for (let i = 0; this.length; i++) {
       if (typeof this[i] !== 'object') {
-        return undefined;
+        return null;
       }
       if (!this[i][key]) {
-        return undefined;
+        return null;
       }
       if (this[i][key] === needle) {
         return this[i];
@@ -103,51 +106,51 @@ Object.defineProperty(Array.prototype, '$byKey', {
         return this[i];
       }
     }
-    return undefined;
+    return null;
   },
-  enumerable: false,
-  configurable: true,
 });
 
 Object.defineProperty(Array.prototype, '$distinct', {
+  configurable: true,
+  enumerable: false,
   value (selector) {
     return distinct(this, selector);
   },
-  enumerable: false,
-  configurable: true,
 });
 
 Object.defineProperty(Array.prototype, '$first', {
+  configurable: true,
+  enumerable: false,
   value () {
     if (this.length) {
       return this[0];
     }
-    return undefined;
+    return null;
   },
-  enumerable: false,
-  configurable: true,
 });
 
 Object.defineProperty(Array.prototype, '$last', {
+  configurable: true,
+  enumerable: false,
   value () {
     if (this.length) {
       return this[this.length - 1];
     }
-    return undefined;
+    return null;
   },
-  enumerable: false,
-  configurable: true,
 });
 
 Object.defineProperty(Array.prototype, '$none', {
+  configurable: true,
+  enumerable: false,
   value (predicate) {
     return this.reduce((acc, value) => !acc && !predicate(value), false);
   },
-  enumerable: false,
-  configurable: true,
 });
 
 Object.defineProperty(Array.prototype, '$partition', {
+  configurable: true,
+  enumerable: false,
   value (predicate) {
     return this.reduce((result, item) => {
       const [ listA, listB ] = result;
@@ -161,11 +164,11 @@ Object.defineProperty(Array.prototype, '$partition', {
       return result;
     }, [ [], [] ]);
   },
-  enumerable: false,
-  configurable: true,
 });
 
 Object.defineProperty(Array.prototype, '$pick', {
+  configurable: true,
+  enumerable: false,
   value (count, asArray) {
     const arr = this.slice();
     const picks = [];
@@ -187,19 +190,19 @@ Object.defineProperty(Array.prototype, '$pick', {
     }
     return picks;
   },
-  enumerable: false,
-  configurable: true,
 });
 
 Object.defineProperty(Array.prototype, '$random', {
-  value () {
-    return Math.floor(Math.random() * this.length);
-  },
-  enumerable: false,
   configurable: true,
+  enumerable: false,
+  value () {
+    return this[Math.floor(Math.random() * this.length)];
+  },
 });
 
 Object.defineProperty(Array.prototype, '$shuffle', {
+  configurable: true,
+  enumerable: false,
   value () {
     let j;
     let x;
@@ -213,24 +216,22 @@ Object.defineProperty(Array.prototype, '$shuffle', {
     }
     return this;
   },
-  enumerable: false,
-  configurable: true,
 });
 
 Object.defineProperty(Array.prototype, '$some', {
+  configurable: true,
+  enumerable: false,
   value (predicate) {
     return this.reduce((acc, value) => acc || predicate(value), false);
   },
-  enumerable: false,
-  configurable: true,
 });
 
 Object.defineProperty(Array.prototype, '$unique', {
+  configurable: true,
+  enumerable: false,
   value () {
     return unique(this);
   },
-  enumerable: false,
-  configurable: true,
 });
 
 //////////
@@ -240,11 +241,11 @@ Object.defineProperty(Array.prototype, '$unique', {
  * @param colorName
  */
 Object.defineProperty(String.prototype, '$colorize', {
+  configurable: true,
+  enumerable: false,
   value (colorName) {
     return colorize(colorName, this);
   },
-  enumerable: false,
-  configurable: true,
 });
 
 /**
@@ -252,11 +253,11 @@ Object.defineProperty(String.prototype, '$colorize', {
  * @param {Array} rgbArray
  */
 Object.defineProperty(String.prototype, '$rgb', {
+  configurable: true,
+  enumerable: false,
   value (rgbArray) {
     return colorize.rgb(rgbArray, this);
   },
-  enumerable: false,
-  configurable: true,
 });
 
 /**
@@ -265,55 +266,55 @@ Object.defineProperty(String.prototype, '$rgb', {
  * @param {Array|string} b
  */
 Object.defineProperty(String.prototype, '$style', {
-  value (a, b) {
-    return style(this, a, b);
-  },
-  enumerable: false,
   configurable: true,
+  enumerable: false,
+  value (input, value) {
+    return style(this, input, value);
+  },
 });
 
 /**
  * Remove whitespace from a string
  */
 Object.defineProperty(String.prototype, '$stripWhitespace', {
-  value () {
-    return this.replace(/\s/g, '');
-  },
-  enumerable: false,
   configurable: true,
+  enumerable: false,
+  value () {
+    return this.trim().replace(/\s/gu, '');
+  },
 });
 
 /**
  * Emojify a string (parse out and substitute all :emoji:)
  */
 Object.defineProperty(String.prototype, '$emojify', {
+  configurable: true,
+  enumerable: false,
   value () {
     return emojify(this);
   },
-  enumerable: false,
-  configurable: true,
 });
 
 /**
  * Capitalize the first letter of a string
  */
 Object.defineProperty(String.prototype, '$capitalize', {
+  configurable: true,
+  enumerable: false,
   value () {
     return this.charAt(0).toUpperCase() + this.slice(1).toLowerCase();
   },
-  enumerable: false,
-  configurable: true,
 });
 
 /**
  * Camelcase a string
  */
 Object.defineProperty(String.prototype, '$camelize', {
+  configurable: true,
+  enumerable: false,
   value () {
     return camelize(this);
   },
-  enumerable: false,
-  configurable: true,
 });
 
 /**
@@ -353,10 +354,10 @@ Object.$private = function (body, key, value) {
     body[key] = value;
   } else {
     Object.defineProperty(body, key, {
-      value,
-      enumerable: false,
-      writable: true,
       configurable: true,
+      enumerable: false,
+      value,
+      writable: true,
     });
   }
 };

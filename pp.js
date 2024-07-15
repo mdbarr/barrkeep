@@ -1,5 +1,7 @@
 'use strict';
 
+const process = require('node:process');
+
 //////////
 
 const darkTheme = {
@@ -56,11 +58,13 @@ function reset () {
  * @param {boolean} printNonEnumerables : print non enumerable properties
  */
 
-console.json = function (json, printNonEnumerables) {
+console.json = function (json, printNonEnumerables = false) {
   return prettyPrint(json, {
     all: printNonEnumerables,
     json: true,
+    lineNumbers: false,
     print: true,
+    showDepth: false,
   });
 };
 
@@ -70,7 +74,7 @@ console.json = function (json, printNonEnumerables) {
  * @param {Object=} options : print options
  */
 
-console.pretty = console.pp = function (...anything) {
+console.pretty = function (...anything) {
   let output = '';
   for (const item of anything) {
     output += prettyPrint(item);
@@ -78,8 +82,9 @@ console.pretty = console.pp = function (...anything) {
   return output;
 };
 
-console.pp.configure = configure;
-console.pp.reset = reset;
+console.pretty.configure = configure;
+console.pretty.reset = reset;
+console.pp = console.pretty;
 
 /**
  * Pretty Print any value with colorization.
@@ -115,7 +120,7 @@ function prettyPrint (object, {
   }
 
   function addLineNumbers (output) {
-    const lines = output.split(/\n/);
+    const lines = output.split(/\n/u);
     const padding = lines.length.toString().length + 1;
     let number = 0;
     return lines.map((line) => {
@@ -126,10 +131,10 @@ function prettyPrint (object, {
     }).join('\n');
   }
 
-  function prettyPrinter (value, depth, seen, overrideColor) {
+  function prettyPrinter (value, level, previous, overrideColor) {
+    let depth = level;
     let line = indent(depth);
-
-    seen = new Set(seen);
+    const seen = new Set(previous);
 
     if (typeof value === 'object' && seen.has(value)) {
       line += style('[Circular Reference]', theme.circular);
@@ -150,13 +155,13 @@ function prettyPrint (object, {
         line += style(value, overrideColor || theme.Number);
       } else if (typeof value === 'boolean') {
         line += style(value, overrideColor || theme.Boolean);
-      } else if (value === undefined) {
+      } else if (typeof value === 'undefined') {
         line += style(value, theme.Undefined);
       } else if (value === null) {
         line += style(value, theme.Null);
       } else if (value instanceof Error) {
         const joiner = indent(depth);
-        const parts = value.stack.toString().split(/\n/);
+        const parts = value.stack.toString().split(/\n/u);
         line += style(parts.shift(), theme.Error);
         line += `\n${ joiner }`;
         line += parts.map((item) => style(item, theme.stack)).join(`\n${ joiner }`);
@@ -223,7 +228,7 @@ function prettyPrint (object, {
         if (details[0] === 0) {
           line += `${ style('Promise', theme.Promise) } { ${ style('pending', theme.PromisePending) } }`;
         } else if (details[0] === 1) {
-          const result = prettyPrinter(details[1], 0, seen).replace(/\n+$/, '');
+          const result = prettyPrinter(details[1], 0, seen).replace(/\n+$/u, '');
           line += `${ style('Promise', theme.Promise) } { ${ result } }`;
         } else if (details[0] === 2) {
           line += `${ style('Promise', theme.Promise) } { ${ style('rejected', theme.PromiseRejected) } }`;
@@ -257,13 +262,13 @@ function prettyPrint (object, {
       }
     }
 
-    return line.replace(/:\s+/g, ': ').
-      replace(/([{[])\s+([}\]])/g, '$1$2');
+    return line.replace(/:\s+/gu, ': ').
+      replace(/([{[])\s+([}\]])/gu, '$1$2');
   }
   let output = prettyPrinter(object, 0);
 
   if (showDepth) {
-    output = output.replace(/\n {2}(\s+)/g, (match, spaces) => `\n  ${ spaces.substring(2).split(/ {2}/).
+    output = output.replace(/\n {2}(\s+)/gu, (match, spaces) => `\n  ${ spaces.substring(2).split(/ {2}/u).
       map(() => style('\u2502 ', theme.decoration)).
       join('') }`);
   }
@@ -275,6 +280,7 @@ function prettyPrint (object, {
   if (print !== false) {
     stream.write(`${ output }\n`);
   }
+
   return output;
 }
 

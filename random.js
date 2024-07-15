@@ -3,8 +3,8 @@
 //////////
 // Mersenne Twister - pseudo random number generator
 
-function MersenneTwister (seed) {
-  seed ||= Date.now();
+function MersenneTwister (value) {
+  const seed = value || Date.now();
   this.N = 624;
   this.M = 397;
   this.MATRIX_A = 0x9908b0df;
@@ -25,13 +25,13 @@ function MersenneTwister (seed) {
 }
 
 MersenneTwister.prototype.random = function (min, max) {
-  if (min !== undefined && max !== undefined) {
+  if (typeof min !== 'undefined' && typeof max !== 'undefined') {
     return Math.floor(this.random() * (max - min + 1)) + min;
-  } else if (min !== undefined) {
+  } else if (typeof min !== 'undefined') {
     return this.random(0, min);
   }
 
-  const mag01 = new Array(0x0, this.MATRIX_A);
+  const mag01 = [ 0x0, this.MATRIX_A ];
   let y;
 
   if (this.mti >= this.N) {
@@ -84,21 +84,11 @@ function generateWhiteNoise (width, height, prng) {
   return noise;
 }
 
-function generatePerlinNoise (width, height, options) {
-  options ||= {};
-
-  let prng = null;
-  if (options.prng) {
-    prng = options.prng;
-  } else if (options.seed) {
-    prng = new MersenneTwister(options.seed);
-  }
-
-  const octaveCount = options.octaveCount || 4;
-  const persistence = options.persistence || 0.2;
-  const whiteNoise = generateWhiteNoise(width, height, prng);
-
-  let amplitude = options.amplitude || 0.1;
+function generatePerlinNoise (width, height, {
+  seed, prng, octaveCount = 4, persistence = 0.2, amplitude = 0.1,
+} = {}) {
+  const rnd = prng || new MersenneTwister(seed);
+  const whiteNoise = generateWhiteNoise(width, height, rnd);
 
   function generateSmoothNoise (octave) {
     const noise = new Array(width * height);
@@ -133,16 +123,18 @@ function generatePerlinNoise (width, height, options) {
   for (let i = 0; i < octaveCount; ++i) {
     smoothNoiseList[i] = generateSmoothNoise(i);
   }
-  const perlinNoise = new Array(width * height);
-  let totalAmplitude = 0;
 
+  const perlinNoise = new Array(width * height);
+
+  let totalAmplitude = 0;
+  let currentAmplitude = amplitude;
   for (let i = octaveCount - 1; i >= 0; --i) {
-    amplitude *= persistence;
-    totalAmplitude += amplitude;
+    currentAmplitude *= persistence;
+    totalAmplitude += currentAmplitude;
 
     for (let j = 0; j < perlinNoise.length; ++j) {
-      perlinNoise[j] = perlinNoise[j] || 0;
-      perlinNoise[j] += smoothNoiseList[i][j] * amplitude;
+      perlinNoise[j] ||= 0;
+      perlinNoise[j] += smoothNoiseList[i][j] * currentAmplitude;
     }
   }
 

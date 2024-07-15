@@ -1,15 +1,15 @@
 'use strict';
 
+const process = require('node:process');
+
 const ansiPattern = [
   '[\\u001B\\u009B][[\\]()#;?]*(?:(?:(?:[a-zA-Z\\d]*(?:;[-a-zA-Z\\d\\/#&.:=?%@~_]*)*)?\\u0007)',
   '(?:(?:\\d{1,4}(?:;\\d{0,4})*)?[\\dA-PR-TZcf-ntqry=><~]))',
 ].join('|');
 
-const ansiRegExp = new RegExp(ansiPattern, 'g');
+const ansiRegExp = new RegExp(ansiPattern, 'gu');
 
-const arrayPartRegExp = /([^]+)\[(\d+)\]$/;
-
-const noop = () => undefined;
+const arrayPartRegExp = /([^]+)\[(\d+)\]$/u;
 
 //////////
 
@@ -28,9 +28,9 @@ function callback (next, nextTick = false) {
 }
 
 function camelize (string) {
-  return string.replace(/^.*?:+/, '').
-    replace(/[-:]/g, ' ').
-    replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, (match, index) => {
+  return string.replace(/^.*?:+/u, '').
+    replace(/[-:]/gu, ' ').
+    replace(/(?:^\w|[A-Z]|\b\w|\s+)/gu, (match, index) => {
       if (Number(match) === 0) {
         return '';
       }
@@ -86,7 +86,9 @@ function deepClone (object, seen = new WeakMap()) {
     object.forEach(value => result.add(deepClone(value, seen)));
   } else {
     for (const key in object) {
-      result[key] = deepClone(object[key], seen);
+      if (Object.hasOwn(object, key)) {
+        result[key] = deepClone(object[key], seen);
+      }
     }
   }
 
@@ -94,8 +96,8 @@ function deepClone (object, seen = new WeakMap()) {
 }
 
 function deepEqual (actual, expected) {
-  if (actual === null || actual === undefined ||
-      expected === null || expected === undefined) {
+  if (actual === null || typeof actual === 'undefined' ||
+      expected === null || typeof expected === 'undefined') {
     return actual === expected;
   }
 
@@ -161,7 +163,8 @@ function deepEqual (actual, expected) {
   }
 
   const properties = Object.keys(actual);
-  return Object.keys(expected).every((i) => properties.indexOf(i) !== -1) && properties.every((i) => deepEqual(actual[i], expected[i]));
+  return Object.keys(expected).every((i) => properties.indexOf(i) !== -1) &&
+    properties.every((i) => deepEqual(actual[i], expected[i]));
 }
 
 function distinct (array, selector) {
@@ -180,15 +183,14 @@ function distinct (array, selector) {
   });
 }
 
-function dividePath (path, delimiter = /[.]/) {
+function dividePath (path, delimiter = /[.]/u) {
   const parts = [];
 
   for (const part of path.trim().split(delimiter)) {
     if (arrayPartRegExp.test(part)) {
       const match = part.match(arrayPartRegExp);
-      const subpart = match[1];
-      const index = Number(match[2]);
-      parts.push(subpart, index);
+      const [ , subpart, index ] = match;
+      parts.push(subpart, Number(index));
     } else {
       parts.push(part);
     }
@@ -197,9 +199,12 @@ function dividePath (path, delimiter = /[.]/) {
   return parts;
 }
 
-function duration (diff, {
+function duration (value, {
   units = 'd h m', separator = ', ', empty = 'less than a minute', brief = false,
 } = {}) {
+  let diff = value;
+  const unitList = Array.isArray(units) ? units : units.split(/[\s,]/u);
+
   const days = Math.floor(diff / 86400000);
   diff %= 86400000;
   const hours = Math.floor(diff / 3600000);
@@ -209,12 +214,9 @@ function duration (diff, {
   const seconds = Math.floor(diff / 1000);
   const millis = diff % 1000;
 
-  if (typeof units === 'string') {
-    units = units.split(/[\s,]/);
-  }
-
   const parts = [];
-  if (days > 0 && units.includes('d')) {
+
+  if (days > 0 && unitList.includes('d')) {
     if (brief) {
       parts.push(`${ days }d`);
     } else if (days === 1) {
@@ -223,8 +225,8 @@ function duration (diff, {
       parts.push(`${ days } days`);
     }
   }
-  if (hours > 0 && (units.includes('h') ||
-                    units.includes('h?') && parts.length === 0)) {
+  if (hours > 0 && (unitList.includes('h') ||
+                    unitList.includes('h?') && parts.length === 0)) {
     if (brief) {
       parts.push(`${ hours }h`);
     } else if (hours === 1) {
@@ -233,8 +235,8 @@ function duration (diff, {
       parts.push(`${ hours } hours`);
     }
   }
-  if (minutes > 0 && (units.includes('m') ||
-                      units.includes('m?') && parts.length === 0)) {
+  if (minutes > 0 && (unitList.includes('m') ||
+                      unitList.includes('m?') && parts.length === 0)) {
     if (brief) {
       parts.push(`${ minutes }m`);
     } else if (minutes === 1) {
@@ -244,8 +246,8 @@ function duration (diff, {
     }
   }
 
-  if (seconds > 0 && (units.includes('s') ||
-                      units.includes('s?') && parts.length === 0)) {
+  if (seconds > 0 && (unitList.includes('s') ||
+                      unitList.includes('s?') && parts.length === 0)) {
     if (brief) {
       parts.push(`${ seconds }s`);
     } else if (seconds === 1) {
@@ -255,8 +257,8 @@ function duration (diff, {
     }
   }
 
-  if (millis > 0 && (units.includes('ms') ||
-                     units.includes('ms?') && parts.length === 0)) {
+  if (millis > 0 && (unitList.includes('ms') ||
+                     unitList.includes('ms?') && parts.length === 0)) {
     if (brief) {
       parts.push(`${ millis }ms`);
     } else if (millis === 1) {
@@ -274,36 +276,38 @@ function duration (diff, {
 
 function expand (container, object = {}) {
   for (const key in container) {
-    const parts = key.split(/\./);
-    const property = parts.pop();
+    if (Object.hasOwn(container, key)) {
+      const parts = key.split(/\./u);
+      const property = parts.pop();
 
-    let chunk = object;
-    for (const part of parts) {
-      if (!chunk[part]) {
-        chunk[part] = {};
+      let chunk = object;
+      for (const part of parts) {
+        if (!chunk[part]) {
+          chunk[part] = {};
+        }
+
+        chunk = chunk[part];
       }
 
-      chunk = chunk[part];
-    }
-
-    if (property.endsWith('$type')) {
-      const name = property.replace(/\$type$/, '');
-      if (container[key] === 'Object') {
-        chunk[name] = {};
-      } else if (container[key] === 'Array') {
-        chunk[name] = [];
-      } else {
+      if (property.endsWith('$type')) {
+        const name = property.replace(/\$type$/u, '');
+        if (container[key] === 'Object') {
+          chunk[name] = {};
+        } else if (container[key] === 'Array') {
+          chunk[name] = [];
+        } else {
         // Unknown type
+        }
+      } else {
+        chunk[property] = container[key];
       }
-    } else {
-      chunk[property] = container[key];
     }
   }
   return object;
 }
 
 function filter (object, check, include = true, path) {
-  if (typeof object !== 'object') {
+  if (object === null || typeof object !== 'object') {
     return object;
   }
 
@@ -337,23 +341,23 @@ function filter (object, check, include = true, path) {
     return !include;
   }
 
-  include = Boolean(include);
-
   const clone = Array.isArray(object) ? [ ] : { };
   for (const prop in object) {
-    const fullpath = path ? `${ path }.${ prop }` : prop;
+    if (Object.hasOwn(object, prop)) {
+      const fullpath = path ? `${ path }.${ prop }` : prop;
 
-    let value = object[prop];
+      let value = object[prop];
 
-    if (test(fullpath)) {
-      if (typeof value === 'object') {
-        value = filter(value, check, include, fullpath);
-        if (Array.isArray(value) && value.length !== 0 ||
+      if (test(fullpath)) {
+        if (typeof value === 'object') {
+          value = filter(value, check, Boolean(include), fullpath);
+          if (Array.isArray(value) && value.length !== 0 ||
             Object.keys(value).length !== 0) {
+            clone[prop] = value;
+          }
+        } else {
           clone[prop] = value;
         }
-      } else {
-        clone[prop] = value;
       }
     }
   }
@@ -364,44 +368,47 @@ function filter (object, check, include = true, path) {
 function flatten (object, {
   container = {}, delimiter = '.', prefix = '', types = true,
 } = {}) {
-  if (typeof object !== 'object') {
+  if (object === null || typeof object !== 'object') {
     container[prefix] = object;
     return container;
   }
 
+  let pathPrefix = prefix;
   if (prefix.length && prefix !== delimiter) {
-    prefix += delimiter;
+    pathPrefix += delimiter;
   }
 
   for (const key in object) {
-    const pathKey = prefix + key;
+    if (Object.hasOwn(object, key)) {
+      const pathKey = pathPrefix + key;
 
-    if (Array.isArray(object[key])) {
-      if (types) {
-        container[`${ pathKey }$type`] = 'Array';
-      }
+      if (Array.isArray(object[key])) {
+        if (types) {
+          container[`${ pathKey }$type`] = 'Array';
+        }
 
-      const array = object[key];
-      for (let i = 0; i < array.length; i++) {
-        flatten(array[i], {
+        const array = object[key];
+        for (let i = 0; i < array.length; i++) {
+          flatten(array[i], {
+            container,
+            delimiter,
+            prefix: `${ pathKey }${ delimiter }${ i }`,
+            types,
+          });
+        }
+      } else if (typeof object[key] === 'object' && object[key] !== null) {
+        if (types) {
+          container[`${ pathKey }$type`] = 'Object';
+        }
+        flatten(object[key], {
           container,
           delimiter,
-          prefix: `${ pathKey }${ delimiter }${ i }`,
+          prefix: pathKey,
           types,
         });
+      } else {
+        container[ pathKey ] = object[key];
       }
-    } else if (typeof object[key] === 'object' && object[key] !== null) {
-      if (types) {
-        container[`${ pathKey }$type`] = 'Object';
-      }
-      flatten(object[key], {
-        container,
-        delimiter,
-        prefix: pathKey,
-        types,
-      });
-    } else {
-      container[ pathKey ] = object[key];
     }
   }
   return container;
@@ -417,8 +424,8 @@ function formatBytes (bytes, decimals = 2) {
   return `${ parseFloat((bytes / kilobyte ** index).toFixed(decimals)) } ${ sizes[index] }`;
 }
 
-function formatNumber (value, { numeral = false } = {}) {
-  value = Number(value);
+function formatNumber (number, { numeral = false } = {}) {
+  let value = Number(number);
   if (Number.isNaN(value) || Number === Infinity) {
     return value.toString();
   }
@@ -437,18 +444,18 @@ function formatNumber (value, { numeral = false } = {}) {
   }
 
   return value.toString().
-    split(/(?=(?:\d{3})+(?:\.|$))/g).
+    split(/(?=(?:\d{3})+(?:\.|$))/gu).
     join( ',' );
 }
 
 function functionType (func) {
   const flags = {
-    function: func instanceof Function,
-    name: undefined,
-    native: false,
-    bound: false,
-    plain: false,
     arrow: false,
+    bound: false,
+    function: func instanceof Function,
+    name: null,
+    native: false,
+    plain: false,
   };
 
   if (flags.function) {
@@ -463,12 +470,12 @@ function functionType (func) {
   return flags;
 }
 
-const reRegExpChar = /[\\^$.*+?()[\]{}|]/g;
+const reRegExpChar = /[\\^$.*+?()[\]{}|]/gu;
 const isNativeRegExp = RegExp(`^${
   Function.prototype.toString.call(Object.prototype.hasOwnProperty).
     replace(reRegExpChar, '\\$&').
-    replace(/hasOwnProperty|(function).*?(?=\\\()| for .+?(?=\\\])/g, '$1.*?')
-}$`);
+    replace(/hasOwnProperty|(function).*?(?=\\\()| for .+?(?=\\\])/gu, '$1.*?')
+}$`, 'u');
 
 function isNative (value) {
   return isObject(value) && isNativeRegExp.test(value);
@@ -498,42 +505,44 @@ function isPrimitive (value) {
   return typeof value !== 'function';
 }
 
-function naturalCompare (a, b) {
-  let i;
+function naturalCompare (inputA, inputB) {
+  const { alphabet } = String;
+  let stringA = inputA;
+  let stringB = inputB;
   let codeA;
   let codeB = 1;
   let posA = 0;
   let posB = 0;
-  const { alphabet } = String;
+  let i;
 
-  function getCode (str, pos, code) {
-    if (code) {
+  function getCode (str, pos, value) {
+    if (value) {
       for (i = pos; getCode(str, i) < 76 && getCode(str, i) > 65;) { ++i; }
       return Number(str.slice(pos - 1, i));
     }
 
-    code = alphabet && alphabet.indexOf(str.charAt(pos));
+    let code = alphabet && alphabet.indexOf(str.charAt(pos));
     code = code > -1 ? code + 76 : (code = str.charCodeAt(pos) || 0, code < 45 || code > 127) ? code :
-      code < 46 ? 65 : // -
+      code < 46 ? 65 :
         code < 48 ? code - 1 :
-          code < 58 ? code + 18 : // 0-9
+          code < 58 ? code + 18 :
             code < 65 ? code - 11 :
-              code < 91 ? code + 11 : // A-Z
+              code < 91 ? code + 11 :
                 code < 97 ? code - 37 :
-                  code < 123 ? code + 5 : // A-z
+                  code < 123 ? code + 5 :
                     code - 63;
 
     return code;
   }
 
-  if ((a = String(a)) !== (b = String(b))) {
+  if ((stringA = String(stringA)) !== (stringB = String(stringB))) {
     while (codeB) {
-      codeA = getCode(a, posA++);
-      codeB = getCode(b, posB++);
+      codeA = getCode(stringA, posA++);
+      codeB = getCode(stringB, posB++);
 
       if (codeA < 76 && codeB < 76 && codeA > 66 && codeB > 66) {
-        codeA = getCode(a, posA, posA);
-        codeB = getCode(b, posB, posA = i);
+        codeA = getCode(stringA, posA, posA);
+        codeB = getCode(stringB, posB, posA = i);
         posB = i;
       }
 
@@ -544,12 +553,13 @@ function naturalCompare (a, b) {
   return 0;
 }
 
-function merge (objectA, objectB, createNew = false, seen) {
+function merge (inputA, objectB, createNew = false, previous) {
+  let objectA = inputA;
   if (createNew) {
     objectA = deepClone(objectA);
   }
 
-  seen = new Set(seen);
+  const seen = new Set(previous);
 
   const keys = Object.getOwnPropertyNames(objectB);
   for (const key of keys) {
@@ -586,8 +596,8 @@ function milliseconds (value) {
     return value;
   } else if (typeof value === 'string') {
     let millis = 0;
-    value.replace(/(\d+\.?\d*)\s*([mshdy]+)/g, (match, time, unit) => {
-      time = Number(time) || 0;
+    value.replace(/(\d+\.?\d*)\s*([mshdy]+)/gu, (match, part, unit) => {
+      let time = Number(part) || 0;
       if (unit === 'ms') {
         time *= 1;
       } else if (unit === 's') {
@@ -610,6 +620,9 @@ function milliseconds (value) {
   return 0;
 }
 
+// eslint-disable-next-line no-empty-function
+function noop () { }
+
 function once (func) {
   if (typeof func !== 'function') {
     return noop;
@@ -627,31 +640,30 @@ function once (func) {
 }
 
 function ordinal (value) {
-  value = Number(value);
+  const number = Number(value);
 
-  const tens = value % 10;
-  const hundreds = value % 100;
+  const tens = number % 10;
+  const hundreds = number % 100;
 
   if (tens === 1 && hundreds !== 11) {
-    return `${ value }st`;
+    return `${ number }st`;
   } else if (tens === 2 && hundreds !== 12) {
-    return `${ value }nd`;
+    return `${ number }nd`;
   } else if (tens === 3 && hundreds !== 13) {
-    return `${ value }rd`;
+    return `${ number }rd`;
   }
-  return `${ value }th`;
+  return `${ number }th`;
 }
 
-async function poll (fn, options = {}, done) {
+async function poll (func, options = {}, done) {
+  let fn = func;
   const interval = typeof options === 'number' ? options : options.interval || 1000;
   const retries = typeof options.retries === 'number' ? options.retries : Infinity;
   const validate = typeof options.validate === 'function' ? options.validate : (x) => Boolean(x);
 
-  if (fn.length === 1) { // Function takes a callback
-    const originalFn = fn;
-
+  if (func.length === 1) {
     fn = new Promise((resolve, reject) => {
-      originalFn((error, result) => {
+      func((error, result) => {
         if (error) {
           return reject(error);
         }
@@ -689,27 +701,30 @@ function precisionRound (number, precision = 2) {
 function project (object, projection) {
   let sum = 0;
   for (const key in projection) {
-    sum += projection[key] ? 1 : 0;
+    if (Object.hasOwn(projection, key)) {
+      sum += projection[key] ? 1 : 0;
+    }
   }
 
-  if (sum === 0) { // Selective removal
+  if (sum === 0) {
     const result = deepClone(object);
     for (const key in projection) {
-      remove(result, key, true);
+      if (Object.hasOwn(projection, key)) {
+        remove(result, key, true);
+      }
     }
     return result;
   }
-  // Selective inclusion
-  const result = {};
 
+  const result = {};
   for (const key in projection) {
-    if (projection[key]) {
-      if (typeof projection[key] === 'string') { // Key change
+    if (Object.hasOwn(projection, key)) {
+      if (typeof projection[key] === 'string') {
         set(result, projection[key], resolve(object, key));
-      } else if (typeof projection[key] === 'function') { // Value transform
+      } else if (typeof projection[key] === 'function') {
         set(result, key, projection[key](resolve(object, key)));
       } else {
-        set(result, key, resolve(object, key)); // Simple projection
+        set(result, key, resolve(object, key));
       }
     }
   }
@@ -720,7 +735,9 @@ function random (min = 0, max = 10) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-function range (start, end, increment = 1) {
+function range (start, end, inc = 1) {
+  let increment = inc;
+
   if (end < start) {
     increment *= -1;
   }
@@ -742,26 +759,27 @@ function remove (object, propertyPath, removeEmptyContainer = false) {
     return true;
   }
 
-  const parts = propertyPath.trim().split(/\./);
+  const parts = propertyPath.trim().split(/\./u);
   const key = parts.pop();
 
   let parent;
   let parentKey;
+  let current = object;
 
   for (const part of parts) {
-    parent = object;
+    parent = current;
     parentKey = part;
 
-    object = object[part];
+    current = current[part];
 
-    if (!object) {
+    if (!current) {
       return false;
     }
   }
 
-  delete object[key];
+  delete current[key];
 
-  if (removeEmptyContainer && size(object) === 0) {
+  if (removeEmptyContainer && size(current) === 0) {
     delete parent[parentKey];
   }
 
@@ -770,18 +788,19 @@ function remove (object, propertyPath, removeEmptyContainer = false) {
 
 function resolve (object, path = '', delimiter) {
   if (!object || !path) {
-    return undefined;
+    return null;
   }
 
   const parts = dividePath(path, delimiter);
 
+  let current = object;
   for (const part of parts) {
-    object = object[part];
-    if (!object) {
-      return object;
+    current = current[part];
+    if (!current) {
+      return current;
     }
   }
-  return object;
+  return current;
 }
 
 function resolves (object, path = '', delimiter) {
@@ -791,9 +810,10 @@ function resolves (object, path = '', delimiter) {
 
   const parts = dividePath(path, delimiter);
 
+  let current = object;
   for (const part of parts) {
-    object = object[part];
-    if (!object) {
+    current = current[part];
+    if (!current) {
       return false;
     }
   }
@@ -808,39 +828,42 @@ function set (object, path, value, delimiter) {
   const parts = dividePath(path, delimiter);
   const key = parts.pop();
 
+  let current = object;
   for (const part of parts) {
-    if (object[part] === undefined) {
+    if (typeof current[part] === 'undefined') {
       if (typeof part === 'number') {
-        object[part] = [];
+        current[part] = [];
       } else {
-        object[part] = {};
+        current[part] = {};
       }
     }
 
-    object = object[part];
+    current = current[part];
 
-    if (!object) {
+    if (!current) {
       return false;
     }
   }
 
-  object[key] = value;
+  current[key] = value;
 
   return true;
 }
 
 function setTypes (object) {
   for (const key in object) {
-    const value = object[key];
+    if (Object.hasOwn(object, key)) {
+      const value = object[key];
 
-    if (parseInt(value, 10).toString() === value) {
-      object[key] = parseInt(value, 10);
-    } else if (parseFloat(value, 10).toString() === value) {
-      object[key] = parseFloat(value, 10);
-    } else if (value === 'true') {
-      object[key] = true;
-    } else if (value === 'false') {
-      object[key] = false;
+      if (parseInt(value, 10).toString() === value) {
+        object[key] = parseInt(value, 10);
+      } else if (parseFloat(value, 10).toString() === value) {
+        object[key] = parseFloat(value, 10);
+      } else if (value === 'true') {
+        object[key] = true;
+      } else if (value === 'false') {
+        object[key] = false;
+      }
     }
   }
   return object;
@@ -878,11 +901,11 @@ function toBoolean (value) {
   } else if (typeof value === 'object' && value !== null) {
     return Object.keys(value).length > 0;
   } else if (typeof value === 'string') {
-    value = value.toLowerCase();
+    const string = value.toLowerCase();
 
-    if (value === 'true' || value === 'yes' || value === '1') {
+    if (string === 'true' || string === 'yes' || string === '1') {
       return true;
-    } else if (value === 'false' || value === 'no' || value === '0') {
+    } else if (string === 'false' || string === 'no' || string === '0') {
       return false;
     }
   }
@@ -890,15 +913,15 @@ function toBoolean (value) {
   return Boolean(value);
 }
 
-const regExpPattern = /^\/(.*?)\/([gim]*)$/;
-const escapePattern = /[|\\{}()[\]^$+*?.]/g;
+const regExpPattern = /^\/(.*?)\/([gim]*)$/u;
+const escapePattern = /[|\\{}()[\]^$+*?.]/gu;
 
 function toRegExp (string) {
   const parts = string.match(regExpPattern);
   if (parts) {
     return new RegExp(parts[1], parts[2]);
   }
-  return new RegExp(`^${ string.replace(escapePattern, '\\$&') }$`);
+  return new RegExp(`^${ string.replace(escapePattern, '\\$&') }$`, 'u');
 }
 
 function unique (array) {
@@ -912,8 +935,8 @@ module.exports = {
   debounce,
   deepClone,
   deepEqual,
-  dividePath,
   distinct,
+  dividePath,
   duration,
   expand,
   filter,
@@ -926,8 +949,8 @@ module.exports = {
   isObject,
   isPrimitive,
   merge,
-  naturalCompare,
   milliseconds,
+  naturalCompare,
   noop,
   nop: noop,
   once,

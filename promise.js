@@ -1,30 +1,29 @@
 'use strict';
 
-function parseRetryOptions (options) {
-  options ||= { };
-
-  if (options.parsed) {
-    return options;
+function parseRetryOptions (input = {}) {
+  if (input.parsed) {
+    return input;
   }
 
-  options = Object.clone(options);
-
+  let options = input;
   if (typeof options === 'number') {
     if (options < 1000) {
       options = { count: options };
     } else {
       options = { timeout: options };
     }
+  } else {
+    options = { ... input };
   }
-  // Don't use count by default
+
   if (typeof options.count !== 'number') {
     options.count = -1;
   }
-  // 100ms default delay
+
   if (typeof options.delay !== 'number') {
     options.delay = 100;
   }
-  // 30s default timeout
+
   if (typeof options.timeout !== 'number') {
     if (options.count > 0) {
       options.timeout = 0;
@@ -37,30 +36,23 @@ function parseRetryOptions (options) {
   return options;
 }
 
-// Promise extension for a delay
-Promise.delay = Promise.prototype.delay = function (timeout) {
+function delay (timeout = 1000) {
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve(timeout);
     }, timeout);
   });
-};
+}
 
-Promise.sleep = Promise.prototype.sleep = Promise.prototype.delay;
-
-// Validator promises
 const validation = {
-  ok (value) {
-    return Promise.resolve(value ? value : true);
-  },
   fail (reason) {
     return Promise.reject(reason ? reason : 'validation failed');
   },
+  ok (value) {
+    return Promise.resolve(value ? value : true);
+  },
 };
 
-/**
- * Promise retry mechanisms
- */
 function timeoutPromise (promise, options, value, context) {
   return new Promise((resolve, reject) => {
     try {
@@ -81,12 +73,9 @@ function timeoutPromise (promise, options, value, context) {
   });
 }
 
-/**
- * Retry a promise
- */
-const retry = function (promise, options, value, context) {
-  options = parseRetryOptions(options);
-  options.start = options.start || Date.now();
+const retry = function (promise, input, value, context) {
+  const options = parseRetryOptions(input);
+  options.start ||= Date.now();
   if (typeof options.counter !== 'number') {
     options.counter = -1;
   }
@@ -121,12 +110,8 @@ const retry = function (promise, options, value, context) {
     });
 };
 
-// Promise extension for retry as a then-able
-Promise.prototype.thenRetry = function (promise, options) {
-  return this.then((value) => retry(promise, options, value));
-};
-
 module.exports = {
+  delay,
   retry,
   validation,
 };

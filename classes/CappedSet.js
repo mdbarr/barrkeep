@@ -7,10 +7,7 @@ function CappedSet (capacity = 100) {
   let start = 0;
   let size = 0;
 
-  Object.defineProperty(this, 'size', {
-    get () { return set.size; },
-    set () {},
-  });
+  Object.defineProperty(this, 'size', { get () { return set.size; } });
 
   this.add = (id) => {
     if (start > 0) {

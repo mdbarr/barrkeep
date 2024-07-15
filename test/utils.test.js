@@ -88,7 +88,7 @@ describe('Utilities Test', () => {
   });
 
   it('should test $filter', () => {
-    expect(utils.filter(a, /[abc]/, false)).toEqual({
+    expect(utils.filter(a, /[abc]/u, false)).toEqual({
       d: { e: 20 },
       f: [ 5, 10, 15 ],
     });

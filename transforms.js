@@ -15,22 +15,20 @@ module.exports = {
     if (!value) {
       return '';
     }
-    value = Number(value);
-    return formatBytes(value, options);
+    return formatBytes(Number(value), options);
   },
   camelcase (value) {
     if (!value) {
       return '';
     }
-    value = value.toString();
-    return camelize(value);
+    return camelize(value.toString());
   },
   capitalize (value) {
     if (!value) {
       return '';
     }
-    value = value.toString();
-    return value.charAt(0).toUpperCase() + value.slice(1);
+    const string = value.toString();
+    return string.charAt(0).toUpperCase() + string.slice(1);
   },
   currency (value, symbol = '$') {
     if (!value) {
@@ -65,7 +63,7 @@ module.exports = {
     }
     return value.toString().trim().
       toLowerCase().
-      replace(/\s+/g, '-');
+      replace(/\s+/gu, '-');
   },
   lowercase (value) {
     if (!value) {
@@ -98,7 +96,7 @@ module.exports = {
     if (!value) {
       return '';
     }
-    return value.replace(/\w\S*/g, (word) => word.charAt(0).toUpperCase() + word.substring(1).toLowerCase());
+    return value.replace(/\w\S*/gu, (word) => word.charAt(0).toUpperCase() + word.substring(1).toLowerCase());
   },
   pluralize (word, count, form = '$1s') {
     if (count === 1) {
@@ -129,12 +127,12 @@ module.exports = {
     if (!value) {
       return '';
     }
-    return value.match(/[A-Z]{2,}(?=[A-Z][a-z]+[0-9]*|\b)|[A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+/g).
+    return value.match(/[A-Z]{2,}(?=[A-Z][a-z]+[0-9]*|\b)|[A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+/gu).
       map(word => word.toLowerCase()).
       join('_');
   },
   titlecase (value = '') {
-    return value.split(/[-_.\s]/).
+    return value.split(/[-_.\s]/u).
       map((word) => word.charAt(0).toUpperCase() + word.substring(1).toLowerCase()).
       join(' ').
       trim();

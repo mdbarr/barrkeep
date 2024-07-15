@@ -3,6 +3,7 @@
 const assert = require('node:assert').strict;
 const { resolve, resolves } = require('./utils');
 
+// eslint-disable-next-line no-empty-function
 const AsyncFunction = Object.getPrototypeOf(async () => {}).constructor;
 
 ///////////
@@ -36,7 +37,7 @@ function Expectation (value) {
 
   Object.defineProperty(this, 'which', {
     get () {
-      this.value = this.next !== undefined ? this.next : this.value;
+      this.value = typeof this.next === 'undefined' ? this.value : this.next;
       this.negated = false;
       return this;
     },
@@ -100,7 +101,7 @@ Expectation.prototype.null = function () {
 };
 
 Expectation.prototype.undefined = function () {
-  this.strictEqual(this.value, undefined);
+  this.strictEqual(typeof this.value, 'undefined');
   return this;
 };
 
@@ -296,11 +297,11 @@ Expectation.prototype.endsWith = Expectation.prototype.endWith;
 //////////
 
 Expectation.prototype.property = function (...args) {
-  const property = args[0];
+  const [ property ] = args;
 
   this.strictEqual(resolves(this.value, property), true);
   if (args.length === 2) {
-    const value = args[1];
+    const [ , value ] = args;
     this.strictEqual(resolve(this.value, property), value);
   }
 
